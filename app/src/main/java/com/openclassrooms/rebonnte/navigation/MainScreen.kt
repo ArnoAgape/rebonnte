@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.navigation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +22,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +43,7 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp() {
+fun MainScreen() {
     val navController = rememberNavController()
     val medicineViewModel: MedicineViewModel = hiltViewModel()
     val aisleViewModel: AisleViewModel = hiltViewModel()
@@ -59,6 +59,11 @@ fun MyApp() {
                 Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
                     TopAppBar(
                         title = { if (route == "aisle") Text(text = "Aisle") else Text(text = "Medicines") },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            titleContentColor = MaterialTheme.colorScheme.onSurface,
+                            actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                        ),
                         actions = {
                             var expanded by remember { mutableStateOf(false) }
                             if (currentRoute(navController) == "medicine") {
@@ -66,7 +71,6 @@ fun MyApp() {
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .padding(end = 8.dp)
-                                        .background(MaterialTheme.colorScheme.surface)
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
                                     Box {
@@ -120,7 +124,10 @@ fun MyApp() {
 
             },
             bottomBar = {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ) {
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
                         label = { Text("Aisle") },

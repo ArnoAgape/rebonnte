@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="rebonnte_primary">#C44F10</color>
-    <color name="rebonnte_primary_dark">#9E3D1E</color>
+    <color name="rebonnte_primary">#943A0A</color>
+    <color name="rebonnte_primary_dark">#E18160</color>
     <color name="rebonnte_on_primary">#FFFFFF</color>
 
 </resources>
