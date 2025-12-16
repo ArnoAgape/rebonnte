@@ -35,7 +35,7 @@ fun AppNavGraph(
     val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
 
     LaunchedEffect(isSignedIn) {
-        if (isSignedIn) {
+        if (isSignedIn == true) {
             navController.navigate(AisleRoute) {
                 popUpTo(LoginRoute) { inclusive = true }
             }

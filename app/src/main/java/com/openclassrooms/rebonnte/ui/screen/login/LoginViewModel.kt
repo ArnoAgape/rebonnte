@@ -7,6 +7,7 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,8 +31,8 @@ class LoginViewModel @Inject constructor(
         userRepository.isUserSignedIn()
             .stateIn(
                 viewModelScope,
-                SharingStarted.Eagerly,
-                false
+                SharingStarted.WhileSubscribed(5000),
+                null
             )
 
     /**

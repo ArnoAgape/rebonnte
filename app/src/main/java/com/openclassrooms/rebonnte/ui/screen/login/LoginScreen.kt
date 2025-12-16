@@ -15,13 +15,13 @@ import androidx.compose.ui.Modifier
 @Composable
 fun LoginScreen(
     onLaunchAuth: () -> Unit,
-    isSignedIn: Boolean
+    isSignedIn: Boolean?
 ) {
     // Prevent multiple reloading
     var hasLaunched by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(isSignedIn) {
-        if (!isSignedIn && !hasLaunched) {
+        if (isSignedIn == false && !hasLaunched) {
             hasLaunched = true
             onLaunchAuth()
         }
