@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.domain.model.Aisle
@@ -30,7 +29,6 @@ fun AisleScreen(
     onAisleClick: (Aisle) -> Unit
 ) {
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()

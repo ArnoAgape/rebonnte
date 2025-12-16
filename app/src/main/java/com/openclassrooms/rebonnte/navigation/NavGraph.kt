@@ -49,7 +49,9 @@ fun AppNavGraph(
     ) {
 
         composable<LoginRoute> {
-            LoginScreen(onLaunchAuth = emailSignUpLauncher)
+            LoginScreen(
+                onLaunchAuth = emailSignUpLauncher,
+                isSignedIn = isSignedIn)
         }
 
         composable<AisleRoute> {
