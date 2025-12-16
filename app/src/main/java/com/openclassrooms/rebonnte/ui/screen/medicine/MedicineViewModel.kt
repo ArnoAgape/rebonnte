@@ -18,7 +18,6 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
     private val _medicines = MutableStateFlow<List<Medicine>>(emptyList())
     val medicines: StateFlow<List<Medicine>> = _medicines
 
-
     init {
         _medicines.value = ArrayList() // Initialiser avec une liste vide
     }
@@ -102,4 +101,3 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
     }
 
 }
-
