@@ -1,6 +1,3 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -62,8 +59,13 @@ android {
 
 dependencies {
 
+    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.ui.auth)
+    implementation (libs.firebase.firestore)
+    implementation(libs.firebase.ui.storage)
+    implementation(libs.datastore.preferences)
 
     // Allows API < 26
     coreLibraryDesugaring(libs.desugar.jdk.libs)

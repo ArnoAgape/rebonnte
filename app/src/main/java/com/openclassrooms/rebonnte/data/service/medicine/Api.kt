@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.data.service
+package com.openclassrooms.rebonnte.data.service.medicine
 
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow

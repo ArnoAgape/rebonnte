@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.data.service
+package com.openclassrooms.rebonnte.data.service.medicine
 
 import android.content.Context
 import android.net.Uri

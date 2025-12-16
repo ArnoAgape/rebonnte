@@ -1,7 +1,7 @@
 package com.openclassrooms.rebonnte.di
 
-import com.openclassrooms.rebonnte.data.service.Api
-import com.openclassrooms.rebonnte.data.service.FirebaseApi
+import com.openclassrooms.rebonnte.data.service.medicine.Api
+import com.openclassrooms.rebonnte.data.service.medicine.FirebaseApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
