@@ -1,6 +1,6 @@
-package com.openclassrooms.hexagonal.games.data.service.user
+package com.openclassrooms.rebonnte.data.service.user
 
-import com.openclassrooms.hexagonal.games.domain.model.User
+import com.openclassrooms.rebonnte.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
 /**

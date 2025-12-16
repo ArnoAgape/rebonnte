@@ -2,8 +2,8 @@ package com.openclassrooms.rebonnte.ui.screen.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.hexagonal.games.data.repository.UserRepository
-import com.openclassrooms.hexagonal.games.domain.model.User
+import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

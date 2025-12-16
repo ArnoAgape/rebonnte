@@ -1,7 +1,7 @@
 package com.openclassrooms.rebonnte.data.repository
 
-import com.openclassrooms.hexagonal.games.data.service.user.UserApi
-import com.openclassrooms.hexagonal.games.domain.model.User
+import com.openclassrooms.rebonnte.data.service.user.UserApi
+import com.openclassrooms.rebonnte.domain.model.User
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow

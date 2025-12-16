@@ -5,11 +5,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.arnoagape.polyscribe.R
-import com.arnoagape.polyscribe.ui.common.Event
-import com.arnoagape.polyscribe.ui.screen.login.LoginViewModel
+import com.openclassrooms.rebonnte.ui.common.Event
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
+import com.openclassrooms.rebonnte.R
 
 /**
  * Creates and remembers an email sign-up launcher using FirebaseUI Auth.
@@ -40,12 +39,12 @@ fun rememberEmailSignUpLauncher(
         }
     }
 
-    val signUpIntent = remember {
+    val providers = remember { listOf(AuthUI.IdpConfig.EmailBuilder().build()) }
+    val signInIntent = remember(providers) {
         AuthUI.getInstance()
             .createSignInIntentBuilder()
-            .setLogo(R.drawable.ic_polyscribe_logo)
-            .setTheme(R.style.Theme_Polyscribe)
-            .setAvailableProviders(listOf(AuthUI.IdpConfig.EmailBuilder().build()))
+            .setTheme(R.style.Theme_Rebonnte)
+            .setAvailableProviders(providers)
             .build()
     }
 

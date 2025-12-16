@@ -1,10 +1,10 @@
-package com.openclassrooms.hexagonal.games.data.service.user
+package com.openclassrooms.rebonnte.data.service.user
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.openclassrooms.hexagonal.games.domain.model.User
+import com.openclassrooms.rebonnte.domain.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -33,7 +33,7 @@ class FirebaseUserApi : UserApi {
         id = uid,
         displayName = displayName,
         email = email,
-        photoUrl = photoUrl?.toString()
+        phoneNumber = phoneNumber
     )
 
     /**
