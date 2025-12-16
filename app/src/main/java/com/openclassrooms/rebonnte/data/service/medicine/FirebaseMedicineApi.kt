@@ -8,12 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 /**
- * Firebase implementation of [Api].
+ * Firebase implementation of [MedicineApi].
  * Handles file uploads to Firebase Storage and metadata persistence in Firestore.
  */
-class FirebaseApi @Inject constructor(
+class FirebaseMedicineApi @Inject constructor(
     @param:ApplicationContext private val context: Context
-) : Api {
+) : MedicineApi {
+
     override fun getFilesOrderByUser(userId: String): Flow<List<File>> {
         TODO("Not yet implemented")
     }

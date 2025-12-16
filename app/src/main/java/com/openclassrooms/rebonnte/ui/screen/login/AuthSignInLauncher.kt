@@ -19,7 +19,7 @@ import com.openclassrooms.rebonnte.R
  * @return A lambda that launches the email sign-up flow.
  */
 @Composable
-fun rememberEmailSignUpLauncher(
+fun authSignInLauncher(
     loginViewModel: LoginViewModel
 ): () -> Unit {
 
@@ -49,6 +49,6 @@ fun rememberEmailSignUpLauncher(
     }
 
     return {
-        launcher.launch(signUpIntent)
+        launcher.launch(signInIntent)
     }
 }

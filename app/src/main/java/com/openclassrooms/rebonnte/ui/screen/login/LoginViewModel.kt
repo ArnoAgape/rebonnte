@@ -3,50 +3,39 @@ package com.openclassrooms.rebonnte.ui.screen.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.data.repository.UserRepository
-import com.openclassrooms.rebonnte.domain.model.User
+import com.openclassrooms.rebonnte.ui.common.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
- * ViewModel responsible for managing and exposing user profile data.
+ * ViewModel responsible for authentication logic.
  *
- * It observes the currently authenticated user through [UserRepository],
- * allows syncing user data with Firestore, and provides sign-out and
- * account deletion operations.
+ * Exposes the sign-in state, synchronizes the user with Firestore,
+ * and emits one-time events for UI actions such as messages.
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    /** Backing state for the current user profile. */
-    private val _user = MutableStateFlow<User?>(null)
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val eventsFlow = _events.receiveAsFlow()
 
-    /** Exposed immutable flow representing the currently signed-in user. */
-    val user: StateFlow<User?> = _user.asStateFlow()
-
-    /**
-     * Observes the current user from [UserRepository] and updates the [_user] state.
-     * Called automatically when the ViewModel is initialized.
-     */
-    init {
-        viewModelScope.launch {
-            userRepository.observeCurrentUser()
-                .collect { user ->
-                    _user.value = user
-                }
-        }
-    }
+    val isSignedIn =
+        userRepository.isUserSignedIn()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                false
+            )
 
     /**
-     * Ensures the authenticated user is present in Firestore.
-     * This can be used to synchronize user data after login or profile updates.
+     * Ensures that the authenticated user has a document in Firestore.
      */
     fun syncUserWithFirestore() {
         viewModelScope.launch {
@@ -55,40 +44,10 @@ class LoginViewModel @Inject constructor(
     }
 
     /**
-     * Observes whether a user is currently signed in.
-     * Exposed as a [StateFlow] for reactive UI updates.
+     * Emits a one-time UI event.
      */
-    val isSignedIn =
-        userRepository.isUserSignedIn()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Eagerly,
-                initialValue = false
-            )
-
-    /**
-     * Signs the user out using [UserRepository.signOut].
-     * If successful, the local [_user] state is reset to null.
-     */
-    fun signOut() {
-        viewModelScope.launch {
-            val result = userRepository.signOut()
-            if (result.isSuccess) {
-                _user.value = null
-            }
-        }
+    fun sendEvent(event: Event) {
+        _events.trySend(event)
     }
 
-    /**
-     * Deletes the currently authenticated user's account and associated Firestore data.
-     * If successful, clears the local user state.
-     */
-    fun deleteAccount() {
-        viewModelScope.launch {
-            val result = userRepository.deleteUser()
-            if (result.isSuccess) {
-                _user.value = null
-            }
-        }
-    }
 }

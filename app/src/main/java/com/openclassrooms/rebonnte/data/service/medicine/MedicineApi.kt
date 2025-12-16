@@ -8,7 +8,7 @@ import java.io.File
  * Interface defining file-related operations.
  * Implementations handle storage, upload and retrieval logic.
  */
-interface Api {
+interface MedicineApi {
 
     /** Returns all files ordered by creation date from a specific user. */
     fun getFilesOrderByUser(userId: String): Flow<List<File>>

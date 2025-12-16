@@ -7,6 +7,10 @@ import kotlinx.serialization.Serializable
  * Each destination is annotated with @Serializable to enable
  * type-safe navigation using the new Navigation Compose APIs (2.7+).
  */
+
+@Serializable
+object LoginRoute
+
 @Serializable
 data class DetailMedicine(val medicineId: String)
 
