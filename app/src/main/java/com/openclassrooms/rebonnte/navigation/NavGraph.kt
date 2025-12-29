@@ -9,10 +9,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddScreen
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.screen.detailAisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.screen.detailMedicine.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.screen.detailMedicine.MedicineDetailViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
 import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineScreen
@@ -51,7 +54,8 @@ fun AppNavGraph(
         composable<LoginRoute> {
             LoginScreen(
                 onLaunchAuth = emailSignUpLauncher,
-                isSignedIn = isSignedIn)
+                isSignedIn = isSignedIn
+            )
         }
 
         composable<AisleRoute> {
@@ -64,6 +68,8 @@ fun AppNavGraph(
         composable<MedicineRoute> {
             MedicineScreen(
                 viewModel = medicineViewModel,
+                loginViewModel = loginViewModel,
+                onFABClick = { navController.navigate(AddMedicineRoute)},
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
             )
         }
@@ -82,10 +88,18 @@ fun AppNavGraph(
             )
         }
 
+        composable<AddMedicineRoute> {
+            AddScreen(
+                viewModel = hiltViewModel<AddMedicineViewModel>(),
+                onBackClick = { navController.navigateUp() },
+                onSaveClick = { navController.navigateUp() }
+            )
+        }
+
         composable<DetailMedicine> {
             MedicineDetailScreen(
-                viewModel = hiltViewModel<MedicineViewModel>(),
-                name = it.arguments?.getString("nameMedicine") ?: "Unknown"
+                viewModel = hiltViewModel<MedicineDetailViewModel>(),
+                medicineName = it.arguments?.getString("nameMedicine") ?: "Unknown"
             )
         }
     }

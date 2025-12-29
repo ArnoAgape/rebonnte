@@ -66,6 +66,7 @@ dependencies {
     implementation (libs.firebase.firestore)
     implementation(libs.firebase.ui.storage)
     implementation(libs.datastore.preferences)
+    implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
 
     // Allows API < 26
     coreLibraryDesugaring(libs.desugar.jdk.libs)

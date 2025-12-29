@@ -22,4 +22,3 @@ class AisleViewModel @Inject constructor() : ViewModel() {
         _aisles.value = currentAisles
     }
 }
-

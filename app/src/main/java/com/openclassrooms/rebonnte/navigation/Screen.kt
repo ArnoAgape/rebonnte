@@ -12,6 +12,9 @@ import kotlinx.serialization.Serializable
 object LoginRoute
 
 @Serializable
+object MainScreen
+
+@Serializable
 data class DetailMedicine(val medicineId: String)
 
 @Serializable
@@ -22,3 +25,12 @@ object AisleRoute
 
 @Serializable
 object MedicineRoute
+
+@Serializable
+object Profile
+
+@Serializable
+object AddMedicineRoute
+
+@Serializable
+object AddAisleRoute

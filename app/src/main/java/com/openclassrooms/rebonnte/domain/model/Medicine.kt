@@ -1,10 +1,41 @@
 package com.openclassrooms.rebonnte.domain.model
 
-import java.io.Serializable
+import com.google.firebase.Timestamp
+import com.openclassrooms.rebonnte.data.dto.MedicineDto
+import java.time.Instant
 
 data class Medicine(
-    var name: String,
-    var stock: Int,
-    var nameAisle: String,
-    var histories: List<History>
-) : Serializable
+    val id : String = "",
+    val name: String = "",
+    val stock: Int = 0,
+    val dateTime: Instant = Instant.now(),
+    val nameAisle: String = "",
+    val author: User? = null,
+    val histories: List<History> = emptyList()
+) {
+    fun toDto(): MedicineDto {
+        return MedicineDto(
+            id = id,
+            name = name,
+            stock = stock,
+            dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
+            nameAisle = nameAisle,
+            author = author,
+            histories = histories
+        )
+    }
+
+    companion object {
+        fun fromDto(dto: MedicineDto): Medicine {
+            return Medicine(
+                id = dto.id,
+                name = dto.name,
+                stock = dto.stock,
+                dateTime = dto.dateTime.toDate().toInstant(),
+                nameAisle = dto.nameAisle,
+                author = dto.author,
+                histories = dto.histories
+            )
+        }
+    }
+}

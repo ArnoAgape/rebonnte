@@ -1,168 +1,86 @@
 package com.openclassrooms.rebonnte.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.openclassrooms.rebonnte.ui.screen.aisle.AisleViewModel
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineViewModel
-import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
+
+    // Navigation
     val navController = rememberNavController()
-    val medicineViewModel: MedicineViewModel = hiltViewModel()
-    val aisleViewModel: AisleViewModel = hiltViewModel()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val route = navBackStackEntry?.destination?.route
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route
 
-    RebonnteTheme {
-        Scaffold(
-            topBar = {
-                var isSearchActive by rememberSaveable { mutableStateOf(false) }
-                var searchQuery by remember { mutableStateOf("") }
+    val loginViewModel: LoginViewModel = hiltViewModel()
 
-                Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
-                    TopAppBar(
-                        title = { if (route == "aisle") Text(text = "Aisle") else Text(text = "Medicines") },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            titleContentColor = MaterialTheme.colorScheme.onSurface,
-                            actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        actions = {
-                            var expanded by remember { mutableStateOf(false) }
-                            if (currentRoute(navController) == "medicine") {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Box {
-                                        IconButton(onClick = { expanded = true }) {
-                                            Icon(Icons.Default.MoreVert, contentDescription = null)
-                                        }
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false },
-                                            offset = DpOffset(x = 0.dp, y = 0.dp)
-                                        ) {
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByNone()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by None") }
-                                            )
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByName()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by Name") }
-                                            )
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByStock()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by Stock") }
-                                            )
-                                        }
-                                    }
+    // BottomBar screens
+    val isBottomBarDestination =
+        currentRoute == AisleRoute::class.qualifiedName ||
+                currentRoute == MedicineRoute::class.qualifiedName ||
+                currentRoute == Profile::class.qualifiedName
+
+    if (isBottomBarDestination) {
+        NavigationSuiteScaffold(
+            navigationSuiteItems = {
+                AppDestinations.entries.forEach { destination ->
+                    item(
+                        icon = {
+                            Icon(destination.icon, contentDescription = destination.label())
+                        },
+                        label = { Text(destination.label()) },
+                        selected = currentRoute == destination.route,
+                        onClick = {
+                            if (destination == AppDestinations.PROFILE) {
+                                if (loginViewModel.isSignedIn.value == true) {
+                                    navController.navigate(Profile)
+                                } else {
+                                    navController.navigate(LoginRoute)
+                                }
+                            } else {
+                                navController.navigate(destination.route) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
                             }
                         }
                     )
-                    if (currentRoute(navController) == "medicine") {
-                        EmbeddedSearchBar(
-                            query = searchQuery,
-                            onQueryChange = {
-                                medicineViewModel.filterByName(it)
-                                searchQuery = it
-                            },
-                            isSearchActive = isSearchActive,
-                            onActiveChanged = { isSearchActive = it }
-                        )
-                    }
-                }
-
-            },
-            bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text("Aisle") },
-                        selected = currentRoute(navController) == "aisle",
-                        onClick = { navController.navigate(AisleRoute) }
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
-                        label = { Text("Medicine") },
-                        selected = currentRoute(navController) == "medicine",
-                        onClick = { navController.navigate(MedicineRoute) }
-                    )
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    if (route == "medicine") {
-                        medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                    } else if (route == "aisle") {
-                        aisleViewModel.addRandomAisle()
-                    }
-                }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
-        ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                AppNavGraph(navController = navController)
-            }
+        )
+        {
+            AppNavGraph(navController = navController)
         }
+    } else {
+        AppNavGraph(navController = navController)
     }
 }
 
-@Composable
-fun currentRoute(navController: NavController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.destination?.route
+enum class AppDestinations(
+    val icon: ImageVector,
+    private val labelRes: Int,
+    val route: Any
+) {
+    AISLE(Icons.Default.Home, R.string.aisle, AisleRoute),
+    MEDICINE(Icons.AutoMirrored.Filled.List, R.string.medicine, MedicineRoute),
+    PROFILE(Icons.Default.AccountBox, R.string.profile, Profile);
+
+    @Composable
+    fun label(): String = stringResource(id = labelRes)
 }

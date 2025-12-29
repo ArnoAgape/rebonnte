@@ -1,8 +1,7 @@
 package com.openclassrooms.rebonnte.data.service.medicine
 
-import android.net.Uri
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 
 /**
  * Interface defining file-related operations.
@@ -10,15 +9,12 @@ import java.io.File
  */
 interface MedicineApi {
 
-    /** Returns all files ordered by creation date from a specific user. */
-    fun getFilesOrderByUser(userId: String): Flow<List<File>>
+    /** Returns all medicines ordered by creation date. */
+    fun getHistoryOrderByCreationDateDesc(): Flow<List<Medicine>>
 
-    /** Uploads a file and returns the list of uploaded URLs. */
-    suspend fun sendFile(localUris: List<Uri>, file: File): List<String>
+    /** Uploads a medicine and returns the list of uploaded URLs. */
+    suspend fun addMedicine(medicine: Medicine)
 
-    /** Observes a file by its ID and user ID. */
-    fun getFileById(fileId: String, userId: String): Flow<File?>
-
-    /** Uploads a single document to Firebase Storage and returns its URL. */
-    suspend fun uploadDocumentToFirebase(uri: Uri): String?
+    /** Observes a medicine by its ID and user ID. */
+    fun getMedicineById(medicineId: String): Flow<Medicine?>
 }

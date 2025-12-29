@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.common
 
-import android.net.Uri
 import java.time.Instant
 
 /**
@@ -8,14 +7,8 @@ import java.time.Instant
  */
 sealed class FormEvent {
 
+    data class NameChanged(val name: String) : FormEvent()
+    data class StockSet(val stock: Int) : FormEvent()
     data class DateTimeChanged(val dateTime: Instant) : FormEvent()
-    data class ColorChanged(val colored: Boolean) : FormEvent()
-    data class DoubleSidedChanged(val doubleSided: Boolean) : FormEvent()
-    data class NumberOfCopiesSet(val value: Int) : FormEvent()
-    data class AddFile(val uri: Uri) : FormEvent()
-    data class RemoveFile(val uri: Uri) : FormEvent()
-    data class CommentChanged(val comment: String) : FormEvent()
-    data class DisplayNameChanged(val displayName: String) : FormEvent()
-    data class EmailChanged(val email: String) : FormEvent()
-
+    data class NameAisleChanged(val nameAisle: String) : FormEvent()
 }
