@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.detailAisle
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,11 +12,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,7 +34,6 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun AisleDetailScreen(
     viewModel: MedicineViewModel,
-    aisleName: String,
     onMedicineClick: (Medicine) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,22 +53,10 @@ fun AisleDetailScreen(
             }
 
             is MedicineUiState.Success -> {
-                val medicines =
-                    (uiState as MedicineUiState.Success)
-                        .medicines
-                        .filter { it.nameAisle == aisleName }
-
-                LazyColumn(
-                    contentPadding = paddingValues,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(medicines) { medicine ->
-                        MedicineItem(
-                            medicine = medicine,
-                            onClick = onMedicineClick
-                        )
-                    }
-                }
+                MedicineContent(
+                    medicines = (uiState as MedicineUiState.Success).medicines,
+                    onMedicineClick = onMedicineClick
+                )
             }
 
             is MedicineUiState.Error.Empty -> {
@@ -80,7 +66,7 @@ fun AisleDetailScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Aucun médicament dans cette allée")
+                    Text("No medicine in this aisle")
                 }
             }
 
@@ -91,7 +77,7 @@ fun AisleDetailScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Erreur de chargement")
+                    Text("Error while loading")
                 }
             }
 
@@ -101,37 +87,44 @@ fun AisleDetailScreen(
 }
 
 @Composable
-fun MedicineItem(
-    medicine: Medicine,
-    onClick: (Medicine) -> Unit
+fun MedicineContent(
+    modifier: Modifier = Modifier,
+    medicines: List<Medicine>,
+    onMedicineClick: (Medicine) -> Unit
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp
+    LazyColumn(
+        modifier = modifier.padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .clickable { onClick(medicine) }
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = medicine.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "Stock: ${medicine.stock}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        items(medicines) { medicine ->
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onMedicineClick(medicine) }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = medicine.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Stock: ${medicine.stock}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Arrow"
+                    )
+                }
             }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null
-            )
         }
     }
 }
@@ -140,14 +133,28 @@ fun MedicineItem(
 @Composable
 private fun MedicineItemPreview() {
     RebonnteTheme {
-        MedicineItem(
-            medicine = Medicine(
-                name = "Medicine 1",
-                stock = 10,
-                nameAisle = "Aisle 1",
-                histories = emptyList()
+        MedicineContent(
+            medicines = listOf(
+                Medicine(
+                    name = "Doliprane",
+                    stock = 7,
+                    nameAisle = "Paracetamol",
+                    histories = emptyList()
+                ),
+                Medicine(
+                    name = "Clamoxyl",
+                    stock = 10,
+                    nameAisle = "Antibiotic",
+                    histories = emptyList()
+                ),
+                Medicine(
+                    name = "Biafine",
+                    stock = 26,
+                    nameAisle = "Antiseptic",
+                    histories = emptyList()
+                )
             ),
-            onClick = {}
+            onMedicineClick = {}
         )
     }
 }
