@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,9 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,44 +33,63 @@ fun AisleScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         items(aisles) { aisle ->
-            AisleItem(
-                aisle = aisle,
-                onClick = onAisleClick
+            AisleContent(
+                aisles = listOf(aisle),
+                onAisleClick = onAisleClick
             )
         }
     }
 }
 
 @Composable
-fun AisleItem(
-    aisle: Aisle,
-    onClick: (Aisle) -> Unit
+fun AisleContent(
+    modifier: Modifier = Modifier,
+    aisles: List<Aisle>,
+    onAisleClick: (Aisle) -> Unit
 ) {
-    Surface(
-        color = MaterialTheme.colorScheme.background
+    LazyColumn(
+        modifier = modifier.padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onClick(aisle) }
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = aisle.name, style = MaterialTheme.typography.bodyMedium)
-            Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Arrow")
+        items(aisles) { aisle ->
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onAisleClick(aisle) }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = aisle.name, style = MaterialTheme.typography.bodyMedium)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Arrow"
+                    )
+                }
+            }
         }
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun AisleItemPreview() {
+private fun AisleContentPreview() {
     RebonnteTheme {
-        AisleItem(
-            aisle = Aisle(
-                name = "Aisle 1"
+        AisleContent(
+            aisles = listOf(
+                Aisle(
+                    name = "Paracetamol"
+                ),
+                Aisle(
+                    name = "Antibiotic"
+                ),
+                Aisle(
+                    name = "Antiseptic"
+                )
             ),
-            onClick = {}
+            onAisleClick = {}
         )
     }
 }

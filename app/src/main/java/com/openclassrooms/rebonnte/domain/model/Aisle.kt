@@ -5,7 +5,7 @@ import com.openclassrooms.rebonnte.data.dto.AisleDto
 class Aisle(
     val id: String = "",
     val name: String = "",
-    val medicines: List<Medicine>
+    val medicines: List<Medicine> = emptyList()
 ) {
     fun toDto(): AisleDto {
         return AisleDto(
