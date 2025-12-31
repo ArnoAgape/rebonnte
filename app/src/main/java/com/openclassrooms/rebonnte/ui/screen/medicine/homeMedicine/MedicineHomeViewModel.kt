@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.medicine
+package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineViewModel @Inject constructor(
+class MedicineHomeViewModel @Inject constructor(
     medicineRepository: MedicineRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
@@ -27,16 +27,16 @@ class MedicineViewModel @Inject constructor(
     val uiState =
         medicineRepository.medicines
             .map { medicines ->
-                if (medicines.isEmpty()) MedicineUiState.Error.Empty()
-                else MedicineUiState.Success(medicines)
+                if (medicines.isEmpty()) MedicineHomeUiState.Error.Empty()
+                else MedicineHomeUiState.Success(medicines)
             }
             .catch { e ->
-                emit(MedicineUiState.Error.Generic(e.message ?: "Unknown error"))
+                emit(MedicineHomeUiState.Error.Generic(e.message ?: "Unknown error"))
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5000),
-                MedicineUiState.Loading
+                MedicineHomeUiState.Loading
             )
 
     fun refreshMedicines() {

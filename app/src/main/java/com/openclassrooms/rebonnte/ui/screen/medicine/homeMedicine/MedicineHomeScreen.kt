@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.medicine
+package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -36,14 +36,13 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.screen.detailAisle.MedicineItem
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.utils.Format
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineScreen(
-    viewModel: MedicineViewModel,
+    viewModel: MedicineHomeViewModel,
     loginViewModel : LoginViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit
@@ -104,17 +103,17 @@ fun MedicineScreen(
                 .fillMaxSize()
                 .padding(contentPadding),
             state = refreshState,
-            isRefreshing = uiState is MedicineUiState.Loading,
+            isRefreshing = uiState is MedicineHomeUiState.Loading,
             onRefresh = { viewModel.refreshMedicines() }
         ) {
             when (uiState) {
-                is MedicineUiState.Idle, is MedicineUiState.Success ->
+                is MedicineHomeUiState.Idle, is MedicineHomeUiState.Success ->
                     MedicineContent(
-                        medicines = (uiState as MedicineUiState.Success).medicines,
+                        medicines = (uiState as MedicineHomeUiState.Success).medicines,
                         onMedicineClick = onMedicineClick
                     )
 
-                is MedicineUiState.Loading -> {
+                is MedicineHomeUiState.Loading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -127,7 +126,7 @@ fun MedicineScreen(
                     }
                 }
 
-                is MedicineUiState.Error.Empty -> {
+                is MedicineHomeUiState.Error.Empty -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -194,7 +193,7 @@ private fun MedicineContent(
 @Composable
 private fun MedicineItemPreview() {
     RebonnteTheme {
-        MedicineItem(
+        MedicineContent(
             medicine = Medicine(
                 name = "Medicine 1",
                 stock = 10,

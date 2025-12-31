@@ -8,18 +8,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddScreen
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
-import com.openclassrooms.rebonnte.ui.screen.aisle.AisleScreen
-import com.openclassrooms.rebonnte.ui.screen.aisle.AisleViewModel
-import com.openclassrooms.rebonnte.ui.screen.detailAisle.AisleDetailScreen
-import com.openclassrooms.rebonnte.ui.screen.detailMedicine.MedicineDetailScreen
-import com.openclassrooms.rebonnte.ui.screen.detailMedicine.MedicineDetailViewModel
+import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineScreen
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
 
 /**
@@ -30,8 +29,8 @@ import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    val aisleViewModel: AisleViewModel = hiltViewModel()
-    val medicineViewModel: MedicineViewModel = hiltViewModel()
+    val aisleHomeViewModel: AisleHomeViewModel = hiltViewModel()
+    val medicineHomeViewModel: MedicineHomeViewModel = hiltViewModel()
     val loginViewModel: LoginViewModel = hiltViewModel()
 
     // Sign-in launchers
@@ -60,26 +59,23 @@ fun AppNavGraph(
 
         composable<AisleRoute> {
             AisleScreen(
-                viewModel = aisleViewModel,
+                viewModel = aisleHomeViewModel,
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.name)) }
             )
         }
 
         composable<MedicineRoute> {
             MedicineScreen(
-                viewModel = medicineViewModel,
+                viewModel = medicineHomeViewModel,
                 loginViewModel = loginViewModel,
-                onFABClick = { navController.navigate(AddMedicineRoute)},
+                onFABClick = { navController.navigate(AddMedicineRoute) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
             )
         }
 
-        composable<DetailAisle> { backStackEntry ->
-            val args = backStackEntry.toRoute<DetailAisle>()
-
+        composable<DetailAisle> {
             AisleDetailScreen(
-                viewModel = hiltViewModel<MedicineViewModel>(),
-                aisleName = args.aisleId,
+                viewModel = hiltViewModel<MedicineHomeViewModel>(),
                 onMedicineClick = { medicine ->
                     navController.navigate(
                         DetailMedicine(medicine.name)

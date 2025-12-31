@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.detailAisle
+package com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,14 +26,14 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineUiState
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeUiState
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AisleDetailScreen(
-    viewModel: MedicineViewModel,
+    viewModel: MedicineHomeViewModel,
     onMedicineClick: (Medicine) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -41,7 +41,7 @@ fun AisleDetailScreen(
     Scaffold { paddingValues ->
         when (uiState) {
 
-            is MedicineUiState.Loading -> {
+            is MedicineHomeUiState.Loading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -52,14 +52,14 @@ fun AisleDetailScreen(
                 }
             }
 
-            is MedicineUiState.Success -> {
+            is MedicineHomeUiState.Success -> {
                 MedicineContent(
-                    medicines = (uiState as MedicineUiState.Success).medicines,
+                    medicines = (uiState as MedicineHomeUiState.Success).medicines,
                     onMedicineClick = onMedicineClick
                 )
             }
 
-            is MedicineUiState.Error.Empty -> {
+            is MedicineHomeUiState.Error.Empty -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -70,7 +70,7 @@ fun AisleDetailScreen(
                 }
             }
 
-            is MedicineUiState.Error.Generic -> {
+            is MedicineHomeUiState.Error.Generic -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

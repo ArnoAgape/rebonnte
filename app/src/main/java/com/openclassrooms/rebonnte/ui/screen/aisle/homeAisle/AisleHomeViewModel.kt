@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.aisle
+package com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle
 
 import androidx.lifecycle.ViewModel
 import com.openclassrooms.rebonnte.domain.model.Aisle
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class AisleViewModel @Inject constructor() : ViewModel() {
+class AisleHomeViewModel @Inject constructor() : ViewModel() {
     private val _aisles = MutableStateFlow<List<Aisle>>(emptyList())
     val aisles: StateFlow<List<Aisle>> get() = _aisles
 }

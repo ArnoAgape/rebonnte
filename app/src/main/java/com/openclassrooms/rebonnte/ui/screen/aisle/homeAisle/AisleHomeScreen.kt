@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.aisle
+package com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -24,7 +24,7 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun AisleScreen(
-    viewModel: AisleViewModel,
+    viewModel: AisleHomeViewModel,
     onAisleClick: (Aisle) -> Unit
 ) {
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())

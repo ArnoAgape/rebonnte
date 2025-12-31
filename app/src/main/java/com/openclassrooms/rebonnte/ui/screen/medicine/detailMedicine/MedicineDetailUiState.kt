@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.detailMedicine
+package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
 import com.openclassrooms.rebonnte.domain.model.Medicine
 

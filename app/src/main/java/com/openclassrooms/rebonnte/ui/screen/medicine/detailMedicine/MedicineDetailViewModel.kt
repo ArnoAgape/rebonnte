@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.detailMedicine
+package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
