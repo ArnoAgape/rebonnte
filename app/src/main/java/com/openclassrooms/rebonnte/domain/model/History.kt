@@ -1,10 +1,30 @@
 package com.openclassrooms.rebonnte.domain.model
 
-import java.io.Serializable
+import com.openclassrooms.rebonnte.data.dto.HistoryDto
 
 class History(
-    var medicineName: String = "",
-    var userId: String = "",
-    var date: String = "",
-    var details: String = ""
-) : Serializable
+    val medicineName: String = "",
+    val userId: String = "",
+    val date: String = "",
+    val details: String = ""
+) {
+    fun toDto(): HistoryDto {
+        return HistoryDto(
+            medicineName = medicineName,
+            userId = userId,
+            date = date,
+            details = details
+        )
+    }
+
+    companion object {
+        fun fromDto(dto: HistoryDto): History {
+            return History(
+                medicineName = dto.medicineName,
+                userId = dto.userId,
+                date = dto.date,
+                details = dto.details
+            )
+        }
+    }
+}

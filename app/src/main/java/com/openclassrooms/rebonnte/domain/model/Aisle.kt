@@ -1,9 +1,27 @@
 package com.openclassrooms.rebonnte.domain.model
 
-import java.io.Serializable
+import com.openclassrooms.rebonnte.data.dto.AisleDto
 
 class Aisle(
-    var id: String = "",
-    var name: String = "",
-    var medicines: List<Medicine>
-) : Serializable
+    val id: String = "",
+    val name: String = "",
+    val medicines: List<Medicine>
+) {
+    fun toDto(): AisleDto {
+        return AisleDto(
+            id = id,
+            name = name,
+            medicines = medicines
+        )
+    }
+
+    companion object {
+        fun fromDto(dto: AisleDto): Aisle {
+            return Aisle(
+                id = dto.id,
+                name = dto.name,
+                medicines = dto.medicines
+            )
+        }
+    }
+}
