@@ -1,5 +1,7 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,38 +12,101 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeUiState
-import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
+import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AisleDetailScreen(
-    viewModel: MedicineHomeViewModel,
-    onMedicineClick: (Medicine) -> Unit
+    viewModel: AisleDetailViewModel,
+    onMedicineClick: (Medicine) -> Unit,
+    onBackClick: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold { paddingValues ->
-        when (uiState) {
+    EventsEffect(viewModel.eventsFlow) { event ->
+        when (event) {
+            is Event.ShowMessage -> {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(event.message),
+                    duration = SnackbarDuration.Short
+                )
+            }
 
-            is MedicineHomeUiState.Loading -> {
+            else -> Unit
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            )
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        topBar = {
+            TopAppBar(
+                title = {
+                    when (state) {
+                        is AisleDetailUiState.Success -> {
+                            val aisle = (state as AisleDetailUiState.Success).aisle
+                            Text(
+                                text = aisle.name,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        else -> {}
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.contentDescription_go_back)
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        when (state) {
+
+            is AisleDetailUiState.Loading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -52,14 +117,14 @@ fun AisleDetailScreen(
                 }
             }
 
-            is MedicineHomeUiState.Success -> {
-                MedicineContent(
-                    medicines = (uiState as MedicineHomeUiState.Success).medicines,
+            is AisleDetailUiState.Success -> {
+                AisleContent(
+                    medicines = ((state as AisleDetailUiState.Success).medicines),
                     onMedicineClick = onMedicineClick
                 )
             }
 
-            is MedicineHomeUiState.Error.Empty -> {
+            is AisleDetailUiState.Error.Empty -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -70,7 +135,7 @@ fun AisleDetailScreen(
                 }
             }
 
-            is MedicineHomeUiState.Error.Generic -> {
+            is AisleDetailUiState.Error.Generic -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -87,7 +152,7 @@ fun AisleDetailScreen(
 }
 
 @Composable
-fun MedicineContent(
+fun AisleContent(
     modifier: Modifier = Modifier,
     medicines: List<Medicine>,
     onMedicineClick: (Medicine) -> Unit
@@ -133,7 +198,7 @@ fun MedicineContent(
 @Composable
 private fun MedicineItemPreview() {
     RebonnteTheme {
-        MedicineContent(
+        AisleContent(
             medicines = listOf(
                 Medicine(
                     name = "Doliprane",

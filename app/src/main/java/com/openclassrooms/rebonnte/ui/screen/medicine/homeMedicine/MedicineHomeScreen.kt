@@ -36,7 +36,6 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.MedicineContent
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,7 +107,7 @@ fun MedicineHomeScreen(
         ) {
             when (uiState) {
                 is MedicineHomeUiState.Idle, is MedicineHomeUiState.Success ->
-                    MedicineContent(
+                    MedicineHomeContent(
                         medicines = (uiState as MedicineHomeUiState.Success).medicines,
                         onMedicineClick = onMedicineClick
                     )

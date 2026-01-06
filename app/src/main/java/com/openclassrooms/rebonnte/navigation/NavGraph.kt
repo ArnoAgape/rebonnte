@@ -60,7 +60,7 @@ fun AppNavGraph(
         composable<HomeAisle> {
             AisleScreen(
                 viewModel = aisleHomeViewModel,
-                onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.name)) }
+                onAisleClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
             )
         }
 
@@ -75,12 +75,13 @@ fun AppNavGraph(
 
         composable<DetailAisle> {
             AisleDetailScreen(
-                viewModel = hiltViewModel<MedicineHomeViewModel>(),
+                viewModel = hiltViewModel<MedicineDetailViewModel>(),
                 onMedicineClick = { medicine ->
                     navController.navigate(
                         DetailMedicine(medicine.name)
                     )
-                }
+                },
+                onBackClick = { navController.navigateUp() }
             )
         }
 
