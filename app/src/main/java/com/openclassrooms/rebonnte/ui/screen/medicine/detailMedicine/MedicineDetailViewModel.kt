@@ -1,11 +1,15 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
+import androidx.compose.runtime.IntState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,16 +34,11 @@ import javax.inject.Inject
 class MedicineDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
-    private val userRepository: UserRepository,
+    private val historyRepository: HistoryRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
     private val medicineId: String = checkNotNull(savedStateHandle["medicineId"])
-
-    private val medicineName: String =
-        savedStateHandle["medicineName"]
-            ?: error("medicineName missing")
-
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
@@ -51,14 +50,20 @@ class MedicineDetailViewModel @Inject constructor(
     )
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _stock = mutableIntStateOf(1)
+    val stock: IntState = _stock
+
+    fun initStock(medicine: Medicine) {
+        _stock.intValue = medicine.stock
+    }
+
+    fun onStockChange(newValue: Int) {
+        _stock.intValue = newValue.coerceAtLeast(1)
+    }
+
     private fun observeMedicine() {
         viewModelScope.launch {
-            userRepository.observeCurrentUser()
-                .filterNotNull()
-                .flatMapLatest {
-                    medicineRepository.getMedicineById(medicineId)
-                }
+            medicineRepository.getMedicineById(medicineId)
                 .onStart {
                     _uiState.update {
                         it.copy(medicineState = MedicineDetailUiState.Loading)
@@ -84,6 +89,34 @@ class MedicineDetailViewModel @Inject constructor(
         }
     }
 
+    private fun observeHistory(medicineId: String) {
+        viewModelScope.launch {
+            historyRepository.observeHistory(medicineId)
+                .onStart {
+                    _uiState.update {
+                        it.copy(historyState = HistoryUiState.Loading)
+                    }
+                }
+                .catch { e ->
+                    _uiState.update {
+                        it.copy(
+                            historyState = HistoryUiState.Error.Generic(
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    }
+                }
+                .collect { history ->
+                    val newState = if (history.isNotEmpty()) {
+                        HistoryUiState.Success(history)
+                    } else {
+                        HistoryUiState.Error.Empty("No comments found")
+                    }
+                    _uiState.update { it.copy(historyState = newState) }
+                }
+        }
+    }
+
     fun refreshData() {
         viewModelScope.launch {
             if (!networkUtils.isNetworkAvailable()) {
@@ -95,21 +128,6 @@ class MedicineDetailViewModel @Inject constructor(
         }
     }
 
-    fun incrementStock(name: String) {
-        if (!networkUtils.isNetworkAvailable()) {
-            _events.trySend(Event.ShowMessage(R.string.no_network))
-            return
-        }
-        //medicineRepository.incrementStock(medicineName)
-    }
-
-    fun decrementStock(name: String) {
-        if (!networkUtils.isNetworkAvailable()) {
-            _events.trySend(Event.ShowMessage(R.string.no_network))
-            return
-        }
-        //medicineRepository.decrementStock(medicineName)
-    }
 }
 
 data class DetailUiState(

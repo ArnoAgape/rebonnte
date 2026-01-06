@@ -1,10 +1,11 @@
 package com.openclassrooms.rebonnte.data.dto
 
+import com.google.firebase.Timestamp
 import java.io.Serializable
 
 class HistoryDto(
     val medicineName: String = "",
-    val userId: String = "",
-    val date: String = "",
+    val author: UserDto? = null,
+    val dateTime: Timestamp = Timestamp.now(),
     val details: String = ""
 ) : Serializable

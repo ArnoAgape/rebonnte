@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import java.time.Instant
 
 @Composable
 fun HistoryItem(history: History) {
@@ -27,8 +29,8 @@ fun HistoryItem(history: History) {
                 text = history.medicineName,
                 style = MaterialTheme.typography.titleLarge
             )
-            Text("User: ${history.userId}")
-            Text("Date: ${history.date}")
+            Text("User: ${history.author}")
+            Text("Date: ${history.dateTime}")
             Text("Details: ${history.details}")
         }
     }
@@ -41,8 +43,8 @@ private fun HistoryItemPreview() {
         HistoryItem(
             history = History(
                 medicineName = "Medicine 1",
-                userId = "user123",
-                date = "2023-07-01",
+                author = null,
+                dateTime = Instant.now(),
                 details = "Updated medicine details"
             )
         )

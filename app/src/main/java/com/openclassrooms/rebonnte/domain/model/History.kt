@@ -1,18 +1,20 @@
 package com.openclassrooms.rebonnte.domain.model
 
+import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.data.dto.HistoryDto
+import java.time.Instant
 
-class History(
+data class History(
     val medicineName: String = "",
-    val userId: String = "",
-    val date: String = "",
+    val author: User? = null,
+    val dateTime: Instant = Instant.now(),
     val details: String = ""
 ) {
     fun toDto(): HistoryDto {
         return HistoryDto(
             medicineName = medicineName,
-            userId = userId,
-            date = date,
+            author = author?.toDto(),
+            dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
             details = details
         )
     }
@@ -21,8 +23,8 @@ class History(
         fun fromDto(dto: HistoryDto): History {
             return History(
                 medicineName = dto.medicineName,
-                userId = dto.userId,
-                date = dto.date,
+                author = dto.author?.let { User.fromDto(it) },
+                dateTime = dto.dateTime.toDate().toInstant(),
                 details = dto.details
             )
         }

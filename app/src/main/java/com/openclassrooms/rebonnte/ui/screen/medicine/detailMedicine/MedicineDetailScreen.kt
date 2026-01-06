@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,11 +36,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.domain.model.History
+import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import java.io.File
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
+import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import com.openclassrooms.rebonnte.ui.utils.Format
 import java.time.Instant
 
 /**
@@ -47,9 +53,10 @@ import java.time.Instant
  * @param viewModel The ViewModel providing file data and state.
  * @param onBackClick Callback invoked when the back button is pressed.
  */
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(
+fun MedicineDetailScreen(
     viewModel: MedicineDetailViewModel,
     onBackClick: () -> Unit
 ) {
@@ -69,6 +76,12 @@ fun DetailScreen(
 
             else -> Unit
         }
+    }
+
+    LaunchedEffect(state.medicineState) {
+        (state.medicineState as? MedicineDetailUiState.Success)
+            ?.medicine
+            ?.let(viewModel::initStock)
     }
 
     Scaffold(
@@ -115,16 +128,18 @@ fun DetailScreen(
             isRefreshing = state.medicineState is MedicineDetailUiState.Loading,
             onRefresh = { viewModel.refreshData() }
         ) {
-            if (state.uiState is DetailUiState.Success) {
+            if (state.medicineState is MedicineDetailUiState.Success) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
                     item {
-                        DetailContent(
-                            file = (state.uiState as DetailUiState.Success).file,
+                        DetailMedicineContent(
+                            medicine = (state.medicineState as MedicineDetailUiState.Success).medicine,
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            numberOfMedicines = viewModel.stock.intValue,
+                            onNumberOfMedicinesChange = viewModel::onStockChange,
                         )
                     }
                 }
@@ -134,9 +149,11 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailContent(
+fun DetailMedicineContent(
     modifier: Modifier = Modifier,
-    file: File
+    medicine: Medicine,
+    numberOfMedicines: Int,
+    onNumberOfMedicinesChange: (Int) -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background
@@ -146,72 +163,84 @@ fun DetailContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            /** ---------- AUTHOR ---------- **/
-            file.author?.displayName?.let {
+            /** ---------- NAME MEDICINE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.medicine_name,
+                    medicine.name
+                )
+            )
+
+            Spacer(modifier.height(6.dp))
+
+            /** ---------- NAME AISLE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.aisle_name,
+                    medicine.nameAisle
+                )
+            )
+
+            /** ---------- STOCK ---------- **/
+            NumberOfMedicinesField(
+                numberOfMedicines = numberOfMedicines,
+                onNumberOfMedicinesChange = onNumberOfMedicinesChange
+            )
+
+            /** ---------- HISTORY ---------- **/
+            Text(
+                text = stringResource(R.string.history)
+            )
+        }
+    }
+}
+
+@Composable
+fun DetailHistoryContent(
+    modifier: Modifier = Modifier,
+    history: History
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            /** ---------- NAME MEDICINE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.medicine_name,
+                    history.medicineName
+                )
+            )
+
+            /** ---------- USER ---------- **/
+            history.author?.displayName?.let {
                 Text(
                     text = stringResource(
                         R.string.by,
-                        file.author.displayName
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                        history.author.displayName
+                    )
                 )
             }
 
-            Spacer(modifier.height(12.dp))
-
-            /** ---------- COLLECT DATE/TIME ---------- **/
-            val (date, time) = Format.getLocalizedDateParts(file.dateTime)
-
-            Text(stringResource(R.string.detail_collect_date, date, time))
-
-            /** ---------- COLOR DETAILS ---------- **/
-            val coloredText = if (file.colored) {
-                stringResource(R.string.yes)
-            } else {
-                stringResource(R.string.no)
-            }
+            /** ---------- DATE ---------- **/
+            val (date, time) = Format.getLocalizedDateParts(history.dateTime)
             Text(
                 text = stringResource(
-                    R.string.detail_color,
-                    coloredText
+                    R.string.updated_on,
+                    date, time
                 )
             )
 
-            /** ---------- DOUBLE SIDED DETAILS ---------- **/
-            val doubleSidedText = if (file.doubleSided) {
-                stringResource(R.string.yes)
-            } else {
-                stringResource(R.string.no)
-            }
+            /** ---------- DETAILS ---------- **/
             Text(
                 text = stringResource(
-                    R.string.detail_double_sided,
-                    doubleSidedText
+                    R.string.medicine_details,
+                    history.details
                 )
-            )
-
-            /** ---------- NUMBER OF COPIES DETAILS ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.detail_number_of_copies,
-                    file.numberOfCopies
-                )
-            )
-
-            /** ---------- COMMENT DETAILS ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.detail_comments,
-                    file.comment
-                )
-            )
-
-            /** ---------- FILE PREVIEW ---------- **/
-            Text(text = stringResource(R.string.preview_file))
-            FilePreviewList(
-                fileUrls = file.fileUrl,
-                isDetailScreen = true
             )
         }
     }
@@ -221,25 +250,34 @@ fun DetailContent(
 @PreviewLightDark
 @Composable
 private fun DetailScreenPreview() {
-    PolyscribeTheme {
-        DetailContent(
-            file = File(
-                id = "1",
-                fileUrl = emptyList(),
-                createdAt = Timestamp(1233356000, 212120),
-                dateTime = Instant.now(),
-                author = User(
-                    id = "1",
-                    displayName = "John Doe",
-                    phoneNumber = "06 01 02 03 04",
-                    email = "jdoe@mail.com",
-                    professional = true
-                ),
-                colored = false,
-                doubleSided = false,
-                numberOfCopies = 1,
-                comment = ""
-            )
+    RebonnteTheme {
+        DetailMedicineContent(
+            medicine = Medicine(
+                name = "Doliprane",
+                stock = 7,
+                nameAisle = "Paracetamol"
+            ),
+            numberOfMedicines = 7,
+            onNumberOfMedicinesChange = {},
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@PreviewLightDark
+@Composable
+private fun HistoryScreenPreview() {
+    RebonnteTheme {
+        DetailHistoryContent(
+            history =
+                History(
+                    medicineName = "Doliprane",
+                    author = User(
+                        displayName = "John Doe"
+                    ),
+                    dateTime = Instant.now(),
+                    details = "Details"
+                )
         )
     }
 }

@@ -95,7 +95,7 @@ fun AppNavGraph(
         composable<DetailMedicine> {
             MedicineDetailScreen(
                 viewModel = hiltViewModel<MedicineDetailViewModel>(),
-                medicineName = it.arguments?.getString("nameMedicine") ?: "Unknown"
+                onBackClick = { navController.navigateUp() },
             )
         }
     }

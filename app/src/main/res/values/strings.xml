@@ -5,6 +5,7 @@
     <string name="user_email">Email address</string>
     <string name="user_phone">Phone number</string>
     <string name="user_picture">Profile picture</string>
+    <string name="history">History:</string>
     <string name="action_sign_out">Sign out</string>
     <string name="confirm_sign_out_message">Are you sure you want to sign out?</string>
     <string name="action_add">Add</string>
@@ -13,7 +14,11 @@
     <string name="confirm_delete_account_message">You are about to delete your account. This can\'t be undone. Continue?</string>
     <string name="cancel">Cancel</string>
     <string name="or">or</string>
-    <string name="added_at">Added on %1$s at %2$s</string>
+    <string name="updated_on">Updated on %1$s at %2$s</string>
+    <string name="by">By %1$s</string>
+    <string name="medicine_name">Medicine name: %1$s</string>
+    <string name="aisle_name">Aisle: %1$s</string>
+    <string name="medicine_details">Medicine details: %1$s</string>
     <string name="in_stock">%1$d in stock</string>
     <string name="close">Close</string>
     <string name="add">Add</string>
@@ -39,7 +44,7 @@
     <string name="error_no_account_profile">An account is mandatory in order to update your profile</string>
     <string name="no_network">No network available</string>
     <string name="try_again">Try again</string>
-    <string name="hint_number_of_medicines">Number of medicines</string>
+    <string name="hint_number_of_medicines">Stock:</string>
     <string name="add_fragment_label">Add a medicine</string>
     <string name="contentDescription_go_back">Go back</string>
     <string name="contentDescription_button_add">Add</string>
