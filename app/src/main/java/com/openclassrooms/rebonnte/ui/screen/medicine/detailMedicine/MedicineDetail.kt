@@ -108,26 +108,6 @@ fun MedicineDetailScreen(
 }
 
 @Composable
-fun HistoryItem(history: History) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = history.medicineName,
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text("User: ${history.userId}")
-            Text("Date: ${history.date}")
-            Text("Details: ${history.details}")
-        }
-    }
-}
-
-@Composable
 private fun MedicineDetailContent(
     medicine: Medicine,
     onIncrement: () -> Unit,
@@ -179,20 +159,5 @@ private fun MedicineDetailContent(
                 HistoryItem(history)
             }
         }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun HistoryItemPreview() {
-    RebonnteTheme {
-        HistoryItem(
-            history = History(
-                medicineName = "Medicine 1",
-                userId = "user123",
-                date = "2023-07-01",
-                details = "Updated medicine details"
-            )
-        )
     }
 }

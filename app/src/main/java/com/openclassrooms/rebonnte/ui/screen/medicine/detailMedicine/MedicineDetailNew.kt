@@ -1,0 +1,245 @@
+package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.Timestamp
+import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.common.EventsEffect
+import java.io.File
+import java.time.Instant
+
+/**
+ * Displays the detail view of a file.
+ *
+ * @param viewModel The ViewModel providing file data and state.
+ * @param onBackClick Callback invoked when the back button is pressed.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreen(
+    viewModel: MedicineDetailViewModel,
+    onBackClick: () -> Unit
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val refreshState = rememberPullToRefreshState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    EventsEffect(viewModel.eventsFlow) { event ->
+        when (event) {
+            is Event.ShowMessage -> {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(event.message),
+                    duration = SnackbarDuration.Short
+                )
+            }
+
+            else -> Unit
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            )
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        topBar = {
+            TopAppBar(
+                title = {
+                    when (state.medicineState) {
+                        is MedicineDetailUiState.Success -> {
+                            val medicine = (state.medicineState as MedicineDetailUiState.Success).medicine
+                            Text(
+                                text = medicine.name,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        else -> {}
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.contentDescription_go_back)
+                        )
+                    }
+                }
+            )
+        }
+    ) { contentPadding ->
+        PullToRefreshBox(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            state = refreshState,
+            isRefreshing = state.medicineState is MedicineDetailUiState.Loading,
+            onRefresh = { viewModel.refreshData() }
+        ) {
+            if (state.uiState is DetailUiState.Success) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    item {
+                        DetailContent(
+                            file = (state.uiState as DetailUiState.Success).file,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DetailContent(
+    modifier: Modifier = Modifier,
+    file: File
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            /** ---------- AUTHOR ---------- **/
+            file.author?.displayName?.let {
+                Text(
+                    text = stringResource(
+                        R.string.by,
+                        file.author.displayName
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier.height(12.dp))
+
+            /** ---------- COLLECT DATE/TIME ---------- **/
+            val (date, time) = Format.getLocalizedDateParts(file.dateTime)
+
+            Text(stringResource(R.string.detail_collect_date, date, time))
+
+            /** ---------- COLOR DETAILS ---------- **/
+            val coloredText = if (file.colored) {
+                stringResource(R.string.yes)
+            } else {
+                stringResource(R.string.no)
+            }
+            Text(
+                text = stringResource(
+                    R.string.detail_color,
+                    coloredText
+                )
+            )
+
+            /** ---------- DOUBLE SIDED DETAILS ---------- **/
+            val doubleSidedText = if (file.doubleSided) {
+                stringResource(R.string.yes)
+            } else {
+                stringResource(R.string.no)
+            }
+            Text(
+                text = stringResource(
+                    R.string.detail_double_sided,
+                    doubleSidedText
+                )
+            )
+
+            /** ---------- NUMBER OF COPIES DETAILS ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.detail_number_of_copies,
+                    file.numberOfCopies
+                )
+            )
+
+            /** ---------- COMMENT DETAILS ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.detail_comments,
+                    file.comment
+                )
+            )
+
+            /** ---------- FILE PREVIEW ---------- **/
+            Text(text = stringResource(R.string.preview_file))
+            FilePreviewList(
+                fileUrls = file.fileUrl,
+                isDetailScreen = true
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@PreviewLightDark
+@Composable
+private fun DetailScreenPreview() {
+    PolyscribeTheme {
+        DetailContent(
+            file = File(
+                id = "1",
+                fileUrl = emptyList(),
+                createdAt = Timestamp(1233356000, 212120),
+                dateTime = Instant.now(),
+                author = User(
+                    id = "1",
+                    displayName = "John Doe",
+                    phoneNumber = "06 01 02 03 04",
+                    email = "jdoe@mail.com",
+                    professional = true
+                ),
+                colored = false,
+                doubleSided = false,
+                numberOfCopies = 1,
+                comment = ""
+            )
+        )
+    }
+}

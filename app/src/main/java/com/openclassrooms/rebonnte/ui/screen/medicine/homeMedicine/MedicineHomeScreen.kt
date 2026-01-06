@@ -36,14 +36,14 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.MedicineContent
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
-import com.openclassrooms.rebonnte.ui.utils.Format
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineScreen(
     viewModel: MedicineHomeViewModel,
-    loginViewModel : LoginViewModel,
+    loginViewModel: LoginViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit
 ) {
@@ -149,7 +149,7 @@ fun MedicineScreen(
 }
 
 @Composable
-private fun MedicineContent(
+private fun MedicineHomeContent(
     modifier: Modifier = Modifier,
     medicines: List<Medicine>,
     onMedicineClick: (Medicine) -> Unit
@@ -166,22 +166,19 @@ private fun MedicineContent(
                 Column(
                     modifier = Modifier.padding(8.dp),
                 ) {
-
-                    // ---- DATE/TIME ----
-                    val (date, time) = Format.getLocalizedDateParts(medicine.dateTime)
-
-                    Text(stringResource(R.string.added_at, date, time))
-
-                    Spacer(Modifier.height(8.dp))
-
                     // ---- NAME ----
                     Text(
-                        text = stringResource(
-                            R.string.by,
-                            medicine.author?.displayName.toString()
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
+                        text = medicine.name,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
+                    )
+
+                    // ---- STOCK ----
+                    Text(
+                        text = stringResource(
+                            R.string.in_stock,
+                            medicine.stock
+                        )
                     )
                 }
             }
@@ -191,16 +188,20 @@ private fun MedicineContent(
 
 @PreviewLightDark
 @Composable
-private fun MedicineItemPreview() {
+private fun MedicineListPreview() {
     RebonnteTheme {
-        MedicineContent(
-            medicine = Medicine(
-                name = "Medicine 1",
-                stock = 10,
-                nameAisle = "Aisle 1",
-                histories = emptyList()
+        MedicineHomeContent(
+            medicines = listOf(
+                Medicine(
+                    name = "Doliprane",
+                    stock = 10
+                ),
+                Medicine(
+                    name = "Fervex",
+                    stock = 10
+                ),
             ),
-            onClick = {}
+            onMedicineClick = {}
         )
     }
 }
