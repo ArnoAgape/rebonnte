@@ -21,10 +21,10 @@ data class DetailMedicine(val medicineId: String)
 data class DetailAisle(val aisleId: String)
 
 @Serializable
-object AisleRoute
+object HomeAisle
 
 @Serializable
-object MedicineRoute
+object HomeMedicine
 
 @Serializable
 object Profile

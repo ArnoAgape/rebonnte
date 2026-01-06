@@ -98,13 +98,13 @@ fun MainScreenOld(
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
                         label = { Text("Aisle") },
                         selected = currentRoute(navController) == "aisle",
-                        onClick = { navController.navigate(AisleRoute) }
+                        onClick = { navController.navigate(HomeAisle) }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                         label = { Text("Medicine") },
                         selected = currentRoute(navController) == "medicine",
-                        onClick = { navController.navigate(MedicineRoute) }
+                        onClick = { navController.navigate(HomeMedicine) }
                     )
                 }
             },

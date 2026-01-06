@@ -17,7 +17,7 @@ import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDet
 import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
-import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
 
@@ -38,7 +38,7 @@ fun AppNavGraph(
 
     LaunchedEffect(isSignedIn) {
         if (isSignedIn == true) {
-            navController.navigate(AisleRoute) {
+            navController.navigate(HomeAisle) {
                 popUpTo(LoginRoute) { inclusive = true }
             }
         }
@@ -57,15 +57,15 @@ fun AppNavGraph(
             )
         }
 
-        composable<AisleRoute> {
+        composable<HomeAisle> {
             AisleScreen(
                 viewModel = aisleHomeViewModel,
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.name)) }
             )
         }
 
-        composable<MedicineRoute> {
-            MedicineScreen(
+        composable<HomeMedicine> {
+            MedicineHomeScreen(
                 viewModel = medicineHomeViewModel,
                 loginViewModel = loginViewModel,
                 onFABClick = { navController.navigate(AddMedicineRoute) },

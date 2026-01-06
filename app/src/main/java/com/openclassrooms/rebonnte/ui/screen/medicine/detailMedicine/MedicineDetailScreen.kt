@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -42,7 +40,7 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
+import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.ui.utils.Format
 import java.time.Instant
@@ -134,7 +132,7 @@ fun MedicineDetailScreen(
                         .fillMaxSize()
                 ) {
                     item {
-                        DetailMedicineContent(
+                        MedicineItem(
                             medicine = (state.medicineState as MedicineDetailUiState.Success).medicine,
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -149,53 +147,6 @@ fun MedicineDetailScreen(
 }
 
 @Composable
-fun DetailMedicineContent(
-    modifier: Modifier = Modifier,
-    medicine: Medicine,
-    numberOfMedicines: Int,
-    onNumberOfMedicinesChange: (Int) -> Unit
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            /** ---------- NAME MEDICINE ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.medicine_name,
-                    medicine.name
-                )
-            )
-
-            Spacer(modifier.height(6.dp))
-
-            /** ---------- NAME AISLE ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.aisle_name,
-                    medicine.nameAisle
-                )
-            )
-
-            /** ---------- STOCK ---------- **/
-            NumberOfMedicinesField(
-                numberOfMedicines = numberOfMedicines,
-                onNumberOfMedicinesChange = onNumberOfMedicinesChange
-            )
-
-            /** ---------- HISTORY ---------- **/
-            Text(
-                text = stringResource(R.string.history)
-            )
-        }
-    }
-}
-
-@Composable
 fun DetailHistoryContent(
     modifier: Modifier = Modifier,
     history: History
@@ -204,9 +155,23 @@ fun DetailHistoryContent(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
-            modifier = modifier.padding(16.dp),
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+            /** ---------- USER ---------- **/
+            history.author?.displayName?.let {
+                Text(
+                    text = stringResource(
+                        R.string.by,
+                        history.author.displayName
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             /** ---------- NAME MEDICINE ---------- **/
             Text(
@@ -215,16 +180,6 @@ fun DetailHistoryContent(
                     history.medicineName
                 )
             )
-
-            /** ---------- USER ---------- **/
-            history.author?.displayName?.let {
-                Text(
-                    text = stringResource(
-                        R.string.by,
-                        history.author.displayName
-                    )
-                )
-            }
 
             /** ---------- DATE ---------- **/
             val (date, time) = Format.getLocalizedDateParts(history.dateTime)
@@ -246,12 +201,11 @@ fun DetailHistoryContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewLightDark
 @Composable
 private fun DetailScreenPreview() {
     RebonnteTheme {
-        DetailMedicineContent(
+        MedicineItem(
             medicine = Medicine(
                 name = "Doliprane",
                 stock = 7,
@@ -263,7 +217,6 @@ private fun DetailScreenPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewLightDark
 @Composable
 private fun HistoryScreenPreview() {

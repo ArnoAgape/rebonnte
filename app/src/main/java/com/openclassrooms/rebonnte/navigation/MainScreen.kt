@@ -31,8 +31,8 @@ fun MainScreen() {
 
     // BottomBar screens
     val isBottomBarDestination =
-        currentRoute == AisleRoute::class.qualifiedName ||
-                currentRoute == MedicineRoute::class.qualifiedName ||
+        currentRoute == HomeAisle::class.qualifiedName ||
+                currentRoute == HomeMedicine::class.qualifiedName ||
                 currentRoute == Profile::class.qualifiedName
 
     if (isBottomBarDestination) {
@@ -77,8 +77,8 @@ enum class AppDestinations(
     private val labelRes: Int,
     val route: Any
 ) {
-    AISLE(Icons.Default.Home, R.string.aisle, AisleRoute),
-    MEDICINE(Icons.AutoMirrored.Filled.List, R.string.medicine, MedicineRoute),
+    AISLE(Icons.Default.Home, R.string.aisle, HomeAisle),
+    MEDICINE(Icons.AutoMirrored.Filled.List, R.string.medicine, HomeMedicine),
     PROFILE(Icons.Default.AccountBox, R.string.profile, Profile);
 
     @Composable

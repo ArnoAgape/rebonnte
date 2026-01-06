@@ -8,24 +8,17 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
-import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +43,7 @@ class MedicineDetailViewModel @Inject constructor(
     )
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    private val _stock = mutableIntStateOf(1)
+    private val _stock = mutableIntStateOf(0)
     val stock: IntState = _stock
 
     fun initStock(medicine: Medicine) {
@@ -58,7 +51,7 @@ class MedicineDetailViewModel @Inject constructor(
     }
 
     fun onStockChange(newValue: Int) {
-        _stock.intValue = newValue.coerceAtLeast(1)
+        _stock.intValue = newValue.coerceAtLeast(0)
     }
 
     private fun observeMedicine() {

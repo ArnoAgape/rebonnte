@@ -41,7 +41,7 @@ import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicineScreen(
+fun MedicineHomeScreen(
     viewModel: MedicineHomeViewModel,
     loginViewModel: LoginViewModel,
     onMedicineClick: (Medicine) -> Unit,
