@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,12 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineUiState
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
-import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,30 +84,22 @@ fun AddAisleScreen(
     ) { contentPadding ->
 
         when (state.uiState) {
-            is AddMedicineUiState.Idle, is AddMedicineUiState.Success -> {
+            is AddAisleUiState.Idle, is AddAisleUiState.Success -> {
                 val medicineToDisplay =
-                    if (state.uiState is AddMedicineUiState.Success) (state.uiState as AddMedicineUiState.Success).medicine
-                    else state.medicine
+                    if (state.uiState is AddAisleUiState.Success) (state.uiState as AddAisleUiState.Success).aisle
+                    else state.aisle
 
-                AddMedicineContent(
+                AddAisleContent(
                     contentPadding = contentPadding,
-                    dateTime = medicineToDisplay.dateTime,
-                    onDateTimeChange = { viewModel.onAction(FormEvent.DateTimeChanged(it)) },
-                    numberOfMedicines = medicineToDisplay.stock,
-                    onNumberOfMedicinesChange = { newValue ->
-                        viewModel.onAction(FormEvent.StockSet(newValue))
-                    },
-                    name = medicineToDisplay.name,
-                    onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
-                    aisle = medicineToDisplay.nameAisle,
-                    onAisleNameChanged = { viewModel.onAction(FormEvent.NameAisleChanged(it)) },
-                    onSaveClicked = { viewModel.addMedicine() },
-                    isMedicineValid = state.isValid,
+                    aisle = medicineToDisplay.name,
+                    onAisleNameChanged = { viewModel.onNameChanged(it) },
+                    onSaveClicked = { viewModel.addAisle() },
+                    isAisleValid = state.isValid,
                     isLoading = false
                 )
             }
 
-            is AddMedicineUiState.Loading -> {
+            is AddAisleUiState.Loading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -131,11 +117,11 @@ fun AddAisleScreen(
                 }
             }
 
-            is AddMedicineUiState.Error -> {
-                val errorState = state.uiState as AddMedicineUiState.Error
+            is AddAisleUiState.Error -> {
+                val errorState = state.uiState as AddAisleUiState.Error
                 val message = when (errorState) {
-                    is AddMedicineUiState.Error.NoAccount -> (state.uiState as AddMedicineUiState.Error.NoAccount).message
-                    is AddMedicineUiState.Error.Generic -> (state.uiState as AddMedicineUiState.Error.Generic).message
+                    is AddAisleUiState.Error.NoAccount -> (state.uiState as AddAisleUiState.Error.NoAccount).message
+                    is AddAisleUiState.Error.Generic -> (state.uiState as AddAisleUiState.Error.Generic).message
                 }
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -150,18 +136,12 @@ fun AddAisleScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddMedicineContent(
+private fun AddAisleContent(
     contentPadding: PaddingValues = PaddingValues(),
-    dateTime: Instant,
-    onDateTimeChange: (Instant) -> Unit,
-    numberOfMedicines: Int,
-    onNumberOfMedicinesChange: (Int) -> Unit,
-    name: String,
-    onNameChanged: (String) -> Unit,
     aisle: String,
     onAisleNameChanged: (String) -> Unit,
     onSaveClicked: () -> Unit,
-    isMedicineValid: Boolean,
+    isAisleValid: Boolean,
     isLoading: Boolean
 ) {
     val scrollState = rememberScrollState()
@@ -188,66 +168,34 @@ private fun AddMedicineContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                /** ---------- DATE & TIME ---------- **/
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    DateTimeField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = dateTime,
-                        onValueChange = onDateTimeChange,
-                        label = stringResource(R.string.hint_datetime)
-                    )
-                }
-
-                /** ---------- MEDICINE NAME ---------- **/
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    value = name,
-                    onValueChange = onNameChanged,
-                    label = { Text(stringResource(id = R.string.hint_medicine_name)) },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Sentences
-                    )
-                )
-
-                /** ---------- AISLE NUMBER ---------- **/
+                /** ---------- AISLE NAME ---------- **/
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
                     value = aisle,
                     onValueChange = onAisleNameChanged,
-                    label = { Text(stringResource(id = R.string.hint_aisle_number)) },
+                    label = { Text(stringResource(id = R.string.hint_aisle_name)) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         capitalization = KeyboardCapitalization.Sentences
                     )
                 )
 
-                /** ---------- NUMBER OF MEDICINES ---------- **/
-
-                NumberOfMedicinesField(
-                    numberOfMedicines = numberOfMedicines,
-                    onNumberOfMedicinesChange = onNumberOfMedicinesChange
-                )
-            }
-
-            /** ---------- ADD BUTTON ---------- **/
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onSaveClicked,
-                enabled = isMedicineValid && !isLoading
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Text(text = stringResource(id = R.string.action_add))
+                /** ---------- SAVE BUTTON ---------- **/
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onSaveClicked,
+                    enabled = isAisleValid && !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text(text = stringResource(id = R.string.action_add))
+                    }
                 }
             }
         }
@@ -256,19 +204,13 @@ private fun AddMedicineContent(
 
 @PreviewLightDark
 @Composable
-private fun AddMedicineContentPreview() {
+private fun AddAisleContentPreview() {
     RebonnteTheme {
-        AddMedicineContent(
-            dateTime = Instant.now(),
-            onDateTimeChange = {},
-            numberOfMedicines = 3,
-            onNumberOfMedicinesChange = {},
-            name = "Doliprane",
-            onNameChanged = {},
+        AddAisleContent(
             aisle = "Aisle 1",
             onAisleNameChanged = {},
             onSaveClicked = {},
-            isMedicineValid = true,
+            isAisleValid = true,
             isLoading = false
         )
     }

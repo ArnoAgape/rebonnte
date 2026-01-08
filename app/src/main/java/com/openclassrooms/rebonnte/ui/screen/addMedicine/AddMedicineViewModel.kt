@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.addMedicine
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
@@ -9,7 +8,6 @@ import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
-import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,13 +39,9 @@ class AddMedicineViewModel @Inject constructor(
     private val _events = Channel<Event>()
     val eventsFlow = _events.receiveAsFlow()
 
-    private val _localUris = MutableStateFlow<List<Uri>>(emptyList())
-    val localUris = _localUris.asStateFlow()
-
-
     private val _medicine = MutableStateFlow(
         Medicine(
-            id = UUID.randomUUID().toString(),
+            id = "",
             name = "Medicine 1",
             stock = 10,
             dateTime = Instant.now(),
@@ -66,8 +59,8 @@ class AddMedicineViewModel @Inject constructor(
     /**
      * StateFlow derived from the post that emits a FormError if the title is empty, null otherwise.
      */
-    val isMedicineValid = localUris
-        .map { uris -> uris.isNotEmpty() }
+    val isMedicineValid = medicine
+        .map { it.name.isNotBlank() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -97,22 +90,22 @@ class AddMedicineViewModel @Inject constructor(
         }
     }
 
-    fun onAction(formEvent: FormEvent) {
-        when (formEvent) {
-            is FormEvent.NameChanged -> {
-                _medicine.update { it.copy(name = formEvent.name) }
+    fun onAction(addMedicineFormEvent: AddMedicineFormEvent) {
+        when (addMedicineFormEvent) {
+            is AddMedicineFormEvent.NameChanged -> {
+                _medicine.update { it.copy(name = addMedicineFormEvent.name) }
             }
 
-            is FormEvent.StockSet -> {
-                _medicine.update { it.copy(stock = formEvent.stock) }
+            is AddMedicineFormEvent.StockSet -> {
+                _medicine.update { it.copy(stock = addMedicineFormEvent.stock) }
             }
 
-            is FormEvent.DateTimeChanged -> {
-                _medicine.update { it.copy(dateTime = formEvent.dateTime) }
+            is AddMedicineFormEvent.DateTimeChanged -> {
+                _medicine.update { it.copy(dateTime = addMedicineFormEvent.dateTime) }
             }
 
-            is FormEvent.NameAisleChanged -> {
-                _medicine.update { it.copy(nameAisle = formEvent.nameAisle) }
+            is AddMedicineFormEvent.NameAisleChanged -> {
+                _medicine.update { it.copy(nameAisle = addMedicineFormEvent.nameAisle) }
             }
         }
     }
@@ -130,7 +123,7 @@ class AddMedicineViewModel @Inject constructor(
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = AddMedicineUiState.Error.NoAccount()
-                _events.trySend(Event.ShowMessage(R.string.error_no_account_profile))
+                _events.trySend(Event.ShowMessage(R.string.error_no_account_medicine))
                 return@launch
             }
 
@@ -141,6 +134,11 @@ class AddMedicineViewModel @Inject constructor(
                 val medicineToSave = _medicine.value.copy(author = currentUser)
 
                 // 4. Upload Storage + Firestore
+                if (!isMedicineValid.value) {
+                    _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
+                    return@launch
+                }
+
                 medicineRepository.addMedicine(medicineToSave)
 
                 // 5. Success UI

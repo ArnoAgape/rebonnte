@@ -2,7 +2,7 @@ package com.openclassrooms.rebonnte.domain.model
 
 import com.openclassrooms.rebonnte.data.dto.AisleDto
 
-class Aisle(
+data class Aisle(
     val id: String = "",
     val name: String = "",
     val medicines: List<Medicine> = emptyList()

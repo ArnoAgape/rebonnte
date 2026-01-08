@@ -45,7 +45,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -90,22 +89,22 @@ fun AddMedicineScreen(
 
         when (state.uiState) {
             is AddMedicineUiState.Idle, is AddMedicineUiState.Success -> {
-                val medicineToDisplay =
+                val aisleToDisplay =
                     if (state.uiState is AddMedicineUiState.Success) (state.uiState as AddMedicineUiState.Success).medicine
                     else state.medicine
 
                 AddMedicineContent(
                     contentPadding = contentPadding,
-                    dateTime = medicineToDisplay.dateTime,
-                    onDateTimeChange = { viewModel.onAction(FormEvent.DateTimeChanged(it)) },
-                    numberOfMedicines = medicineToDisplay.stock,
+                    dateTime = aisleToDisplay.dateTime,
+                    onDateTimeChange = { viewModel.onAction(AddMedicineFormEvent.DateTimeChanged(it)) },
+                    numberOfMedicines = aisleToDisplay.stock,
                     onNumberOfMedicinesChange = { newValue ->
-                        viewModel.onAction(FormEvent.StockSet(newValue))
+                        viewModel.onAction(AddMedicineFormEvent.StockSet(newValue))
                     },
-                    name = medicineToDisplay.name,
-                    onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
-                    aisle = medicineToDisplay.nameAisle,
-                    onAisleNameChanged = { viewModel.onAction(FormEvent.NameAisleChanged(it)) },
+                    name = aisleToDisplay.name,
+                    onNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameChanged(it)) },
+                    aisle = aisleToDisplay.nameAisle,
+                    onAisleNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameAisleChanged(it)) },
                     onSaveClicked = { viewModel.addMedicine() },
                     isMedicineValid = state.isValid,
                     isLoading = false
@@ -212,13 +211,13 @@ private fun AddMedicineContent(
                     )
                 )
 
-                /** ---------- AISLE NUMBER ---------- **/
+                /** ---------- AISLE NAME ---------- **/
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
                     value = aisle,
                     onValueChange = onAisleNameChanged,
-                    label = { Text(stringResource(id = R.string.hint_aisle_number)) },
+                    label = { Text(stringResource(id = R.string.hint_aisle_name)) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         capitalization = KeyboardCapitalization.Sentences
@@ -233,7 +232,7 @@ private fun AddMedicineContent(
                 )
             }
 
-            /** ---------- ADD BUTTON ---------- **/
+            /** ---------- SAVE BUTTON ---------- **/
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onSaveClicked,

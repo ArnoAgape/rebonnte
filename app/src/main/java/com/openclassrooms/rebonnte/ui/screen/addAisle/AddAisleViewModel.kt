@@ -1,16 +1,13 @@
 package com.openclassrooms.rebonnte.ui.screen.addAisle
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.data.repository.MedicineRepository
+import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
-import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
-import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -25,71 +22,62 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.time.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class AddAisleViewModel @Inject constructor(
-    private val medicineRepository: MedicineRepository,
+    private val aisleRepository: AisleRepository,
     private val userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
-    val uiState: StateFlow<AddMedicineUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<AddAisleUiState>(AddAisleUiState.Idle)
+    val uiState: StateFlow<AddAisleUiState> = _uiState.asStateFlow()
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
     private val _events = Channel<Event>()
     val eventsFlow = _events.receiveAsFlow()
 
-    private val _localUris = MutableStateFlow<List<Uri>>(emptyList())
-    val localUris = _localUris.asStateFlow()
-
-
-    private val _medicine = MutableStateFlow(
-        Medicine(
-            id = UUID.randomUUID().toString(),
-            name = "Medicine 1",
-            stock = 10,
-            dateTime = Instant.now(),
-            nameAisle = "Aisle 1",
-            histories = emptyList()
+    private val _aisle = MutableStateFlow(
+        Aisle(
+            id = "",
+            name = "Aisle 1",
+            medicines = emptyList()
         )
     )
 
     /**
-     * Public state flow representing the current post being edited.
+     * Public state flow representing the current aisle being edited.
      * This is immutable for consumers.
      */
-    val medicine: StateFlow<Medicine> = _medicine.asStateFlow()
+    val aisle: StateFlow<Aisle> = _aisle.asStateFlow()
 
     /**
-     * StateFlow derived from the post that emits a FormError if the title is empty, null otherwise.
+     * StateFlow derived from the aisle that emits a FormError if the name is empty, null otherwise.
      */
-    val isMedicineValid = localUris
-        .map { uris -> uris.isNotEmpty() }
+    val isAisleValid = aisle
+        .map { it.name.isNotBlank() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
 
-    val state: StateFlow<AddScreenState> =
+    val state: StateFlow<AddAisleScreenState> =
         combine(
             uiState,
-            medicine,
-            isMedicineValid
-        ) { ui, m, valid ->
-            AddScreenState(
+            aisle,
+            isAisleValid
+        ) { ui, a, valid ->
+            AddAisleScreenState(
                 uiState = ui,
-                medicine = m,
+                aisle = a,
                 isValid = valid,
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AddScreenState()
+            initialValue = AddAisleScreenState()
         )
 
     init {
@@ -98,27 +86,11 @@ class AddAisleViewModel @Inject constructor(
         }
     }
 
-    fun onAction(formEvent: FormEvent) {
-        when (formEvent) {
-            is FormEvent.NameChanged -> {
-                _medicine.update { it.copy(name = formEvent.name) }
-            }
-
-            is FormEvent.StockSet -> {
-                _medicine.update { it.copy(stock = formEvent.stock) }
-            }
-
-            is FormEvent.DateTimeChanged -> {
-                _medicine.update { it.copy(dateTime = formEvent.dateTime) }
-            }
-
-            is FormEvent.NameAisleChanged -> {
-                _medicine.update { it.copy(nameAisle = formEvent.nameAisle) }
-            }
-        }
+    fun onNameChanged(name: String) {
+        _aisle.update { it.copy(name = name) }
     }
 
-    fun addMedicine() {
+    fun addAisle() {
         viewModelScope.launch {
 
             // 1. Network checking
@@ -130,40 +102,43 @@ class AddAisleViewModel @Inject constructor(
             // 2. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
-                _uiState.value = AddMedicineUiState.Error.NoAccount()
+                _uiState.value = AddAisleUiState.Error.NoAccount()
                 _events.trySend(Event.ShowMessage(R.string.error_no_account_profile))
                 return@launch
             }
 
-            _uiState.value = AddMedicineUiState.Loading
+            _uiState.value = AddAisleUiState.Loading
 
             try {
-                // 3. Creation of file with user
-                val medicineToSave = _medicine.value.copy(author = currentUser)
 
                 // 4. Upload Storage + Firestore
-                medicineRepository.addMedicine(medicineToSave)
+                if (!isAisleValid.value) {
+                    _events.trySend(Event.ShowMessage(R.string.error_invalid_form_aisle))
+                    return@launch
+                }
+
+                aisleRepository.addAisle(_aisle.value)
 
                 // 5. Success UI
-                _uiState.value = AddMedicineUiState.Success(medicineToSave)
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
+                _uiState.value = AddAisleUiState.Success(_aisle.value)
+                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_aisle))
 
             } catch (e: IOException) {
                 // 6. Network error (impossible upload)
-                _uiState.value = AddMedicineUiState.Error.Generic("Network error: ${e.message}")
+                _uiState.value = AddAisleUiState.Error.Generic("Network error: ${e.message}")
                 _events.trySend(Event.ShowMessage(R.string.no_network))
 
             } catch (_: Exception) {
                 // 7. Generic error (Firebase Storage, Firestore, etc.)
-                _uiState.value = AddMedicineUiState.Error.Generic()
+                _uiState.value = AddAisleUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
             }
         }
     }
 }
 
-data class AddScreenState(
-    val uiState: AddMedicineUiState = AddMedicineUiState.Idle,
-    val medicine: Medicine = Medicine(),
+data class AddAisleScreenState(
+    val uiState: AddAisleUiState = AddAisleUiState.Idle,
+    val aisle: Aisle = Aisle(),
     val isValid: Boolean = false
 )
