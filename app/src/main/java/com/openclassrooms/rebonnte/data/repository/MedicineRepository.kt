@@ -33,4 +33,7 @@ class MedicineRepository @Inject constructor(
      */
     fun getMedicineById(medicineId: String): Flow<Medicine?> =
         medicineApi.getMedicineById(medicineId)
+
+    fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>> =
+        medicineApi.getMedicinesByAisle(aisleId)
 }

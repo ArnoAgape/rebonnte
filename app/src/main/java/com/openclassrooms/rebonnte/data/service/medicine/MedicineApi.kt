@@ -15,6 +15,8 @@ interface MedicineApi {
     /** Uploads a medicine and returns the list of uploaded URLs. */
     suspend fun addMedicine(medicine: Medicine)
 
-    /** Observes a medicine by its ID and user ID. */
+    /** Observes a medicine by its ID. */
     fun getMedicineById(medicineId: String): Flow<Medicine?>
+
+    fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>>
 }

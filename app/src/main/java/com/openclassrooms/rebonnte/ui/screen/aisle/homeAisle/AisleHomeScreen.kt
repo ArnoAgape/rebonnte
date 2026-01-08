@@ -25,7 +25,8 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun AisleScreen(
     viewModel: AisleHomeViewModel,
-    onAisleClick: (Aisle) -> Unit
+    onAisleClick: (Aisle) -> Unit,
+    onFABClick: () -> Unit
 ) {
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())
 

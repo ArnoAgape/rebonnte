@@ -13,5 +13,5 @@ interface AisleApi {
     suspend fun addAisle(aisle: Aisle)
 
     /** Observes a aisle by its ID */
-    fun getAisleById(aisleId: String): Flow<Aisle?>
+    fun getAisleById(aisleId: String): Flow<Aisle>
 }

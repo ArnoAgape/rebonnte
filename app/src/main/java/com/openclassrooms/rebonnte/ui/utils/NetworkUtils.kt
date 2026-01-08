@@ -3,7 +3,10 @@ package com.openclassrooms.rebonnte.ui.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.common.Event
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.Channel
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,5 +40,15 @@ class NetworkUtils @Inject constructor(
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    /**
+     * Sends a no-network event if no internet connection is available.
+     */
+    fun checkNetwork(networkUtils: NetworkUtils, events: Channel<Event>) {
+        if (!networkUtils.isNetworkAvailable()) {
+            events.trySend(Event.ShowMessage(R.string.no_network))
+            return
+        }
     }
 }
