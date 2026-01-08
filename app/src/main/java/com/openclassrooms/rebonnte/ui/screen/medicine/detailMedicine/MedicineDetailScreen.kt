@@ -209,7 +209,7 @@ private fun DetailScreenPreview() {
             medicine = Medicine(
                 name = "Doliprane",
                 stock = 7,
-                nameAisle = "Paracetamol"
+                aisleName = "Paracetamol"
             ),
             numberOfMedicines = 7,
             onNumberOfMedicinesChange = {},

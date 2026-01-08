@@ -103,7 +103,7 @@ fun AddMedicineScreen(
                     },
                     name = aisleToDisplay.name,
                     onNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameChanged(it)) },
-                    aisle = aisleToDisplay.nameAisle,
+                    aisle = aisleToDisplay.aisleName,
                     onAisleNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameAisleChanged(it)) },
                     onSaveClicked = { viewModel.addMedicine() },
                     isMedicineValid = state.isValid,

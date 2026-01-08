@@ -54,7 +54,11 @@ class FirebaseMedicineApi @Inject constructor(
     }
 
     override fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>> {
-        TODO("Not yet implemented")
+        return medicinesCollection
+            .whereEqualTo("aisleId", aisleId)
+            .orderBy("aisleName", Query.Direction.ASCENDING)
+            .dataObjects<MedicineDto>()
+            .map { list -> list.map { Medicine.fromDto(it) } }
     }
 
 }

@@ -9,7 +9,8 @@ data class Medicine(
     val name: String = "",
     val stock: Int = 0,
     val dateTime: Instant = Instant.now(),
-    val nameAisle: String = "",
+    val aisleId: String = "",
+    val aisleName: String = "",
     val author: User? = null,
     val histories: List<History> = emptyList()
 ) {
@@ -19,7 +20,7 @@ data class Medicine(
             name = name,
             stock = stock,
             dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
-            nameAisle = nameAisle,
+            aisleName = aisleName,
             author = author,
             histories = histories
         )
@@ -32,7 +33,7 @@ data class Medicine(
                 name = dto.name,
                 stock = dto.stock,
                 dateTime = dto.dateTime.toDate().toInstant(),
-                nameAisle = dto.nameAisle,
+                aisleName = dto.aisleName,
                 author = dto.author,
                 histories = dto.histories
             )

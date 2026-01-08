@@ -45,7 +45,7 @@ class AddMedicineViewModel @Inject constructor(
             name = "Medicine 1",
             stock = 10,
             dateTime = Instant.now(),
-            nameAisle = "Aisle 1",
+            aisleName = "Aisle 1",
             histories = emptyList()
         )
     )
@@ -105,7 +105,7 @@ class AddMedicineViewModel @Inject constructor(
             }
 
             is AddMedicineFormEvent.NameAisleChanged -> {
-                _medicine.update { it.copy(nameAisle = addMedicineFormEvent.nameAisle) }
+                _medicine.update { it.copy(aisleName = addMedicineFormEvent.nameAisle) }
             }
         }
     }

@@ -47,7 +47,7 @@ fun MedicineItem(
             Text(
                 text = stringResource(
                     R.string.aisle_name,
-                    medicine.nameAisle
+                    medicine.aisleName
                 )
             )
 
@@ -73,7 +73,7 @@ private fun DetailScreenPreview() {
             medicine = Medicine(
                 name = "Doliprane",
                 stock = 7,
-                nameAisle = "Paracetamol"
+                aisleName = "Paracetamol"
             ),
             numberOfMedicines = 7,
             onNumberOfMedicinesChange = {},

@@ -203,19 +203,19 @@ private fun MedicineItemPreview() {
                 Medicine(
                     name = "Doliprane",
                     stock = 7,
-                    nameAisle = "Paracetamol",
+                    aisleName = "Paracetamol",
                     histories = emptyList()
                 ),
                 Medicine(
                     name = "Clamoxyl",
                     stock = 10,
-                    nameAisle = "Antibiotic",
+                    aisleName = "Antibiotic",
                     histories = emptyList()
                 ),
                 Medicine(
                     name = "Biafine",
                     stock = 26,
-                    nameAisle = "Antiseptic",
+                    aisleName = "Antiseptic",
                     histories = emptyList()
                 )
             ),

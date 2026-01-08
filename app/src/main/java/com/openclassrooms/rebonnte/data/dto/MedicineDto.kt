@@ -6,11 +6,12 @@ import com.openclassrooms.rebonnte.domain.model.User
 import java.io.Serializable
 
 data class MedicineDto(
-    var id : String = "",
-    var name: String = "",
-    var stock: Int = 0,
+    val id : String = "",
+    val name: String = "",
+    val stock: Int = 0,
     val dateTime: Timestamp = Timestamp.now(),
-    var nameAisle: String = "",
-    var author: User? = null,
-    var histories: List<History> = emptyList()
+    val aisleId: String = "",
+    val aisleName: String = "",
+    val author: User? = null,
+    val histories: List<History> = emptyList()
 ) : Serializable
