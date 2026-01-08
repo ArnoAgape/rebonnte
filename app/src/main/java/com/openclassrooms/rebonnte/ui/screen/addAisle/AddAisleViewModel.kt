@@ -41,7 +41,7 @@ class AddAisleViewModel @Inject constructor(
     private val _aisle = MutableStateFlow(
         Aisle(
             id = "",
-            name = "Aisle 1",
+            name = "",
             medicines = emptyList()
         )
     )

@@ -1,7 +1,6 @@
 package com.openclassrooms.rebonnte.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,13 +36,6 @@ fun AppNavGraph(
     // Sign-in launchers
     val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
 
-    LaunchedEffect(isSignedIn) {
-        if (isSignedIn == true) {
-            navController.navigate(HomeAisle) {
-                popUpTo(LoginRoute) { inclusive = true }
-            }
-        }
-    }
     val emailSignUpLauncher = authSignInLauncher(loginViewModel)
 
     NavHost(
@@ -54,14 +46,19 @@ fun AppNavGraph(
         composable<LoginRoute> {
             LoginScreen(
                 onLaunchAuth = emailSignUpLauncher,
-                isSignedIn = isSignedIn
+                isSignedIn = isSignedIn,
+                onLoginSuccess = {
+                    navController.navigate(HomeAisle) {
+                        popUpTo(LoginRoute) { inclusive = true }
+                    }
+                }
             )
         }
 
         composable<HomeAisle> {
             AisleHomeScreen(
                 viewModel = hiltViewModel<AisleHomeViewModel>(),
-                loginViewModel = loginViewModel,
+                loginViewModel = hiltViewModel<LoginViewModel>(),
                 onFABClick = { navController.navigate(AddAisleRoute) },
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
             )
@@ -70,7 +67,7 @@ fun AppNavGraph(
         composable<HomeMedicine> {
             MedicineHomeScreen(
                 viewModel = hiltViewModel<MedicineHomeViewModel>(),
-                loginViewModel = loginViewModel,
+                loginViewModel = hiltViewModel<LoginViewModel>(),
                 onFABClick = { navController.navigate(AddMedicineRoute) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }
             )

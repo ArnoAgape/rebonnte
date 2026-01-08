@@ -42,10 +42,10 @@ class AddMedicineViewModel @Inject constructor(
     private val _medicine = MutableStateFlow(
         Medicine(
             id = "",
-            name = "Medicine 1",
-            stock = 10,
+            name = "",
+            stock = 1,
             dateTime = Instant.now(),
-            aisleName = "Aisle 1",
+            aisleName = "",
             histories = emptyList()
         )
     )
