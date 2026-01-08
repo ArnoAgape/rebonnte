@@ -8,6 +8,7 @@ import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -90,23 +91,25 @@ class AddMedicineViewModel @Inject constructor(
         }
     }
 
-    fun onAction(addMedicineFormEvent: AddMedicineFormEvent) {
-        when (addMedicineFormEvent) {
-            is AddMedicineFormEvent.NameChanged -> {
-                _medicine.update { it.copy(name = addMedicineFormEvent.name) }
+    fun onAction(formEvent: FormEvent) {
+        when (formEvent) {
+            is FormEvent.NameChanged -> {
+                _medicine.update { it.copy(name = formEvent.name) }
             }
 
-            is AddMedicineFormEvent.StockSet -> {
-                _medicine.update { it.copy(stock = addMedicineFormEvent.stock) }
+            is FormEvent.StockSet -> {
+                _medicine.update { it.copy(stock = formEvent.stock) }
             }
 
-            is AddMedicineFormEvent.DateTimeChanged -> {
-                _medicine.update { it.copy(dateTime = addMedicineFormEvent.dateTime) }
+            is FormEvent.DateTimeChanged -> {
+                _medicine.update { it.copy(dateTime = formEvent.dateTime) }
             }
 
-            is AddMedicineFormEvent.NameAisleChanged -> {
-                _medicine.update { it.copy(aisleName = addMedicineFormEvent.nameAisle) }
+            is FormEvent.NameAisleChanged -> {
+                _medicine.update { it.copy(aisleName = formEvent.nameAisle) }
             }
+
+            else -> {}
         }
     }
 

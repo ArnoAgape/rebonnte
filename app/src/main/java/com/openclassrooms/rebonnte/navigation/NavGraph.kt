@@ -22,6 +22,8 @@ import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
 import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
+import com.openclassrooms.rebonnte.ui.screen.profile.ProfileScreen
+import com.openclassrooms.rebonnte.ui.screen.profile.ProfileViewModel
 
 /**
  * Defines the navigation graph for the application.
@@ -40,16 +42,16 @@ fun AppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = LoginRoute
+        startDestination = Login
     ) {
 
-        composable<LoginRoute> {
+        composable<Login> {
             LoginScreen(
                 onLaunchAuth = emailSignUpLauncher,
                 isSignedIn = isSignedIn,
                 onLoginSuccess = {
                     navController.navigate(HomeAisle) {
-                        popUpTo(LoginRoute) { inclusive = true }
+                        popUpTo(Login) { inclusive = true }
                     }
                 }
             )
@@ -59,7 +61,7 @@ fun AppNavGraph(
             AisleHomeScreen(
                 viewModel = hiltViewModel<AisleHomeViewModel>(),
                 loginViewModel = hiltViewModel<LoginViewModel>(),
-                onFABClick = { navController.navigate(AddAisleRoute) },
+                onFABClick = { navController.navigate(AddAisle) },
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
             )
         }
@@ -68,7 +70,7 @@ fun AppNavGraph(
             MedicineHomeScreen(
                 viewModel = hiltViewModel<MedicineHomeViewModel>(),
                 loginViewModel = hiltViewModel<LoginViewModel>(),
-                onFABClick = { navController.navigate(AddMedicineRoute) },
+                onFABClick = { navController.navigate(AddMedicine) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }
             )
         }
@@ -92,7 +94,7 @@ fun AppNavGraph(
             )
         }
 
-        composable<AddMedicineRoute> {
+        composable<AddMedicine> {
             AddMedicineScreen(
                 viewModel = hiltViewModel<AddMedicineViewModel>(),
                 onBackClick = { navController.navigateUp() },
@@ -100,11 +102,18 @@ fun AppNavGraph(
             )
         }
 
-        composable<AddAisleRoute> {
+        composable<AddAisle> {
             AddAisleScreen(
                 viewModel = hiltViewModel<AddAisleViewModel>(),
                 onBackClick = { navController.navigateUp() },
                 onSaveClick = { navController.navigateUp() }
+            )
+        }
+
+        composable<Profile> {
+            ProfileScreen(
+                viewModel = hiltViewModel<ProfileViewModel>(),
+                onLoginScreen = { navController.navigate(Login)}
             )
         }
     }

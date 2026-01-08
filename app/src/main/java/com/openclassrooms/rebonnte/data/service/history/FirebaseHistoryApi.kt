@@ -11,7 +11,6 @@ class FirebaseHistoryApi @Inject constructor(
 ) : HistoryApi {
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val historyCollection = firestore.collection("history")
 
     /**
      * Observes the history for a given Medicine in real time.
@@ -23,10 +22,10 @@ class FirebaseHistoryApi @Inject constructor(
      * @return A [Flow] emitting ordered lists of History.
      */
     override fun observeHistory(medicineId: String): Flow<List<History>> {
-        return historyCollection
+        return firestore.collection("medicines")
             .document(medicineId)
-            .collection("comments")
-            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .collection("history")
+            .orderBy("dateTime", Query.Direction.DESCENDING)
             .dataObjects()
     }
 }

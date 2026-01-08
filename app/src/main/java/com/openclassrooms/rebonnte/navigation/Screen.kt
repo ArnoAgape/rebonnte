@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-object LoginRoute
+object Login
 
 @Serializable
 data class DetailMedicine(val medicineId: String)
@@ -27,7 +27,7 @@ object HomeMedicine
 object Profile
 
 @Serializable
-object AddMedicineRoute
+object AddMedicine
 
 @Serializable
-object AddAisleRoute
+object AddAisle

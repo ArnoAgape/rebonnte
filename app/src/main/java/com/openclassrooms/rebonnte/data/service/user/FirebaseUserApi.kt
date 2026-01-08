@@ -3,7 +3,9 @@ package com.openclassrooms.rebonnte.data.service.user
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.openclassrooms.rebonnte.domain.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -54,6 +56,36 @@ class FirebaseUserApi : UserApi {
         }
         auth.addAuthStateListener(listener)
         awaitClose { auth.removeAuthStateListener(listener) }
+    }
+
+    /**
+     * Updates the user's FirebaseAuth profile, email verification,
+     * and persists additional fields in Firestore.
+     */
+    override suspend fun updateUser(user: User): Result<Unit> {
+        return try {
+            val currentUser = auth.currentUser
+                ?: return Result.failure(Exception("User not signed in"))
+
+            val profileUpdates = userProfileChangeRequest {
+                displayName = user.displayName
+            }
+            currentUser.updateProfile(profileUpdates).await()
+
+            user.email?.let { email ->
+                if (email != currentUser.email) {
+                    currentUser.verifyBeforeUpdateEmail(email).await()
+                }
+            }
+
+            usersCollection.document(currentUser.uid)
+                .set(user.toDto(), SetOptions.merge())
+                .await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">rebonnte</string>
 
+    <string name="profile_picture">Your profile picture</string>
     <string name="user_name">Name</string>
     <string name="user_email">Email address</string>
     <string name="user_phone">Phone number</string>
@@ -24,6 +25,7 @@
     <string name="add">Add</string>
     <string name="add_medicine">Add medicine</string>
     <string name="delete">Delete</string>
+    <string name="log_in">Log in</string>
     <string name="home">Home</string>
     <string name="aisle">Aisle</string>
     <string name="aisles">Aisles</string>

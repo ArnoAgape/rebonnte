@@ -9,6 +9,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +24,9 @@ import com.openclassrooms.rebonnte.R
 fun ConfirmDialogButton(
     buttonColor: ButtonColors,
     onConfirmButton: () -> Unit,
-    actionButton: Int,
-    confirmButtonTitle: Int,
-    confirmButtonMessage: Int
+    actionButton: String,
+    confirmButtonTitle: String,
+    confirmButtonMessage: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -36,7 +37,7 @@ fun ConfirmDialogButton(
     ) {
         Text(
             modifier = Modifier.padding(8.dp),
-            text = stringResource(actionButton)
+            text = actionButton
         )
     }
 
@@ -45,11 +46,11 @@ fun ConfirmDialogButton(
             onDismissRequest = { showDialog = false },
 
             title = {
-                Text(text = stringResource(confirmButtonTitle))
+                Text(text = confirmButtonTitle)
             },
 
             text = {
-                Text(text = stringResource(confirmButtonMessage))
+                Text(text = confirmButtonMessage)
             },
 
             confirmButton = {

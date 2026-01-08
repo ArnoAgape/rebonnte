@@ -24,6 +24,8 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Red80,
     onTertiary = Color.Black,
 
+    error = Color(0xFFDB3229),
+
     background = Color(0xFF121212),
     onBackground = Color(0xFFECECEC),
 
@@ -49,6 +51,8 @@ private val LightColorScheme = lightColorScheme(
 
     tertiary = Red40,
     onTertiary = Color.White,
+
+    error = Color(0xFFB3261E),
 
     background = Color(0xFFFFFBF9),
     onBackground = Color(0xFF1C1B1A),

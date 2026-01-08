@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
+import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -96,15 +97,15 @@ fun AddMedicineScreen(
                 AddMedicineContent(
                     contentPadding = contentPadding,
                     dateTime = aisleToDisplay.dateTime,
-                    onDateTimeChange = { viewModel.onAction(AddMedicineFormEvent.DateTimeChanged(it)) },
+                    onDateTimeChange = { viewModel.onAction(FormEvent.DateTimeChanged(it)) },
                     numberOfMedicines = aisleToDisplay.stock,
                     onNumberOfMedicinesChange = { newValue ->
-                        viewModel.onAction(AddMedicineFormEvent.StockSet(newValue))
+                        viewModel.onAction(FormEvent.StockSet(newValue))
                     },
                     name = aisleToDisplay.name,
-                    onNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameChanged(it)) },
+                    onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
                     aisle = aisleToDisplay.aisleName,
-                    onAisleNameChanged = { viewModel.onAction(AddMedicineFormEvent.NameAisleChanged(it)) },
+                    onAisleNameChanged = { viewModel.onAction(FormEvent.NameAisleChanged(it)) },
                     onSaveClicked = { viewModel.addMedicine() },
                     isMedicineValid = state.isValid,
                     isLoading = false

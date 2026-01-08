@@ -50,7 +50,7 @@ fun MainScreen() {
                                 if (loginViewModel.isSignedIn.value == true) {
                                     navController.navigate(Profile)
                                 } else {
-                                    navController.navigate(LoginRoute)
+                                    navController.navigate(Login)
                                 }
                             } else {
                                 navController.navigate(destination.route) {

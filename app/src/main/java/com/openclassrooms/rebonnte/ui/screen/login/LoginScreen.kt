@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.openclassrooms.rebonnte.R
 
 @Composable
 fun LoginScreen(
@@ -37,7 +39,7 @@ fun LoginScreen(
             false -> {
                 // User not signed in → explicit action
                 Button(onClick = onLaunchAuth) {
-                    Text("Se connecter")
+                    Text(stringResource(R.string.log_in))
                 }
             }
 

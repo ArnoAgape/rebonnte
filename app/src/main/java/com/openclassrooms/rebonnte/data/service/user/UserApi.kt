@@ -25,6 +25,8 @@ interface UserApi {
      */
     fun observeCurrentUser(): Flow<User?>
 
+    suspend fun updateUser(user: User): Result<Unit>
+
     /**
      * Ensures that the authenticated user exists in Firestore.
      * Creates or updates the user document as needed.

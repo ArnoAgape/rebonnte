@@ -70,7 +70,7 @@ fun AisleHomeScreen(
         }
     }
 
-    val noAccountMessage = stringResource(R.string.error_no_account_medicine)
+    val noAccountMessage = stringResource(R.string.error_no_account_aisle)
 
     Scaffold(
         modifier = Modifier
