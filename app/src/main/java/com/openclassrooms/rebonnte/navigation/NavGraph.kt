@@ -8,7 +8,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddScreen
+import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleScreen
+import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleViewModel
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
@@ -63,7 +65,7 @@ fun AppNavGraph(
                 viewModel = aisleHomeViewModel,
                 loginViewModel = loginViewModel,
                 onFABClick = { navController.navigate(AddAisleRoute) },
-                onAisleClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
+                onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
             )
         }
 
@@ -72,7 +74,7 @@ fun AppNavGraph(
                 viewModel = medicineHomeViewModel,
                 loginViewModel = loginViewModel,
                 onFABClick = { navController.navigate(AddMedicineRoute) },
-                onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
+                onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }
             )
         }
 
@@ -81,18 +83,10 @@ fun AppNavGraph(
                 viewModel = hiltViewModel<AisleDetailViewModel>(),
                 onMedicineClick = { medicine ->
                     navController.navigate(
-                        DetailMedicine(medicine.name)
+                        DetailMedicine(medicine.id)
                     )
                 },
                 onBackClick = { navController.navigateUp() }
-            )
-        }
-
-        composable<AddMedicineRoute> {
-            AddScreen(
-                viewModel = hiltViewModel<AddMedicineViewModel>(),
-                onBackClick = { navController.navigateUp() },
-                onSaveClick = { navController.navigateUp() }
             )
         }
 
@@ -100,6 +94,22 @@ fun AppNavGraph(
             MedicineDetailScreen(
                 viewModel = hiltViewModel<MedicineDetailViewModel>(),
                 onBackClick = { navController.navigateUp() },
+            )
+        }
+
+        composable<AddMedicineRoute> {
+            AddMedicineScreen(
+                viewModel = hiltViewModel<AddMedicineViewModel>(),
+                onBackClick = { navController.navigateUp() },
+                onSaveClick = { navController.navigateUp() }
+            )
+        }
+
+        composable<AddAisleRoute> {
+            AddAisleScreen(
+                viewModel = hiltViewModel<AddAisleViewModel>(),
+                onBackClick = { navController.navigateUp() },
+                onSaveClick = { navController.navigateUp() }
             )
         }
     }

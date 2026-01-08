@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.addMedicine
+package com.openclassrooms.rebonnte.ui.screen.addAisle
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -46,6 +46,7 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineUiState
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -53,8 +54,8 @@ import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedicineScreen(
-    viewModel: AddMedicineViewModel,
+fun AddAisleScreen(
+    viewModel: AddAisleViewModel,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
