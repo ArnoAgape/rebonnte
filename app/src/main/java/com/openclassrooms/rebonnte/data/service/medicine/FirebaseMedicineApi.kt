@@ -53,4 +53,8 @@ class FirebaseMedicineApi @Inject constructor(
             .map { Medicine.fromDto(it.first()) }
     }
 
+    override fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>> {
+        TODO("Not yet implemented")
+    }
+
 }

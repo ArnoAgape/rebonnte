@@ -13,6 +13,7 @@ import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailViewModel
 import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
@@ -60,6 +61,8 @@ fun AppNavGraph(
         composable<HomeAisle> {
             AisleScreen(
                 viewModel = aisleHomeViewModel,
+                loginViewModel = loginViewModel,
+                onFABClick = { navController.navigate(AddAisleRoute) },
                 onAisleClick = { medicine -> navController.navigate(DetailMedicine(medicine.name)) }
             )
         }
@@ -75,7 +78,7 @@ fun AppNavGraph(
 
         composable<DetailAisle> {
             AisleDetailScreen(
-                viewModel = hiltViewModel<MedicineDetailViewModel>(),
+                viewModel = hiltViewModel<AisleDetailViewModel>(),
                 onMedicineClick = { medicine ->
                     navController.navigate(
                         DetailMedicine(medicine.name)
