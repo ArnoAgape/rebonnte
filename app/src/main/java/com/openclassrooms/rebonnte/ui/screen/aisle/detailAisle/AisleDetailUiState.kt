@@ -4,7 +4,6 @@ import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 
 sealed class AisleDetailUiState {
-    object Idle : AisleDetailUiState()
     object Loading : AisleDetailUiState()
     data class Success(
         val aisle: Aisle,

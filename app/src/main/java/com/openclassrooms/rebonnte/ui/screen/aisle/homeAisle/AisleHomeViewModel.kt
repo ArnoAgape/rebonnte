@@ -8,13 +8,13 @@ import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -61,13 +61,13 @@ class AisleHomeViewModel @Inject constructor(
         )
 
     init {
-        networkUtils.checkNetwork(networkUtils, _events)
+        _uiState.value = AisleHomeUiState.Loading
+        getAllAisles()
     }
 
     private fun getAllAisles() {
         viewModelScope.launch {
             aisleRepository.aisles
-                .onStart { _uiState.value = AisleHomeUiState.Loading }
                 .catch { e ->
                     _uiState.value = AisleHomeUiState.Error.Generic(e.message ?: "Unknown error")
                 }
@@ -86,7 +86,7 @@ class AisleHomeViewModel @Inject constructor(
             networkUtils.checkNetwork(networkUtils, _events)
             _isRefreshing.value = true
 
-            kotlinx.coroutines.delay(700)
+            delay(700)
 
             _isRefreshing.value = false
         }
@@ -98,6 +98,6 @@ class AisleHomeViewModel @Inject constructor(
  * including loading state and refresh status.
  */
 data class AisleHomeScreenState(
-    val uiState: AisleHomeUiState = AisleHomeUiState.Idle,
+    val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
     val isRefreshing: Boolean = false
 )

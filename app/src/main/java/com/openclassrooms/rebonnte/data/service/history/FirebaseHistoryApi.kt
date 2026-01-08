@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.Flow
 class FirebaseHistoryApi @Inject constructor(
 ) : HistoryApi {
 
-    private val db = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val historyCollection = firestore.collection("history")
 
     /**
      * Observes the history for a given Medicine in real time.
@@ -22,7 +23,7 @@ class FirebaseHistoryApi @Inject constructor(
      * @return A [Flow] emitting ordered lists of History.
      */
     override fun observeHistory(medicineId: String): Flow<List<History>> {
-        return db.collection("posts")
+        return historyCollection
             .document(medicineId)
             .collection("comments")
             .orderBy("timestamp", Query.Direction.ASCENDING)

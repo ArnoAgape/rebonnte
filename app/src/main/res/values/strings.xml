@@ -26,9 +26,11 @@
     <string name="delete">Delete</string>
     <string name="home">Home</string>
     <string name="aisle">Aisle</string>
+    <string name="aisles">Aisles</string>
     <string name="notifications">Notifications</string>
     <string name="profile">Profile</string>
     <string name="medicine">Medicine</string>
+    <string name="medicines">Medicines</string>
     <string name="loading">Loading…</string>
     <string name="sending">Sending…</string>
     <string name="success_add_medicine">Medicine added successfully</string>

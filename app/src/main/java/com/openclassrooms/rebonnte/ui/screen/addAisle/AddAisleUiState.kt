@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.screen.addAisle
 import com.openclassrooms.rebonnte.domain.model.Aisle
 
 sealed class AddAisleUiState {
-
     object Idle : AddAisleUiState()
     object Loading : AddAisleUiState()
     data class Success(val aisle: Aisle) : AddAisleUiState()

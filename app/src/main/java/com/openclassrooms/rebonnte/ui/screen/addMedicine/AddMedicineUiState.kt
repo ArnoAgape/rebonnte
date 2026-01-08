@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.screen.addMedicine
 import com.openclassrooms.rebonnte.domain.model.Medicine
 
 sealed class AddMedicineUiState {
-
     object Idle : AddMedicineUiState()
     object Loading : AddMedicineUiState()
     data class Success(val medicine: Medicine) : AddMedicineUiState()

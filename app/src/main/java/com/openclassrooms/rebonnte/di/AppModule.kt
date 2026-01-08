@@ -1,5 +1,9 @@
 package com.openclassrooms.rebonnte.di
 
+import com.openclassrooms.rebonnte.data.service.aisle.AisleApi
+import com.openclassrooms.rebonnte.data.service.aisle.FirebaseAisleApi
+import com.openclassrooms.rebonnte.data.service.history.FirebaseHistoryApi
+import com.openclassrooms.rebonnte.data.service.history.HistoryApi
 import com.openclassrooms.rebonnte.data.service.medicine.MedicineApi
 import com.openclassrooms.rebonnte.data.service.medicine.FirebaseMedicineApi
 import com.openclassrooms.rebonnte.data.service.user.FirebaseUserApi
@@ -32,4 +36,18 @@ class AppModule {
     @Provides
     @Singleton
     fun provideUserApi(): UserApi = FirebaseUserApi()
+
+    /**
+     * Provides a singleton [AisleApi] implementation backed by Firebase.
+     */
+    @Provides
+    @Singleton
+    fun provideAisleApi(firebaseAisleApi: FirebaseAisleApi): AisleApi = firebaseAisleApi
+
+    /**
+     * Provides a singleton [HistoryApi] implementation backed by Firebase.
+     */
+    @Provides
+    @Singleton
+    fun provideHistoryApi(): HistoryApi = FirebaseHistoryApi()
 }

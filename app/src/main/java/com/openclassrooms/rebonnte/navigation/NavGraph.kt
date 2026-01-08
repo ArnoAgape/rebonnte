@@ -12,7 +12,7 @@ import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleScreen
 import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleViewModel
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
-import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailViewModel
@@ -32,8 +32,6 @@ import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    val aisleHomeViewModel: AisleHomeViewModel = hiltViewModel()
-    val medicineHomeViewModel: MedicineHomeViewModel = hiltViewModel()
     val loginViewModel: LoginViewModel = hiltViewModel()
 
     // Sign-in launchers
@@ -61,8 +59,8 @@ fun AppNavGraph(
         }
 
         composable<HomeAisle> {
-            AisleScreen(
-                viewModel = aisleHomeViewModel,
+            AisleHomeScreen(
+                viewModel = hiltViewModel<AisleHomeViewModel>(),
                 loginViewModel = loginViewModel,
                 onFABClick = { navController.navigate(AddAisleRoute) },
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
@@ -71,7 +69,7 @@ fun AppNavGraph(
 
         composable<HomeMedicine> {
             MedicineHomeScreen(
-                viewModel = medicineHomeViewModel,
+                viewModel = hiltViewModel<MedicineHomeViewModel>(),
                 loginViewModel = loginViewModel,
                 onFABClick = { navController.navigate(AddMedicineRoute) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }

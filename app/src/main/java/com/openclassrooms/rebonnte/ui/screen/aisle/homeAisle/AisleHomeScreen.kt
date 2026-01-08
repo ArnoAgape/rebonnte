@@ -49,13 +49,13 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun AisleScreen(
+fun AisleHomeScreen(
     viewModel: AisleHomeViewModel,
     loginViewModel: LoginViewModel,
     onAisleClick: (Aisle) -> Unit,
     onFABClick: () -> Unit
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
     val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
@@ -79,7 +79,7 @@ fun AisleScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(id = R.string.home))
+                    Text(stringResource(id = R.string.aisles))
                 }
             )
         },
@@ -111,13 +111,13 @@ fun AisleScreen(
                 .fillMaxSize()
                 .padding(contentPadding),
             state = refreshState,
-            isRefreshing = state is AisleHomeUiState.Loading,
+            isRefreshing = state.isRefreshing,
             onRefresh = { viewModel.refreshAisles() }
         ) {
-            when (state) {
-                is AisleHomeUiState.Idle, is AisleHomeUiState.Success ->
+            when (val ui = state.uiState) {
+                is AisleHomeUiState.Success ->
                     AisleContent(
-                        aisles = (state as AisleHomeUiState.Success).aisles,
+                        aisles = ui.aisles,
                         onAisleClick = onAisleClick
                     )
 

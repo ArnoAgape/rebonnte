@@ -47,7 +47,7 @@ fun MedicineHomeScreen(
     onFABClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshState = rememberPullToRefreshState()
     val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
 
@@ -70,7 +70,7 @@ fun MedicineHomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(id = R.string.home))
+                    Text(stringResource(id = R.string.medicines))
                 }
             )
         },
@@ -102,13 +102,13 @@ fun MedicineHomeScreen(
                 .fillMaxSize()
                 .padding(contentPadding),
             state = refreshState,
-            isRefreshing = state is MedicineHomeUiState.Loading,
+            isRefreshing = state.isRefreshing,
             onRefresh = { viewModel.refreshMedicines() }
         ) {
-            when (state) {
-                is MedicineHomeUiState.Idle, is MedicineHomeUiState.Success ->
+            when (val ui = state.uiState) {
+                is MedicineHomeUiState.Success ->
                     MedicineHomeContent(
-                        medicines = (state as MedicineHomeUiState.Success).medicines,
+                        medicines = ui.medicines,
                         onMedicineClick = onMedicineClick
                     )
 
