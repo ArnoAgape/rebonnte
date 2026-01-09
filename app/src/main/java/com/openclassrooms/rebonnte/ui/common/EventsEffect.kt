@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
  * @param flow Flow emitting events from the ViewModel.
  * @param onEvent Callback invoked for each emitted event.
  */
+
 @Composable
 fun <T> EventsEffect(flow: Flow<T>, onEvent: suspend (T) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current

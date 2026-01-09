@@ -3,8 +3,10 @@ package com.openclassrooms.rebonnte.ui.screen.addMedicine
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
@@ -29,6 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
+    aisleRepository: AisleRepository,
     private val userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
@@ -39,6 +42,17 @@ class AddMedicineViewModel @Inject constructor(
     val user: StateFlow<User?> = _user.asStateFlow()
     private val _events = Channel<Event>()
     val eventsFlow = _events.receiveAsFlow()
+
+    val aisles: StateFlow<List<Aisle>> =
+        aisleRepository.aisles
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    private val _selectedAisle = MutableStateFlow<Aisle?>(null)
+    val selectedAisle = _selectedAisle.asStateFlow()
 
     private val _medicine = MutableStateFlow(
         Medicine(
@@ -105,8 +119,14 @@ class AddMedicineViewModel @Inject constructor(
                 _medicine.update { it.copy(dateTime = formEvent.dateTime) }
             }
 
-            is FormEvent.NameAisleChanged -> {
-                _medicine.update { it.copy(aisleName = formEvent.nameAisle) }
+            is FormEvent.AisleSelected -> {
+                _selectedAisle.value = formEvent.aisle
+                _medicine.update {
+                    it.copy(
+                        aisleId = formEvent.aisle.id,
+                        aisleName = formEvent.aisle.name
+                    )
+                }
             }
 
             else -> {}

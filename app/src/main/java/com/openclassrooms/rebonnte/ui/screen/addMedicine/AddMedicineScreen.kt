@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.screen.addMedicine
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +29,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,14 +49,17 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.AisleDropdown
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
 import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import java.time.Instant
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMedicineScreen(
@@ -60,15 +69,29 @@ fun AddMedicineScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
+    val aisles = viewModel.aisles.collectAsState().value
+    val selectedAisle = viewModel.selectedAisle.collectAsState().value
+    val snackbarHostState = remember { SnackbarHostState() }
+    
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
+                val result = snackbarHostState.showSnackbar(
+                    message = context.getString(event.message),
+                    actionLabel = context.getString(R.string.try_again),
+                    withDismissAction = true,
+                    duration = SnackbarDuration.Short
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.addMedicine()
+                }
+            }
+
+            is Event.ShowSuccessMessage -> {
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 onSaveClick()
             }
 
-            else -> {}
         }
     }
 
@@ -104,8 +127,9 @@ fun AddMedicineScreen(
                     },
                     name = aisleToDisplay.name,
                     onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
-                    aisle = aisleToDisplay.aisleName,
-                    onAisleNameChanged = { viewModel.onAction(FormEvent.NameAisleChanged(it)) },
+                    aisles = aisles,
+                    selectedAisle = selectedAisle,
+                    onAisleSelected = { viewModel.onAction(FormEvent.AisleSelected(it)) },
                     onSaveClicked = { viewModel.addMedicine() },
                     isMedicineValid = state.isValid,
                     isLoading = false
@@ -157,8 +181,9 @@ private fun AddMedicineContent(
     onNumberOfMedicinesChange: (Int) -> Unit,
     name: String,
     onNameChanged: (String) -> Unit,
-    aisle: String,
-    onAisleNameChanged: (String) -> Unit,
+    aisles: List<Aisle>,
+    selectedAisle: Aisle?,
+    onAisleSelected: (Aisle) -> Unit,
     onSaveClicked: () -> Unit,
     isMedicineValid: Boolean,
     isLoading: Boolean
@@ -213,16 +238,10 @@ private fun AddMedicineContent(
                 )
 
                 /** ---------- AISLE NAME ---------- **/
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    value = aisle,
-                    onValueChange = onAisleNameChanged,
-                    label = { Text(stringResource(id = R.string.hint_aisle_name)) },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Sentences
-                    )
+                AisleDropdown(
+                    aisles = aisles,
+                    selected = selectedAisle,
+                    onSelect = onAisleSelected
                 )
 
                 /** ---------- NUMBER OF MEDICINES ---------- **/
@@ -256,6 +275,11 @@ private fun AddMedicineContent(
 @PreviewLightDark
 @Composable
 private fun AddMedicineContentPreview() {
+    val fakeAisles = listOf(
+        Aisle(id = "1", name = "Paracetamol"),
+        Aisle(id = "2", name = "Syrup"),
+        Aisle(id = "3", name = "Cream")
+    )
     RebonnteTheme {
         AddMedicineContent(
             dateTime = Instant.now(),
@@ -264,8 +288,9 @@ private fun AddMedicineContentPreview() {
             onNumberOfMedicinesChange = {},
             name = "Doliprane",
             onNameChanged = {},
-            aisle = "Aisle 1",
-            onAisleNameChanged = {},
+            aisles = fakeAisles,
+            selectedAisle = fakeAisles.first(),
+            onAisleSelected = {},
             onSaveClicked = {},
             isMedicineValid = true,
             isLoading = false
