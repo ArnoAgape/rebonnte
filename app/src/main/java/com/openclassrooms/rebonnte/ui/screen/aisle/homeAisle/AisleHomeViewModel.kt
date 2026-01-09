@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
+import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AisleHomeViewModel @Inject constructor(
     aisleRepository: AisleRepository,
+    userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
@@ -62,6 +64,14 @@ class AisleHomeViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AisleHomeScreenState()
         )
+
+    val isSignedIn =
+        userRepository.isUserSignedIn()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                null
+            )
 
     fun refreshAisles() {
         if (!networkUtils.isNetworkAvailable()) {

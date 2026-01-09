@@ -60,7 +60,6 @@ fun AppNavGraph(
         composable<HomeAisle> {
             AisleHomeScreen(
                 viewModel = hiltViewModel<AisleHomeViewModel>(),
-                loginViewModel = hiltViewModel<LoginViewModel>(),
                 onFABClick = { navController.navigate(AddAisle) },
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
             )
@@ -69,7 +68,6 @@ fun AppNavGraph(
         composable<HomeMedicine> {
             MedicineHomeScreen(
                 viewModel = hiltViewModel<MedicineHomeViewModel>(),
-                loginViewModel = hiltViewModel<LoginViewModel>(),
                 onFABClick = { navController.navigate(AddMedicine) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }
             )

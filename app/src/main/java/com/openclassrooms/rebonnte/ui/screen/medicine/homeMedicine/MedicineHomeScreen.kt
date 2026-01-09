@@ -26,14 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
@@ -41,14 +39,13 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun MedicineHomeScreen(
     viewModel: MedicineHomeViewModel,
-    loginViewModel: LoginViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshState = rememberPullToRefreshState()
-    val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
+    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {

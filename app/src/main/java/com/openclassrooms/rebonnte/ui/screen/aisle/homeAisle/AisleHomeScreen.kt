@@ -43,7 +43,6 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,14 +50,13 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun AisleHomeScreen(
     viewModel: AisleHomeViewModel,
-    loginViewModel: LoginViewModel,
     onAisleClick: (Aisle) -> Unit,
     onFABClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
-    val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
+    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
