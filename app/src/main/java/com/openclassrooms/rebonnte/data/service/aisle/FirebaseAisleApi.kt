@@ -20,7 +20,7 @@ class FirebaseAisleApi @Inject constructor(
     private val firestore = FirebaseFirestore.getInstance()
     private val aislesCollection = firestore.collection("aisles")
 
-    override fun getAllAisles(): Flow<List<Aisle>> {
+    override fun getAislesOrderByNameAsc(): Flow<List<Aisle>> {
         return aislesCollection
             .orderBy("name", Query.Direction.ASCENDING)
             .dataObjects<AisleDto>()
@@ -32,11 +32,14 @@ class FirebaseAisleApi @Inject constructor(
             throw IOException("No internet connection")
         }
         try {
+            val docRef = aislesCollection.document()
 
-            aislesCollection.document(aisle.id).set(aisle.toDto()).await()
+            val dto = aisle.copy(id = docRef.id).toDto()
+
+            docRef.set(dto).await()
 
         } catch (e: Exception) {
-            Log.e("FirebaseFileApi", "Error while adding document", e)
+            Log.e("FirebaseAisleApi", "Error while adding aisle", e)
             throw e
         }
     }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface AisleApi {
 
     /** Returns all aisles ordered by name. */
-    fun getAllAisles(): Flow<List<Aisle>>
+    fun getAislesOrderByNameAsc(): Flow<List<Aisle>>
 
     /** Uploads an aisle and returns the list of uploaded URLs. */
     suspend fun addAisle(aisle: Aisle)

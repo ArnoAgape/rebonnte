@@ -32,7 +32,6 @@ class FirebaseMedicineApi @Inject constructor(
     }
 
     override suspend fun addMedicine(medicine: Medicine) {
-        Log.d("TEST", ">>> addMedicine CALLED")
         if (!networkUtils.isNetworkAvailable()) {
             throw IOException("No internet connection")
         }
@@ -44,7 +43,7 @@ class FirebaseMedicineApi @Inject constructor(
             docRef.set(dto).await()
 
         } catch (e: Exception) {
-            Log.e("FirebaseMedicineApi", "Error while adding document", e)
+            Log.e("FirebaseMedicineApi", "Error while adding medicine", e)
             throw e
         }
     }

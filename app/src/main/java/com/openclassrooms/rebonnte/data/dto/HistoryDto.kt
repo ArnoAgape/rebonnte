@@ -3,7 +3,7 @@ package com.openclassrooms.rebonnte.data.dto
 import com.google.firebase.Timestamp
 import java.io.Serializable
 
-class HistoryDto(
+data class HistoryDto(
     val medicineName: String = "",
     val author: UserDto? = null,
     val dateTime: Timestamp = Timestamp.now(),
