@@ -5,4 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface HistoryApi {
     fun observeHistory(medicineId: String): Flow<List<History>>
+
+    /** Uploads history. */
+    suspend fun addHistory(medicineId: String, history: History)
 }

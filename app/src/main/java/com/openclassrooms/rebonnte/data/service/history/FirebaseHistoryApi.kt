@@ -1,13 +1,20 @@
 package com.openclassrooms.rebonnte.data.service.history
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
+import com.openclassrooms.rebonnte.data.dto.HistoryDto
 import com.openclassrooms.rebonnte.domain.model.History
+import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
+import java.io.IOException
 
 class FirebaseHistoryApi @Inject constructor(
+    private val networkUtils: NetworkUtils
 ) : HistoryApi {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -24,8 +31,29 @@ class FirebaseHistoryApi @Inject constructor(
     override fun observeHistory(medicineId: String): Flow<List<History>> {
         return firestore.collection("medicines")
             .document(medicineId)
-            .collection("history")
+            .collection("histories")
             .orderBy("dateTime", Query.Direction.DESCENDING)
-            .dataObjects()
+            .dataObjects<HistoryDto>()
+            .map { list -> list.map { History.fromDto(it) } }
+    }
+
+    override suspend fun addHistory(medicineId: String, history: History) {
+        if (!networkUtils.isNetworkAvailable()) {
+            throw IOException("No internet connection")
+        }
+        try {
+            val docRef = firestore.collection("medicines")
+                .document(medicineId)
+                .collection("histories")
+                .document()
+
+            val dto = history.copy(id = docRef.id).toDto()
+
+            docRef.set(dto).await()
+
+        } catch (e: Exception) {
+            Log.e("FirebaseHistoryApi", "Error while adding history", e)
+            throw e
+        }
     }
 }

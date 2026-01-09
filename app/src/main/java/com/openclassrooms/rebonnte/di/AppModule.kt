@@ -49,5 +49,5 @@ class AppModule {
      */
     @Provides
     @Singleton
-    fun provideHistoryApi(): HistoryApi = FirebaseHistoryApi()
+    fun provideHistoryApi(firebaseHistoryApi: FirebaseHistoryApi): HistoryApi = firebaseHistoryApi
 }

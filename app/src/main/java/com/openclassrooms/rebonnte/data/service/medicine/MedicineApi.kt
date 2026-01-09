@@ -12,7 +12,7 @@ interface MedicineApi {
     /** Returns all medicines ordered by creation date. */
     fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>>
 
-    /** Uploads a medicine and returns the list of uploaded URLs. */
+    /** Uploads a medicine. */
     suspend fun addMedicine(medicine: Medicine)
 
     /** Observes a medicine by its ID. */
