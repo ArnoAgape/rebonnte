@@ -54,6 +54,11 @@ class MedicineDetailViewModel @Inject constructor(
         _stock.intValue = newValue.coerceAtLeast(0)
     }
 
+    init {
+        observeMedicine()
+        observeHistory(medicineId)
+    }
+
     private fun observeMedicine() {
         viewModelScope.launch {
             medicineRepository.getMedicineById(medicineId)
@@ -75,7 +80,7 @@ class MedicineDetailViewModel @Inject constructor(
                     val newState = if (medicine != null) {
                         MedicineDetailUiState.Success(medicine)
                     } else {
-                        MedicineDetailUiState.Error.Empty("Impossible to find the post")
+                        MedicineDetailUiState.Error.Empty("Impossible to find the medicine")
                     }
                     _uiState.update { it.copy(medicineState = newState) }
                 }
@@ -103,7 +108,7 @@ class MedicineDetailViewModel @Inject constructor(
                     val newState = if (history.isNotEmpty()) {
                         HistoryUiState.Success(history)
                     } else {
-                        HistoryUiState.Error.Empty("No comments found")
+                        HistoryUiState.Error.Empty("No history found")
                     }
                     _uiState.update { it.copy(historyState = newState) }
                 }
@@ -116,8 +121,6 @@ class MedicineDetailViewModel @Inject constructor(
                 _events.trySend(Event.ShowMessage(R.string.no_network))
                 return@launch
             }
-            observeMedicine()
-            observeHistory(medicineId)
         }
     }
 
