@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.openclassrooms.rebonnte"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

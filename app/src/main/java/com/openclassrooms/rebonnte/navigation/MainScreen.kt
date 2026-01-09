@@ -1,7 +1,5 @@
 package com.openclassrooms.rebonnte.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountBox
@@ -18,7 +16,6 @@ import androidx.navigation.compose.rememberNavController
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
 
