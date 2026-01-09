@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.2"
+assertk = "0.28.1"
 datastorePreferences = "1.2.0"
 firebaseBom = "34.7.0"
 firebaseUiAuth = "9.1.1"
@@ -21,6 +22,7 @@ material3AdaptiveNavigationSuite = "1.4.0"
 
 [libraries]
 androidx-compose-material = { module = "androidx.compose.material:material"}
+assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }

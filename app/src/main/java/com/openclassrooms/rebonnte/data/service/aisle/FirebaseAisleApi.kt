@@ -6,16 +6,12 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.AisleDto
 import com.openclassrooms.rebonnte.domain.model.Aisle
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
-import java.io.IOException
 
-class FirebaseAisleApi @Inject constructor(
-    private val networkUtils: NetworkUtils
-) : AisleApi {
+class FirebaseAisleApi @Inject constructor() : AisleApi {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val aislesCollection = firestore.collection("aisles")
@@ -28,9 +24,6 @@ class FirebaseAisleApi @Inject constructor(
     }
 
     override suspend fun addAisle(aisle: Aisle) {
-        if (!networkUtils.isNetworkAvailable()) {
-            throw IOException("No internet connection")
-        }
         try {
             val docRef = aislesCollection.document()
 

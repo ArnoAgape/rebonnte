@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -40,7 +42,7 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineItem
+import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.ui.utils.Format
 import java.time.Instant
@@ -132,7 +134,7 @@ fun MedicineDetailScreen(
                         .fillMaxSize()
                 ) {
                     item {
-                        MedicineItem(
+                        DetailScreenContent(
                             medicine = (state.medicineState as MedicineDetailUiState.Success).medicine,
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -201,11 +203,74 @@ fun DetailHistoryContent(
     }
 }
 
+@Composable
+fun DetailScreenContent(
+    modifier: Modifier = Modifier,
+    medicine: Medicine,
+    numberOfMedicines: Int,
+    onNumberOfMedicinesChange: (Int) -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            /** ---------- NAME MEDICINE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.medicine_name,
+                    medicine.name
+                )
+            )
+
+            Spacer(modifier.height(6.dp))
+
+            /** ---------- NAME AISLE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.aisle_name,
+                    medicine.aisleName
+                )
+            )
+
+            /** ---------- STOCK ---------- **/
+            NumberOfMedicinesField(
+                numberOfMedicines = numberOfMedicines,
+                onNumberOfMedicinesChange = onNumberOfMedicinesChange
+            )
+
+            /** ---------- HISTORY ---------- **/
+            Text(
+                text = stringResource(R.string.history)
+            )
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
 private fun DetailScreenPreview() {
     RebonnteTheme {
-        MedicineItem(
+        DetailScreenContent(
+            medicine = Medicine(
+                name = "Doliprane",
+                stock = 7,
+                aisleName = "Paracetamol"
+            ),
+            numberOfMedicines = 7,
+            onNumberOfMedicinesChange = {},
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun HistoryDetailScreenPreview() {
+    RebonnteTheme {
+        DetailScreenContent(
             medicine = Medicine(
                 name = "Doliprane",
                 stock = 7,

@@ -6,20 +6,16 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.MedicineDto
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
-import java.io.IOException
 
 /**
  * Firebase implementation of [MedicineApi].
  * Handles file uploads to Firebase Storage and metadata persistence in Firestore.
  */
-class FirebaseMedicineApi @Inject constructor(
-    private val networkUtils: NetworkUtils
-) : MedicineApi {
+class FirebaseMedicineApi @Inject constructor() : MedicineApi {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val medicinesCollection = firestore.collection("medicines")
@@ -32,9 +28,6 @@ class FirebaseMedicineApi @Inject constructor(
     }
 
     override suspend fun addMedicine(medicine: Medicine) {
-        if (!networkUtils.isNetworkAvailable()) {
-            throw IOException("No internet connection")
-        }
         try {
             val docRef = medicinesCollection.document()
 

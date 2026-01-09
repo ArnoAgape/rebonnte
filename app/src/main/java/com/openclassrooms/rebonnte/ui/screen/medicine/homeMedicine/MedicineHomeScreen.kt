@@ -1,17 +1,15 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -28,15 +26,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineItem
+import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +106,7 @@ fun MedicineHomeScreen(
         ) {
             when (val ui = state.uiState) {
                 is MedicineHomeUiState.Success ->
-                    MedicineHomeContent(
+                    MedicineItem(
                         medicines = ui.medicines,
                         onMedicineClick = onMedicineClick
                     )
@@ -147,39 +146,87 @@ fun MedicineHomeScreen(
     }
 }
 
+@SuppressLint("LocalContextGetResourceValueCall")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MedicineHomeContent(
-    modifier: Modifier = Modifier,
-    medicines: List<Medicine>,
-    onMedicineClick: (Medicine) -> Unit
+fun MedicineHomeContent(
+    state: MedicineHomeScreenState,
+    onRefresh: () -> Unit,
+    onMedicineClick: (Medicine) -> Unit,
+    onFABClick: () -> Unit,
+    isSignedIn: Boolean
 ) {
-    LazyColumn(
-        modifier = modifier.padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(medicines) { medicine ->
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onMedicineClick(medicine) }
-            ) {
-                Column(
-                    modifier = Modifier.padding(8.dp),
-                ) {
-                    // ---- NAME ----
-                    Text(
-                        text = medicine.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+    val context = LocalContext.current
+    val refreshState = rememberPullToRefreshState()
 
-                    // ---- STOCK ----
-                    Text(
-                        text = stringResource(
-                            R.string.in_stock,
-                            medicine.stock
-                        )
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(id = R.string.medicines)) }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (isSignedIn) onFABClick()
+                    else Toast.makeText(
+                        context,
+                        context.getString(R.string.error_no_account_medicine),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(id = R.string.contentDescription_button_add)
+                )
+            }
+        }
+    ) { contentPadding ->
+        PullToRefreshBox(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            state = refreshState,
+            isRefreshing = state.isRefreshing,
+            onRefresh = onRefresh
+        ) {
+            when (val ui = state.uiState) {
+
+                is MedicineHomeUiState.Success -> {
+                    MedicineItem(
+                        medicines = ui.medicines,
+                        onMedicineClick = onMedicineClick
                     )
                 }
+
+                is MedicineHomeUiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is MedicineHomeUiState.Error.Empty -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_medicines),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                else -> Unit
             }
         }
     }
@@ -187,20 +234,26 @@ private fun MedicineHomeContent(
 
 @PreviewLightDark
 @Composable
-private fun MedicineListPreview() {
+fun MedicineHomeScreenPreview() {
     RebonnteTheme {
+        // Fake medicines
+        val sampleMedicines = listOf(
+            Medicine(name = "Doliprane 1000mg", stock = 12),
+            Medicine(name = "Ibuprofène 400mg", stock = 5),
+            Medicine(name = "Efferalgan Vitamine C", stock = 20)
+        )
+
+        val previewState = MedicineHomeScreenState(
+            uiState = MedicineHomeUiState.Success(sampleMedicines),
+            isRefreshing = false
+        )
+
         MedicineHomeContent(
-            medicines = listOf(
-                Medicine(
-                    name = "Doliprane",
-                    stock = 10
-                ),
-                Medicine(
-                    name = "Fervex",
-                    stock = 10
-                ),
-            ),
-            onMedicineClick = {}
+            state = previewState,
+            onRefresh = {},
+            onMedicineClick = {},
+            onFABClick = {},
+            isSignedIn = true
         )
     }
 }
