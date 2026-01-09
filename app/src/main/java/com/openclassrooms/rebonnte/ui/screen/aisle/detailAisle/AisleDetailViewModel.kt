@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,15 +39,21 @@ class AisleDetailViewModel @Inject constructor(
             aisleRepository.getAisleById(aisleId),
             medicineRepository.getMedicinesByAisle(aisleId)
         ) { aisle, medicines ->
-            when {
-                medicines.isEmpty() -> AisleDetailUiState.Error.Empty()
-                else -> AisleDetailUiState.Success(
+
+            Log.d("DEBUG_AISLE_DETAIL", "aisle: $aisle")
+            Log.d("DEBUG_AISLE_DETAIL", "medicines count: ${medicines.size}")
+
+            if (medicines.isEmpty()) {
+                AisleDetailUiState.Error.Empty()
+            } else {
+                AisleDetailUiState.Success(
                     aisle = aisle,
                     medicines = medicines
                 )
             }
         }
             .catch { e ->
+                Log.e("DEBUG_AISLE_DETAIL", "Error in combine", e)
                 emit(AisleDetailUiState.Error.Generic(e.message ?: "Unknown error"))
             }
             .stateIn(
@@ -55,8 +63,11 @@ class AisleDetailViewModel @Inject constructor(
             )
 
     fun refreshAisle() {
-        if (!networkUtils.isNetworkAvailable()) {
-            _events.trySend(Event.ShowMessage(R.string.no_network))
+        viewModelScope.launch {
+            if (!networkUtils.isNetworkAvailable()) {
+                _events.trySend(Event.ShowMessage(R.string.no_network))
+                return@launch
+            }
         }
     }
 }

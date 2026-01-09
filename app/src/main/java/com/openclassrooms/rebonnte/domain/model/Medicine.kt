@@ -20,6 +20,7 @@ data class Medicine(
             name = name,
             stock = stock,
             dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
+            aisleId = aisleId,
             aisleName = aisleName,
             author = author,
             histories = histories
@@ -33,6 +34,7 @@ data class Medicine(
                 name = dto.name,
                 stock = dto.stock,
                 dateTime = dto.dateTime.toDate().toInstant(),
+                aisleId = dto.aisleId,
                 aisleName = dto.aisleName,
                 author = dto.author,
                 histories = dto.histories

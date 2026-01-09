@@ -18,6 +18,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -64,6 +66,7 @@ fun AisleDetailScreen(
         state = state,
         onBackClick = onBackClick,
         onMedicineClick = onMedicineClick,
+        onRefresh = { viewModel.refreshAisle() },
         snackbarHostState = snackbarHostState
     )
 }
@@ -74,8 +77,11 @@ fun AisleDetailContent(
     state: AisleDetailUiState,
     onBackClick: () -> Unit,
     onMedicineClick: (Medicine) -> Unit,
+    onRefresh: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
+    val refreshState = rememberPullToRefreshState()
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier
@@ -106,47 +112,55 @@ fun AisleDetailContent(
             )
         }
     ) { paddingValues ->
+        PullToRefreshBox(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            state = refreshState,
+            isRefreshing = state is AisleDetailUiState.Loading,
+            onRefresh = onRefresh
+        ) {
 
-        when (state) {
+            when (state) {
 
-            is AisleDetailUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                is AisleDetailUiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
 
-            is AisleDetailUiState.Success -> {
-                MedicineItem(
-                    modifier = Modifier.padding(paddingValues),
-                    medicines = state.medicines,
-                    onMedicineClick = onMedicineClick
-                )
-            }
-
-            is AisleDetailUiState.Error.Empty -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(R.string.no_medicines_listed_in_aisle))
+                is AisleDetailUiState.Success -> {
+                    MedicineItem(
+                        medicines = state.medicines,
+                        onMedicineClick = onMedicineClick
+                    )
                 }
-            }
 
-            is AisleDetailUiState.Error.Generic -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Error while loading")
+                is AisleDetailUiState.Error.Empty -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.no_medicines_listed_in_aisle))
+                    }
+                }
+
+                is AisleDetailUiState.Error.Generic -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Error while loading")
+                    }
                 }
             }
         }

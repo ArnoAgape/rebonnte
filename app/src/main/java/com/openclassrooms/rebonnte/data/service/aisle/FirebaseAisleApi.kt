@@ -42,7 +42,13 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
             .whereEqualTo("id", aisleId)
             .limit(1)
             .dataObjects<AisleDto>()
-            .map { Aisle.fromDto(it.first()) }
+            .map { list ->
+                if (list.isNotEmpty()) {
+                    Aisle.fromDto(list.first())
+                } else {
+                    throw IllegalStateException("Aisle not found for id=$aisleId")
+                }
+            }
     }
 
 }

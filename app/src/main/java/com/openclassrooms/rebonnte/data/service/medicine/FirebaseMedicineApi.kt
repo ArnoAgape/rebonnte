@@ -30,9 +30,7 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
     override suspend fun addMedicine(medicine: Medicine) {
         try {
             val docRef = medicinesCollection.document()
-
             val dto = medicine.copy(id = docRef.id).toDto()
-
             docRef.set(dto).await()
 
         } catch (e: Exception) {
@@ -54,7 +52,9 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             .whereEqualTo("aisleId", aisleId)
             .orderBy("aisleName", Query.Direction.ASCENDING)
             .dataObjects<MedicineDto>()
-            .map { list -> list.map { Medicine.fromDto(it) } }
+            .map { list ->
+                Log.d("DEBUG_MEDICINES_BY_AISLE", "found ${list.size} medicines for aisle=$aisleId")
+                list.map { Medicine.fromDto(it) } }
     }
 
 }
