@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicineApi {
 
     /** Returns all medicines ordered by creation date. */
-    fun getHistoryOrderByCreationDateDesc(): Flow<List<Medicine>>
+    fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>>
 
     /** Uploads a medicine and returns the list of uploaded URLs. */
     suspend fun addMedicine(medicine: Medicine)

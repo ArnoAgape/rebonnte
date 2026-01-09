@@ -24,23 +24,27 @@ class FirebaseMedicineApi @Inject constructor(
     private val firestore = FirebaseFirestore.getInstance()
     private val medicinesCollection = firestore.collection("medicines")
 
-    override fun getHistoryOrderByCreationDateDesc(): Flow<List<Medicine>> {
+    override fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>> {
         return medicinesCollection
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .orderBy("name", Query.Direction.ASCENDING)
             .dataObjects<MedicineDto>()
             .map { list -> list.map { Medicine.fromDto(it) } }
     }
 
     override suspend fun addMedicine(medicine: Medicine) {
+        Log.d("TEST", ">>> addMedicine CALLED")
         if (!networkUtils.isNetworkAvailable()) {
             throw IOException("No internet connection")
         }
         try {
+            val docRef = medicinesCollection.document()
 
-            medicinesCollection.document(medicine.id).set(medicine.toDto()).await()
+            val dto = medicine.copy(id = docRef.id).toDto()
+
+            docRef.set(dto).await()
 
         } catch (e: Exception) {
-            Log.e("FirebaseFileApi", "Error while adding document", e)
+            Log.e("FirebaseMedicineApi", "Error while adding document", e)
             throw e
         }
     }

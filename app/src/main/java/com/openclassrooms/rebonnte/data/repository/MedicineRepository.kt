@@ -19,7 +19,7 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes the list of all files ordered by descending creation date.
      */
-    val medicines: Flow<List<Medicine>> = medicineApi.getHistoryOrderByCreationDateDesc()
+    val medicines: Flow<List<Medicine>> = medicineApi.getMedicinesOrderByNameAsc()
 
     /**
      * Uploads a new file to Firebase (Storage + Firestore).
