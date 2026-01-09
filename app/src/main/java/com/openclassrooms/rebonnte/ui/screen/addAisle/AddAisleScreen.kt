@@ -70,7 +70,7 @@ fun AddAisleScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_fragment_label)) },
+                title = { Text(stringResource(R.string.add_aisle)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(

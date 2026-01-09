@@ -23,7 +23,8 @@
     <string name="in_stock">%1$d in stock</string>
     <string name="close">Close</string>
     <string name="add">Add</string>
-    <string name="add_medicine">Add medicine</string>
+    <string name="add_medicine">Add a medicine</string>
+    <string name="add_aisle">Add an aisle</string>
     <string name="delete">Delete</string>
     <string name="log_in">Log in</string>
     <string name="home">Home</string>
@@ -54,7 +55,6 @@
     <string name="no_network">No network available</string>
     <string name="try_again">Try again</string>
     <string name="hint_number_of_medicines">Stock:</string>
-    <string name="add_fragment_label">Add a medicine</string>
     <string name="contentDescription_go_back">Go back</string>
     <string name="contentDescription_button_add">Add</string>
     <string name="hint_date">Date</string>

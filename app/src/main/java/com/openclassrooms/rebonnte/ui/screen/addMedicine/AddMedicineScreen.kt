@@ -72,7 +72,7 @@ fun AddMedicineScreen(
     val aisles = viewModel.aisles.collectAsState().value
     val selectedAisle = viewModel.selectedAisle.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
@@ -98,7 +98,7 @@ fun AddMedicineScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_fragment_label)) },
+                title = { Text(stringResource(R.string.add_medicine)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
