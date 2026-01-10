@@ -53,7 +53,6 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             .orderBy("aisleName", Query.Direction.ASCENDING)
             .dataObjects<MedicineDto>()
             .map { list ->
-                Log.d("DEBUG_MEDICINES_BY_AISLE", "found ${list.size} medicines for aisle=$aisleId")
                 list.map { Medicine.fromDto(it) } }
     }
 

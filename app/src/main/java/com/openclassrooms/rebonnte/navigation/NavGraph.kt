@@ -7,10 +7,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleScreen
-import com.openclassrooms.rebonnte.ui.screen.addAisle.AddAisleViewModel
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineScreen
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.AddMedicineViewModel
+import com.openclassrooms.rebonnte.ui.screen.aisle.addAisle.AddAisleScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.addAisle.AddAisleViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailScreen

@@ -39,10 +39,6 @@ class AisleDetailViewModel @Inject constructor(
             aisleRepository.getAisleById(aisleId),
             medicineRepository.getMedicinesByAisle(aisleId)
         ) { aisle, medicines ->
-
-            Log.d("DEBUG_AISLE_DETAIL", "aisle: $aisle")
-            Log.d("DEBUG_AISLE_DETAIL", "medicines count: ${medicines.size}")
-
             if (medicines.isEmpty()) {
                 AisleDetailUiState.Error.Empty()
             } else {
@@ -53,7 +49,6 @@ class AisleDetailViewModel @Inject constructor(
             }
         }
             .catch { e ->
-                Log.e("DEBUG_AISLE_DETAIL", "Error in combine", e)
                 emit(AisleDetailUiState.Error.Generic(e.message ?: "Unknown error"))
             }
             .stateIn(

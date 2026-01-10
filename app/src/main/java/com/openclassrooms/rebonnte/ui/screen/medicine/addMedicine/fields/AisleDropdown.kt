@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.addMedicine.fields
+package com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem

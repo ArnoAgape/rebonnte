@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.addAisle
+package com.openclassrooms.rebonnte.ui.screen.aisle.addAisle
 
 import com.openclassrooms.rebonnte.domain.model.Aisle
 

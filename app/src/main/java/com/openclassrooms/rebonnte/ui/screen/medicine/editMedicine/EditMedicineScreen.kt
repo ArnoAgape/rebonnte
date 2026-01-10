@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screen.addMedicine
+package com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -53,16 +53,18 @@ import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.AisleDropdown
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.DateTimeField
-import com.openclassrooms.rebonnte.ui.screen.addMedicine.fields.NumberOfMedicinesField
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineUiState
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.AisleDropdown
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.DateTimeField
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import java.time.Instant
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedicineScreen(
+fun EditMedicineScreen(
     viewModel: AddMedicineViewModel,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
