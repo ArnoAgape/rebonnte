@@ -116,7 +116,7 @@ class MedicineDetailViewModel @Inject constructor(
 
             // 1. Collects the current medicine
             val medicine =
-                (uiState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
+                (_uiState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
 
             if (medicine == null) {
                 _events.trySend(Event.ShowMessage(R.string.error_medicine_not_found))

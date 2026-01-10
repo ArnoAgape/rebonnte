@@ -14,4 +14,6 @@ interface AisleApi {
 
     /** Observes a aisle by its ID */
     fun getAisleById(aisleId: String): Flow<Aisle>
+
+    suspend fun deleteAisle(aisleId: String): Result<Unit>
 }

@@ -12,8 +12,11 @@
     <string name="action_add">Add</string>
     <string name="action_save">Save</string>
     <string name="action_delete_account">Delete account</string>
-    <string name="confirm_delete_title">Delete medicine</string>
-    <string name="confirm_delete_message">You are about to delete the medicine. This can\'t be undone. Continue?</string>
+    <string name="confirm_delete_medicine">Delete medicine</string>
+    <string name="confirm_delete_aisle">Delete aisle</string>
+    <string name="confirm_delete_message_current_medicine">You are about to delete the medicine. This can\'t be undone. Continue?</string>
+    <string name="confirm_delete_message_medicines">You are about to delete the selected medicine(s). This can\'t be undone. Continue?</string>
+    <string name="confirm_delete_message_aisle">You are about to delete the selected aisle(s). This can\'t be undone. Continue?</string>
     <string name="confirm_delete_account_message">You are about to delete your account. This can\'t be undone. Continue?</string>
     <string name="cancel">Cancel</string>
     <string name="or">or</string>
@@ -28,6 +31,7 @@
     <string name="add_medicine">Add a medicine</string>
     <string name="edit_medicine">Edit a medicine</string>
     <string name="delete_medicine">Delete a medicine</string>
+    <string name="delete_aisle">Delete an aisle</string>
     <string name="add_aisle">Add an aisle</string>
     <string name="delete">Delete</string>
     <string name="log_in">Log in</string>

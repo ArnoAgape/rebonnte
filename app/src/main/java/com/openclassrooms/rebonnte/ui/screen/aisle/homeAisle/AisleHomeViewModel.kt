@@ -6,6 +6,7 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,11 +15,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,13 +34,16 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AisleHomeViewModel @Inject constructor(
-    aisleRepository: AisleRepository,
+    private val aisleRepository: AisleRepository,
     userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
+
+    private val _selection = MutableStateFlow(AisleSelectionState())
+    val selection = _selection.asStateFlow()
 
     private val _isRefreshing = MutableStateFlow(false)
 
@@ -73,6 +79,33 @@ class AisleHomeViewModel @Inject constructor(
                 null
             )
 
+    fun enterSelectionMode() {
+        _selection.update { it.copy(isSelectionMode = true) }
+    }
+
+    fun exitSelectionMode() {
+        _selection.value = AisleSelectionState() // reset
+    }
+
+    fun toggleSelection(id: String) {
+        _selection.update { current ->
+            val newSet = current.selectedIds.toMutableSet()
+            if (newSet.contains(id)) newSet.remove(id) else newSet.add(id)
+            current.copy(selectedIds = newSet)
+        }
+    }
+
+    fun deleteSelectedAisles() {
+        val ids = selection.value.selectedIds
+
+        viewModelScope.launch {
+            ids.forEach { id ->
+                aisleRepository.deleteAisle(id)
+            }
+            exitSelectionMode()
+        }
+    }
+
     fun refreshAisles() {
         if (!networkUtils.isNetworkAvailable()) {
             _events.trySend(Event.ShowMessage(R.string.no_network))
@@ -94,4 +127,9 @@ class AisleHomeViewModel @Inject constructor(
 data class AisleHomeScreenState(
     val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
     val isRefreshing: Boolean = false
+)
+
+data class AisleSelectionState(
+    val isSelectionMode: Boolean = false,
+    val selectedIds: Set<String> = emptySet()
 )

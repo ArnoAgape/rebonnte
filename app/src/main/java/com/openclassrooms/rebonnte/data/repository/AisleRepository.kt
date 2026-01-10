@@ -21,6 +21,8 @@ class AisleRepository @Inject constructor(
      */
     suspend fun addAisle(aisle: Aisle): Unit = aisleApi.addAisle(aisle)
 
+    suspend fun deleteAisle(aisleId: String) = aisleApi.deleteAisle(aisleId)
+
     /**
      * Observes a single file by its unique ID.
      */

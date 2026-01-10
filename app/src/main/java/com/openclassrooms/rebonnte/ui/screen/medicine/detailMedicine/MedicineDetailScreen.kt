@@ -183,8 +183,8 @@ fun MedicineDetailScreen(
                 viewModel.deleteMedicine()
             },
             onDismiss = { showDeleteDialog = false },
-            confirmButtonTitle = stringResource(R.string.confirm_delete_title),
-            confirmButtonMessage = stringResource(R.string.confirm_delete_message)
+            confirmButtonTitle = stringResource(R.string.confirm_delete_medicine),
+            confirmButtonMessage = stringResource(R.string.confirm_delete_message_current_medicine)
         )
 
     }

@@ -6,23 +6,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,6 +31,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +46,8 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
+import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
+import com.openclassrooms.rebonnte.ui.common.components.SelectItemRow
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,9 +59,11 @@ fun AisleHomeScreen(
     onFABClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val selectionState by viewModel.selection.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
     val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
@@ -78,6 +85,35 @@ fun AisleHomeScreen(
             TopAppBar(
                 title = {
                     Text(stringResource(id = R.string.aisles))
+                },
+                actions = {
+                    if (selectionState.isSelectionMode) {
+                        IconButton(
+                            onClick = {
+                                if (selectionState.selectedIds.isEmpty()) {
+                                    viewModel.exitSelectionMode()
+                                } else {
+                                    showDeleteDialog = true
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (selectionState.selectedIds.isEmpty())
+                                    Icons.Default.Close
+                                else
+                                    Icons.Default.DeleteForever,
+                                contentDescription = stringResource(R.string.delete_aisle)
+                            )
+                        }
+                    } else if (state.uiState is AisleHomeUiState.Success) {
+                        // selection mode
+                        IconButton(onClick = { viewModel.enterSelectionMode() }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.delete_aisle)
+                            )
+                        }
+                    }
                 }
             )
         },
@@ -116,7 +152,9 @@ fun AisleHomeScreen(
                 is AisleHomeUiState.Success ->
                     AisleContent(
                         aisles = ui.aisles,
-                        onAisleClick = onAisleClick
+                        onAisleClick = onAisleClick,
+                        selectionState = selectionState,
+                        onToggleSelection = { viewModel.toggleSelection(it) }
                     )
 
                 is AisleHomeUiState.Loading -> {
@@ -151,6 +189,17 @@ fun AisleHomeScreen(
                 else -> {}
             }
         }
+
+        ConfirmDeleteDialog(
+            show = showDeleteDialog,
+            onConfirm = {
+                showDeleteDialog = false
+                viewModel.deleteSelectedAisles()
+            },
+            onDismiss = { showDeleteDialog = false },
+            confirmButtonTitle = stringResource(R.string.confirm_delete_aisle),
+            confirmButtonMessage = stringResource(R.string.confirm_delete_message_aisle)
+        )
     }
 }
 
@@ -158,30 +207,24 @@ fun AisleHomeScreen(
 fun AisleContent(
     modifier: Modifier = Modifier,
     aisles: List<Aisle>,
-    onAisleClick: (Aisle) -> Unit
+    onAisleClick: (Aisle) -> Unit,
+    selectionState: AisleSelectionState,
+    onToggleSelection: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(aisles) { aisle ->
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
+
+            SelectItemRow(
+                id = aisle.id,
+                label = aisle.name,
+                isSelectionMode = selectionState.isSelectionMode,
+                isSelected = selectionState.selectedIds.contains(aisle.id),
+                onSelectToggle = { onToggleSelection(aisle.id) },
                 onClick = { onAisleClick(aisle) }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = aisle.name, style = MaterialTheme.typography.bodyMedium)
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Arrow"
-                    )
-                }
-            }
+            )
         }
     }
 }
@@ -202,7 +245,9 @@ private fun AisleContentPreview() {
                     name = "Antiseptic"
                 )
             ),
-            onAisleClick = {}
+            onAisleClick = {},
+            selectionState = AisleSelectionState(),
+            onToggleSelection = { }
         )
     }
 }
