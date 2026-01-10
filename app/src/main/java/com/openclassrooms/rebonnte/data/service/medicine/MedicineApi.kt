@@ -22,4 +22,11 @@ interface MedicineApi {
     fun getMedicineById(medicineId: String): Flow<Medicine?>
 
     fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>>
+
+    /**
+     * Permanently deletes the current medicine.
+     *
+     * @return A [Result] indicating whether the deletion was successful or not.
+     */
+    suspend fun deleteMedicine(medicine: Medicine): Result<Unit>
 }

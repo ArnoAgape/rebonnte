@@ -1,6 +1,7 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,7 +31,9 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -43,6 +47,7 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
+import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.ui.utils.Format
 import java.time.Instant
@@ -65,6 +70,7 @@ fun MedicineDetailScreen(
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
@@ -75,7 +81,11 @@ fun MedicineDetailScreen(
                 )
             }
 
-            else -> Unit
+            is Event.ShowSuccessMessage -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                onBackClick()
+            }
+
         }
     }
 
@@ -106,6 +116,7 @@ fun MedicineDetailScreen(
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
+
                         else -> {}
                     }
                 },
@@ -128,6 +139,14 @@ fun MedicineDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.edit_medicine)
+                            )
+                        }
+                        IconButton(
+                            onClick = { showDeleteDialog = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.delete_medicine)
                             )
                         }
                     }
@@ -156,6 +175,18 @@ fun MedicineDetailScreen(
                 }
             }
         }
+
+        ConfirmDeleteDialog(
+            show = showDeleteDialog,
+            onConfirm = {
+                showDeleteDialog = false
+                viewModel.deleteMedicine()
+            },
+            onDismiss = { showDeleteDialog = false },
+            confirmButtonTitle = stringResource(R.string.confirm_delete_title),
+            confirmButtonMessage = stringResource(R.string.confirm_delete_message)
+        )
+
     }
 }
 

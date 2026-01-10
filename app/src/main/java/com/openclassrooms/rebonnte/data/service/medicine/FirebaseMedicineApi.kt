@@ -73,4 +73,28 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
                 list.map { Medicine.fromDto(it) } }
     }
 
+    /**
+     * Deletes the current medicine from Firestore.
+     *
+     * @return A [Result] indicating whether the deletion was successful.
+     */
+    override suspend fun deleteMedicine(medicine: Medicine): Result<Unit> {
+        return try {
+            val id = medicine.id
+            if (id.isBlank()) {
+                return Result.failure(IllegalArgumentException("Medicine ID is empty"))
+            }
+
+            medicinesCollection
+                .document(id)
+                .delete()
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

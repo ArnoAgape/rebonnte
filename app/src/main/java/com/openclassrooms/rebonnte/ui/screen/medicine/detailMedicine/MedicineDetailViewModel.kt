@@ -50,10 +50,6 @@ class MedicineDetailViewModel @Inject constructor(
         _stock.intValue = medicine.stock
     }
 
-    fun onStockChange(newValue: Int) {
-        _stock.intValue = newValue.coerceAtLeast(0)
-    }
-
     init {
         observeMedicine()
         observeHistory(medicineId)
@@ -112,6 +108,33 @@ class MedicineDetailViewModel @Inject constructor(
                     }
                     _uiState.update { it.copy(historyState = newState) }
                 }
+        }
+    }
+
+    fun deleteMedicine() {
+        viewModelScope.launch {
+
+            // 1. Collects the current medicine
+            val medicine =
+                (uiState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
+
+            if (medicine == null) {
+                _events.trySend(Event.ShowMessage(R.string.error_medicine_not_found))
+                return@launch
+            }
+
+            // 2. Action: delete
+            val result = medicineRepository.deleteMedicine(medicine)
+
+            // 3. When success
+            if (result.isSuccess) {
+                _uiState.update {
+                    it.copy(medicineState = MedicineDetailUiState.Deleted)
+                }
+                _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_medicine))
+            } else {
+                _events.trySend(Event.ShowMessage(R.string.error_delete_medicine))
+            }
         }
     }
 
