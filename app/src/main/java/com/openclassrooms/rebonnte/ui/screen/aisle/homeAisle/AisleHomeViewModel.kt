@@ -6,7 +6,6 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
-import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,18 +58,6 @@ class AisleHomeViewModel @Inject constructor(
                 emit(AisleHomeUiState.Error.Generic(e.message ?: "Unknown error"))
             }
 
-    val state: StateFlow<AisleHomeScreenState> =
-        combine(_uiState, _isRefreshing) { ui, refreshing ->
-            AisleHomeScreenState(
-                uiState = ui,
-                isRefreshing = refreshing
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = AisleHomeScreenState()
-        )
-
     val isSignedIn =
         userRepository.isUserSignedIn()
             .stateIn(
@@ -78,6 +65,25 @@ class AisleHomeViewModel @Inject constructor(
                 SharingStarted.WhileSubscribed(5000),
                 null
             )
+
+    val screenState: StateFlow<AisleHomeScreenState> =
+        combine(
+            _uiState,
+            _isRefreshing,
+            _selection,
+            isSignedIn
+        ) { ui, refreshing, selection, signedIn ->
+            AisleHomeScreenState(
+                uiState = ui,
+                isRefreshing = refreshing,
+                selection = selection,
+                isSignedIn = signedIn
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            AisleHomeScreenState()
+        )
 
     fun enterSelectionMode() {
         _selection.update { it.copy(isSelectionMode = true) }
@@ -88,10 +94,10 @@ class AisleHomeViewModel @Inject constructor(
     }
 
     fun toggleSelection(id: String) {
-        _selection.update { current ->
-            val newSet = current.selectedIds.toMutableSet()
-            if (newSet.contains(id)) newSet.remove(id) else newSet.add(id)
-            current.copy(selectedIds = newSet)
+        _selection.update { sel ->
+            val set = sel.selectedIds.toMutableSet()
+            if (!set.add(id)) set.remove(id)
+            sel.copy(selectedIds = set)
         }
     }
 
@@ -120,16 +126,19 @@ class AisleHomeViewModel @Inject constructor(
     }
 }
 
+data class AisleSelectionState(
+    val isSelectionMode: Boolean = false,
+    val selectedIds: Set<String> = emptySet()
+)
+
 /**
  * Combined UI state for the home screen,
  * including loading state and refresh status.
  */
+
 data class AisleHomeScreenState(
     val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
-    val isRefreshing: Boolean = false
-)
-
-data class AisleSelectionState(
-    val isSelectionMode: Boolean = false,
-    val selectedIds: Set<String> = emptySet()
+    val isRefreshing: Boolean = false,
+    val selection: AisleSelectionState = AisleSelectionState(),
+    val isSignedIn: Boolean? = null
 )

@@ -58,11 +58,9 @@ fun AisleHomeScreen(
     onAisleClick: (Aisle) -> Unit,
     onFABClick: () -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val selectionState by viewModel.selection.collectAsStateWithLifecycle()
+    val state by viewModel.screenState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
-    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     EventsEffect(viewModel.eventsFlow) { event ->
@@ -87,10 +85,10 @@ fun AisleHomeScreen(
                     Text(stringResource(id = R.string.aisles))
                 },
                 actions = {
-                    if (selectionState.isSelectionMode) {
+                    if (state.selection.isSelectionMode) {
                         IconButton(
                             onClick = {
-                                if (selectionState.selectedIds.isEmpty()) {
+                                if (state.selection.selectedIds.isEmpty()) {
                                     viewModel.exitSelectionMode()
                                 } else {
                                     showDeleteDialog = true
@@ -98,7 +96,7 @@ fun AisleHomeScreen(
                             }
                         ) {
                             Icon(
-                                imageVector = if (selectionState.selectedIds.isEmpty())
+                                imageVector = if (state.selection.selectedIds.isEmpty())
                                     Icons.Default.Close
                                 else
                                     Icons.Default.DeleteForever,
@@ -121,7 +119,7 @@ fun AisleHomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (isSignedIn == true) {
+                    if (state.isSignedIn == true) {
                         onFABClick()
                     } else {
                         Toast.makeText(
@@ -153,7 +151,7 @@ fun AisleHomeScreen(
                     AisleContent(
                         aisles = ui.aisles,
                         onAisleClick = onAisleClick,
-                        selectionState = selectionState,
+                        selectionState = state.selection,
                         onToggleSelection = { viewModel.toggleSelection(it) }
                     )
 
