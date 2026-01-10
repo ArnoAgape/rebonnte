@@ -128,7 +128,7 @@ fun AddAisleScreen(
                         CircularProgressIndicator()
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = stringResource(R.string.sending),
+                            text = stringResource(R.string.adding),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

@@ -43,7 +43,6 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.ui.utils.Format
 import java.time.Instant
@@ -152,10 +151,6 @@ fun MedicineDetailScreen(
                     item {
                         DetailScreenContent(
                             medicine = (state.medicineState as MedicineDetailUiState.Success).medicine,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            numberOfMedicines = viewModel.stock.intValue,
-                            onNumberOfMedicinesChange = viewModel::onStockChange,
                         )
                     }
                 }
@@ -222,24 +217,23 @@ fun DetailHistoryContent(
 @Composable
 fun DetailScreenContent(
     modifier: Modifier = Modifier,
-    medicine: Medicine,
-    numberOfMedicines: Int,
-    onNumberOfMedicinesChange: (Int) -> Unit
+    medicine: Medicine
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
-            modifier = modifier.padding(16.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             /** ---------- NAME MEDICINE ---------- **/
             Text(
-                text = stringResource(
-                    R.string.medicine_name,
-                    medicine.name
-                )
+                text = medicine.name,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier.height(6.dp))
@@ -253,9 +247,11 @@ fun DetailScreenContent(
             )
 
             /** ---------- STOCK ---------- **/
-            NumberOfMedicinesField(
-                numberOfMedicines = numberOfMedicines,
-                onNumberOfMedicinesChange = onNumberOfMedicinesChange
+            Text(
+                text = stringResource(
+                    R.string.in_stock,
+                    medicine.stock
+                )
             )
 
             /** ---------- HISTORY ---------- **/
@@ -275,9 +271,7 @@ private fun DetailScreenPreview() {
                 name = "Doliprane",
                 stock = 7,
                 aisleName = "Paracetamol"
-            ),
-            numberOfMedicines = 7,
-            onNumberOfMedicinesChange = {},
+            )
         )
     }
 }
@@ -291,9 +285,7 @@ private fun HistoryDetailScreenPreview() {
                 name = "Doliprane",
                 stock = 7,
                 aisleName = "Paracetamol"
-            ),
-            numberOfMedicines = 7,
-            onNumberOfMedicinesChange = {},
+            )
         )
     }
 }

@@ -68,7 +68,7 @@ fun AisleHomeScreen(
         }
     }
 
-    val noAccountMessage = stringResource(R.string.error_no_account_aisle)
+    val noAccountMessage = stringResource(R.string.error_no_account_add_aisle)
 
     Scaffold(
         modifier = Modifier

@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
@@ -84,7 +84,7 @@ fun EditMedicineScreen(
                     duration = SnackbarDuration.Short
                 )
                 if (result == SnackbarResult.ActionPerformed) {
-                    viewModel.addMedicine()
+                    viewModel.editMedicine()
                 }
             }
 
@@ -99,7 +99,7 @@ fun EditMedicineScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_medicine)) },
+                title = { Text(stringResource(R.string.edit_medicine)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
@@ -114,24 +114,19 @@ fun EditMedicineScreen(
 
         when (state.uiState) {
             is EditMedicineUiState.Idle, is EditMedicineUiState.Success -> {
-                val aisleToDisplay =
-                    if (state.uiState is EditMedicineUiState.Success) (state.uiState as EditMedicineUiState.Success).medicine
-                    else state.medicine
 
                 EditMedicineContent(
                     contentPadding = contentPadding,
-                    dateTime = aisleToDisplay.dateTime,
+                    medicine = state.medicine,
                     onDateTimeChange = { viewModel.onAction(FormEvent.DateTimeChanged(it)) },
-                    numberOfMedicines = aisleToDisplay.stock,
                     onNumberOfMedicinesChange = { newValue ->
                         viewModel.onAction(FormEvent.StockSet(newValue))
                     },
-                    name = aisleToDisplay.name,
-                    onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
+                    onNameMedicineChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
                     aisles = aisles,
                     selectedAisle = selectedAisle,
                     onAisleSelected = { viewModel.onAction(FormEvent.AisleSelected(it)) },
-                    onSaveClicked = { viewModel.addMedicine() },
+                    onSaveClicked = { viewModel.editMedicine() },
                     isMedicineValid = state.isValid,
                     isLoading = false
                 )
@@ -148,7 +143,7 @@ fun EditMedicineScreen(
                         CircularProgressIndicator()
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = stringResource(R.string.sending),
+                            text = stringResource(R.string.editing),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -176,12 +171,10 @@ fun EditMedicineScreen(
 @Composable
 private fun EditMedicineContent(
     contentPadding: PaddingValues = PaddingValues(),
-    dateTime: Instant,
+    medicine: Medicine,
     onDateTimeChange: (Instant) -> Unit,
-    numberOfMedicines: Int,
     onNumberOfMedicinesChange: (Int) -> Unit,
-    name: String,
-    onNameChanged: (String) -> Unit,
+    onNameMedicineChanged: (String) -> Unit,
     aisles: List<Aisle>,
     selectedAisle: Aisle?,
     onAisleSelected: (Aisle) -> Unit,
@@ -219,7 +212,7 @@ private fun EditMedicineContent(
                 ) {
                     DateTimeField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = dateTime,
+                        value = medicine.dateTime,
                         onValueChange = onDateTimeChange,
                         label = stringResource(R.string.hint_datetime)
                     )
@@ -229,8 +222,8 @@ private fun EditMedicineContent(
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    value = name,
-                    onValueChange = onNameChanged,
+                    value = medicine.name,
+                    onValueChange = onNameMedicineChanged,
                     label = { Text(stringResource(id = R.string.hint_medicine_name)) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
@@ -248,14 +241,14 @@ private fun EditMedicineContent(
                 /** ---------- NUMBER OF MEDICINES ---------- **/
 
                 NumberOfMedicinesField(
-                    numberOfMedicines = numberOfMedicines,
+                    numberOfMedicines = medicine.stock,
                     onNumberOfMedicinesChange = onNumberOfMedicinesChange
                 )
             }
 
             /** ---------- SAVE BUTTON ---------- **/
             Button(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = onSaveClicked,
                 enabled = isMedicineValid && !isLoading
             ) {
@@ -266,7 +259,7 @@ private fun EditMedicineContent(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text(text = stringResource(id = R.string.action_add))
+                    Text(text = stringResource(id = R.string.action_save))
                 }
             }
         }
@@ -275,22 +268,24 @@ private fun EditMedicineContent(
 
 @PreviewLightDark
 @Composable
-private fun EditMedicineContentPreview() {
-    val fakeAisles = listOf(
-        Aisle(id = "1", name = "Paracetamol"),
-        Aisle(id = "2", name = "Syrup"),
-        Aisle(id = "3", name = "Cream")
-    )
+fun EditMedicineContentPreview() {
     RebonnteTheme {
         EditMedicineContent(
-            dateTime = Instant.now(),
+            medicine = Medicine(
+                id = "1",
+                name = "Doliprane",
+                stock = 10,
+                aisleId = "1",
+                aisleName = "Paracetamol"
+            ),
+            aisles = listOf(
+                Aisle(id = "1", name = "Paracetamol"),
+                Aisle(id = "2", name = "Syrup")
+            ),
+            selectedAisle = Aisle(id = "1", name = "Paracetamol"),
             onDateTimeChange = {},
-            numberOfMedicines = 3,
+            onNameMedicineChanged = {},
             onNumberOfMedicinesChange = {},
-            name = "Doliprane",
-            onNameChanged = {},
-            aisles = fakeAisles,
-            selectedAisle = fakeAisles.first(),
             onAisleSelected = {},
             onSaveClicked = {},
             isMedicineValid = true,

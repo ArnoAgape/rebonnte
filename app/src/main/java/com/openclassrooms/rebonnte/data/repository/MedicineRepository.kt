@@ -17,19 +17,22 @@ class MedicineRepository @Inject constructor(
 ) {
 
     /**
-     * Observes the list of all files ordered by descending creation date.
+     * Observes the list of all medicines ordered by ascending name.
      */
     val medicines: Flow<List<Medicine>> = medicineApi.getMedicinesOrderByNameAsc()
 
     /**
-     * Uploads a new file to Firebase (Storage + Firestore).
-     * @throws java.io.IOException if there is no internet connection
-     * @throws IllegalArgumentException if the file type or size is invalid
+     * Uploads a new medicine to Firebase (Storage + Firestore).
      */
     suspend fun addMedicine(medicine: Medicine): Unit = medicineApi.addMedicine(medicine)
 
     /**
-     * Observes a single file by its unique ID.
+     * Edits an existing medicine to Firebase (Storage + Firestore).
+     */
+    suspend fun editMedicine(medicine: Medicine) = medicineApi.editMedicine(medicine)
+
+    /**
+     * Observes a single medicine by its unique ID.
      */
     fun getMedicineById(medicineId: String): Flow<Medicine?> =
         medicineApi.getMedicineById(medicineId)

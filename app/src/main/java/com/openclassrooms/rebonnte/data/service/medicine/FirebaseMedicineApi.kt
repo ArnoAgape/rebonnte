@@ -39,6 +39,23 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
         }
     }
 
+    override suspend fun editMedicine(medicine: Medicine): Result<Unit> {
+        return try {
+            val dto = medicine.toDto()
+
+            medicinesCollection
+                .document(medicine.id)
+                .set(dto)
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Log.e("FirebaseMedicineApi", "Error while editing medicine", e)
+            Result.failure(e)
+        }
+    }
+
     override fun getMedicineById(medicineId: String): Flow<Medicine?> {
         return medicinesCollection
             .whereEqualTo("id", medicineId)

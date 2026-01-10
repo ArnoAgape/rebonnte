@@ -125,8 +125,8 @@ fun AddMedicineScreen(
                     onNumberOfMedicinesChange = { newValue ->
                         viewModel.onAction(FormEvent.StockSet(newValue))
                     },
-                    name = aisleToDisplay.name,
-                    onNameChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
+                    nameMedicine = aisleToDisplay.name,
+                    onNameMedicineChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
                     aisles = aisles,
                     selectedAisle = selectedAisle,
                     onAisleSelected = { viewModel.onAction(FormEvent.AisleSelected(it)) },
@@ -147,7 +147,7 @@ fun AddMedicineScreen(
                         CircularProgressIndicator()
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = stringResource(R.string.sending),
+                            text = stringResource(R.string.adding),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -179,8 +179,8 @@ private fun AddMedicineContent(
     onDateTimeChange: (Instant) -> Unit,
     numberOfMedicines: Int,
     onNumberOfMedicinesChange: (Int) -> Unit,
-    name: String,
-    onNameChanged: (String) -> Unit,
+    nameMedicine: String,
+    onNameMedicineChanged: (String) -> Unit,
     aisles: List<Aisle>,
     selectedAisle: Aisle?,
     onAisleSelected: (Aisle) -> Unit,
@@ -228,8 +228,8 @@ private fun AddMedicineContent(
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    value = name,
-                    onValueChange = onNameChanged,
+                    value = nameMedicine,
+                    onValueChange = onNameMedicineChanged,
                     label = { Text(stringResource(id = R.string.hint_medicine_name)) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
@@ -254,7 +254,7 @@ private fun AddMedicineContent(
 
             /** ---------- SAVE BUTTON ---------- **/
             Button(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = onSaveClicked,
                 enabled = isMedicineValid && !isLoading
             ) {
@@ -286,8 +286,8 @@ private fun AddMedicineContentPreview() {
             onDateTimeChange = {},
             numberOfMedicines = 3,
             onNumberOfMedicinesChange = {},
-            name = "Doliprane",
-            onNameChanged = {},
+            nameMedicine = "Doliprane",
+            onNameMedicineChanged = {},
             aisles = fakeAisles,
             selectedAisle = fakeAisles.first(),
             onAisleSelected = {},

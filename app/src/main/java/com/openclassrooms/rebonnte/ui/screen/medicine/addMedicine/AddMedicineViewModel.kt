@@ -39,7 +39,6 @@ class AddMedicineViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
     val uiState: StateFlow<AddMedicineUiState> = _uiState.asStateFlow()
     private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user.asStateFlow()
     private val _events = Channel<Event>()
     val eventsFlow = _events.receiveAsFlow()
 
@@ -146,14 +145,14 @@ class AddMedicineViewModel @Inject constructor(
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = AddMedicineUiState.Error.NoAccount()
-                _events.trySend(Event.ShowMessage(R.string.error_no_account_medicine))
+                _events.trySend(Event.ShowMessage(R.string.error_no_account_add_medicine))
                 return@launch
             }
 
             _uiState.value = AddMedicineUiState.Loading
 
             try {
-                // 3. Creation of file with user
+                // 3. Creation of a medicine with current user
                 val medicineToSave = _medicine.value.copy(author = currentUser)
 
                 // 4. Upload Storage + Firestore

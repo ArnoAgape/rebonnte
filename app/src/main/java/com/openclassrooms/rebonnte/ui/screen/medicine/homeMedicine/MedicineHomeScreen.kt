@@ -57,7 +57,7 @@ fun MedicineHomeScreen(
         }
     }
 
-    val noAccountMessage = stringResource(R.string.error_no_account_medicine)
+    val noAccountMessage = stringResource(R.string.error_no_account_add_medicine)
 
     Scaffold(
         modifier = Modifier
@@ -171,7 +171,7 @@ fun MedicineHomeContent(
                     if (isSignedIn) onFABClick()
                     else Toast.makeText(
                         context,
-                        context.getString(R.string.error_no_account_medicine),
+                        context.getString(R.string.error_no_account_add_medicine),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
