@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,7 +59,8 @@ import java.time.Instant
 @Composable
 fun MedicineDetailScreen(
     viewModel: MedicineDetailViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditClick: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -105,7 +107,6 @@ fun MedicineDetailScreen(
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
-
                         else -> {}
                     }
                 },
@@ -115,6 +116,21 @@ fun MedicineDetailScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(id = R.string.contentDescription_go_back)
                         )
+                    }
+                },
+                actions = {
+                    if (state.medicineState is MedicineDetailUiState.Success) {
+                        IconButton(
+                            onClick = {
+                                val medicine = (state.medicineState as MedicineDetailUiState.Success).medicine
+                                onEditClick(medicine.id)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.edit_medicine)
+                            )
+                        }
                     }
                 }
             )

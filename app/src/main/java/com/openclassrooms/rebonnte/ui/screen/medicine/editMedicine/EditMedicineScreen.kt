@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,8 +54,6 @@ import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineUiState
-import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.AisleDropdown
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.DateTimeField
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.NumberOfMedicinesField
@@ -65,7 +64,7 @@ import java.time.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMedicineScreen(
-    viewModel: AddMedicineViewModel,
+    viewModel: EditMedicineViewModel,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
@@ -114,12 +113,12 @@ fun EditMedicineScreen(
     ) { contentPadding ->
 
         when (state.uiState) {
-            is AddMedicineUiState.Idle, is AddMedicineUiState.Success -> {
+            is EditMedicineUiState.Idle, is EditMedicineUiState.Success -> {
                 val aisleToDisplay =
-                    if (state.uiState is AddMedicineUiState.Success) (state.uiState as AddMedicineUiState.Success).medicine
+                    if (state.uiState is EditMedicineUiState.Success) (state.uiState as EditMedicineUiState.Success).medicine
                     else state.medicine
 
-                AddMedicineContent(
+                EditMedicineContent(
                     contentPadding = contentPadding,
                     dateTime = aisleToDisplay.dateTime,
                     onDateTimeChange = { viewModel.onAction(FormEvent.DateTimeChanged(it)) },
@@ -138,7 +137,7 @@ fun EditMedicineScreen(
                 )
             }
 
-            is AddMedicineUiState.Loading -> {
+            is EditMedicineUiState.Loading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -156,11 +155,11 @@ fun EditMedicineScreen(
                 }
             }
 
-            is AddMedicineUiState.Error -> {
-                val errorState = state.uiState as AddMedicineUiState.Error
+            is EditMedicineUiState.Error -> {
+                val errorState = state.uiState as EditMedicineUiState.Error
                 val message = when (errorState) {
-                    is AddMedicineUiState.Error.NoAccount -> (state.uiState as AddMedicineUiState.Error.NoAccount).message
-                    is AddMedicineUiState.Error.Generic -> (state.uiState as AddMedicineUiState.Error.Generic).message
+                    is EditMedicineUiState.Error.NoAccount -> (state.uiState as EditMedicineUiState.Error.NoAccount).message
+                    is EditMedicineUiState.Error.Generic -> (state.uiState as EditMedicineUiState.Error.Generic).message
                 }
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -175,7 +174,7 @@ fun EditMedicineScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddMedicineContent(
+private fun EditMedicineContent(
     contentPadding: PaddingValues = PaddingValues(),
     dateTime: Instant,
     onDateTimeChange: (Instant) -> Unit,
@@ -276,14 +275,14 @@ private fun AddMedicineContent(
 
 @PreviewLightDark
 @Composable
-private fun AddMedicineContentPreview() {
+private fun EditMedicineContentPreview() {
     val fakeAisles = listOf(
         Aisle(id = "1", name = "Paracetamol"),
         Aisle(id = "2", name = "Syrup"),
         Aisle(id = "3", name = "Cream")
     )
     RebonnteTheme {
-        AddMedicineContent(
+        EditMedicineContent(
             dateTime = Instant.now(),
             onDateTimeChange = {},
             numberOfMedicines = 3,

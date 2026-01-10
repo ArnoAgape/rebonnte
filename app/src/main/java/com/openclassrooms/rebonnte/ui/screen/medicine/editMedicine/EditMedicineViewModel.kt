@@ -11,7 +11,6 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -37,8 +36,8 @@ class EditMedicineViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
-    val uiState: StateFlow<AddMedicineUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<EditMedicineUiState>(EditMedicineUiState.Idle)
+    val uiState: StateFlow<EditMedicineUiState> = _uiState.asStateFlow()
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
     private val _events = Channel<Event>()
@@ -146,12 +145,12 @@ class EditMedicineViewModel @Inject constructor(
             // 2. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
-                _uiState.value = AddMedicineUiState.Error.NoAccount()
+                _uiState.value = EditMedicineUiState.Error.NoAccount()
                 _events.trySend(Event.ShowMessage(R.string.error_no_account_medicine))
                 return@launch
             }
 
-            _uiState.value = AddMedicineUiState.Loading
+            _uiState.value = EditMedicineUiState.Loading
 
             try {
                 // 3. Creation of file with user
@@ -166,17 +165,17 @@ class EditMedicineViewModel @Inject constructor(
                 medicineRepository.addMedicine(medicineToSave)
 
                 // 5. Success UI
-                _uiState.value = AddMedicineUiState.Success(medicineToSave)
+                _uiState.value = EditMedicineUiState.Success(medicineToSave)
                 _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
 
             } catch (e: IOException) {
                 // 6. Network error (impossible upload)
-                _uiState.value = AddMedicineUiState.Error.Generic("Network error: ${e.message}")
+                _uiState.value = EditMedicineUiState.Error.Generic("Network error: ${e.message}")
                 _events.trySend(Event.ShowMessage(R.string.no_network))
 
             } catch (_: Exception) {
                 // 7. Generic error (Firebase Storage, Firestore, etc.)
-                _uiState.value = AddMedicineUiState.Error.Generic()
+                _uiState.value = EditMedicineUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
             }
         }
@@ -184,7 +183,7 @@ class EditMedicineViewModel @Inject constructor(
 }
 
 data class AddScreenState(
-    val uiState: AddMedicineUiState = AddMedicineUiState.Idle,
+    val uiState: EditMedicineUiState = EditMedicineUiState.Idle,
     val medicine: Medicine = Medicine(),
     val isValid: Boolean = false
 )

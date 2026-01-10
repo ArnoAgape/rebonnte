@@ -22,6 +22,8 @@ import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
 import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine.EditMedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine.EditMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.profile.ProfileScreen
 import com.openclassrooms.rebonnte.ui.screen.profile.ProfileViewModel
 
@@ -89,6 +91,9 @@ fun AppNavGraph(
             MedicineDetailScreen(
                 viewModel = hiltViewModel<MedicineDetailViewModel>(),
                 onBackClick = { navController.navigateUp() },
+                onEditClick = { medicineId ->
+                    navController.navigate(EditMedicine(medicineId))
+                }
             )
         }
 
@@ -108,10 +113,18 @@ fun AppNavGraph(
             )
         }
 
+        composable<EditMedicine> {
+            EditMedicineScreen(
+                viewModel = hiltViewModel<EditMedicineViewModel>(),
+                onBackClick = { navController.navigateUp() },
+                onSaveClick = { navController.navigateUp() }
+            )
+        }
+
         composable<Profile> {
             ProfileScreen(
                 viewModel = hiltViewModel<ProfileViewModel>(),
-                onLoginScreen = { navController.navigate(Login)}
+                onLoginScreen = { navController.navigate(Login) }
             )
         }
     }

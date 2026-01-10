@@ -30,4 +30,7 @@ object Profile
 object AddMedicine
 
 @Serializable
+data class EditMedicine(val medicineId: String)
+
+@Serializable
 object AddAisle
