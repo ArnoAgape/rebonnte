@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -41,8 +41,7 @@ class AisleHomeViewModel @Inject constructor(
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
-    private val _selection = MutableStateFlow(AisleSelectionState())
-    val selection = _selection.asStateFlow()
+    private val _selection = MutableStateFlow(SelectionState())
 
     private val _isRefreshing = MutableStateFlow(false)
 
@@ -90,7 +89,7 @@ class AisleHomeViewModel @Inject constructor(
     }
 
     fun exitSelectionMode() {
-        _selection.value = AisleSelectionState() // reset
+        _selection.value = SelectionState() // reset
     }
 
     fun toggleSelection(id: String) {
@@ -102,13 +101,15 @@ class AisleHomeViewModel @Inject constructor(
     }
 
     fun deleteSelectedAisles() {
-        val ids = selection.value.selectedIds
-
         viewModelScope.launch {
-            ids.forEach { id ->
-                aisleRepository.deleteAisle(id)
+            val result = aisleRepository.deleteAisles(_selection.value.selectedIds)
+
+            if (result.isSuccess) {
+                exitSelectionMode()
+                _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_medicines))
+            } else {
+                _events.trySend(Event.ShowMessage(R.string.error_delete_aisle))
             }
-            exitSelectionMode()
         }
     }
 
@@ -126,19 +127,14 @@ class AisleHomeViewModel @Inject constructor(
     }
 }
 
-data class AisleSelectionState(
-    val isSelectionMode: Boolean = false,
-    val selectedIds: Set<String> = emptySet()
-)
-
 /**
  * Combined UI state for the home screen,
- * including loading state and refresh status.
+ * including loading state, refresh status, selection state and if the user is signed in.
  */
 
 data class AisleHomeScreenState(
     val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
     val isRefreshing: Boolean = false,
-    val selection: AisleSelectionState = AisleSelectionState(),
+    val selection: SelectionState = SelectionState(),
     val isSignedIn: Boolean? = null
 )

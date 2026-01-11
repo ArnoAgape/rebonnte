@@ -6,6 +6,8 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.common.SelectionState
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -18,12 +20,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MedicineHomeViewModel @Inject constructor(
-    medicineRepository: MedicineRepository,
+    private val medicineRepository: MedicineRepository,
     userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
@@ -31,7 +34,16 @@ class MedicineHomeViewModel @Inject constructor(
     private val _events = Channel<Event>()
     val eventsFlow = _events.receiveAsFlow()
 
+    private val _selection = MutableStateFlow(SelectionState())
     private val _isRefreshing = MutableStateFlow(false)
+
+    val isSignedIn =
+        userRepository.isUserSignedIn()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                null
+            )
 
     private val _uiState =
         medicineRepository.medicines
@@ -45,25 +57,51 @@ class MedicineHomeViewModel @Inject constructor(
                 emit(MedicineHomeUiState.Error.Generic(e.message ?: "Unknown error"))
             }
 
-    val state: StateFlow<MedicineHomeScreenState> =
-        combine(_uiState, _isRefreshing) { ui, refreshing ->
+    val screenState: StateFlow<MedicineHomeScreenState> =
+        combine(
+            _uiState,
+            _isRefreshing,
+            _selection
+        ) { ui, refreshing, selection ->
             MedicineHomeScreenState(
                 uiState = ui,
-                isRefreshing = refreshing
+                isRefreshing = refreshing,
+                selection = selection
             )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5_000),
+            SharingStarted.WhileSubscribed(5000),
             MedicineHomeScreenState()
         )
 
-    val isSignedIn =
-        userRepository.isUserSignedIn()
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                null
-            )
+    fun enterSelectionMode() {
+        _selection.update { it.copy(isSelectionMode = true) }
+    }
+
+    fun exitSelectionMode() {
+        _selection.value = SelectionState() // reset
+    }
+
+    fun toggleSelection(id: String) {
+        _selection.update { sel ->
+            val set = sel.selectedIds.toMutableSet()
+            if (!set.add(id)) set.remove(id)
+            sel.copy(selectedIds = set)
+        }
+    }
+
+    fun deleteSelectedMedicines() {
+        viewModelScope.launch {
+            val result = medicineRepository.deleteMedicines(_selection.value.selectedIds)
+
+            if (result.isSuccess) {
+                exitSelectionMode()
+                _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_medicines))
+            } else {
+                _events.trySend(Event.ShowMessage(R.string.error_delete_medicine))
+            }
+        }
+    }
 
     fun refreshMedicines() {
         if (!networkUtils.isNetworkAvailable()) {
@@ -73,7 +111,7 @@ class MedicineHomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isRefreshing.value = true
-            delay(700) // feedback UX
+            delay(700)
             _isRefreshing.value = false
         }
     }
@@ -81,5 +119,6 @@ class MedicineHomeViewModel @Inject constructor(
 
 data class MedicineHomeScreenState(
     val uiState: MedicineHomeUiState = MedicineHomeUiState.Loading,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val selection: SelectionState = SelectionState(),
 )

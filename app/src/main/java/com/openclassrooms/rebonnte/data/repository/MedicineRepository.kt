@@ -31,7 +31,7 @@ class MedicineRepository @Inject constructor(
      */
     suspend fun editMedicine(medicine: Medicine) = medicineApi.editMedicine(medicine)
 
-    suspend fun deleteMedicine(medicine: Medicine) = medicineApi.deleteMedicine(medicine)
+    suspend fun deleteMedicines(ids: Set<String>) = medicineApi.deleteMedicines(ids)
 
     /**
      * Observes a single medicine by its unique ID.

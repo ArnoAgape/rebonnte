@@ -2,7 +2,6 @@ package com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle
 
 import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,21 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +44,7 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
+import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.common.components.SelectItemRow
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -59,37 +58,62 @@ fun AisleHomeScreen(
     onFABClick: () -> Unit
 ) {
     val state by viewModel.screenState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val refreshState = rememberPullToRefreshState()
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
-                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                snackbarHostState.showSnackbar(
+                    message = context.getString(event.message),
+                    duration = SnackbarDuration.Short
+                )
             }
 
             else -> {}
         }
     }
 
+    AisleHomeContent(
+        state = state,
+        onAisleClick = onAisleClick,
+        onFABClick = onFABClick,
+        onRefresh = { viewModel.refreshAisles() },
+        onToggleSelection = { viewModel.toggleSelection(it) },
+        onEnterSelectionMode = { viewModel.enterSelectionMode() },
+        onExitSelectionMode = { viewModel.exitSelectionMode() },
+        onDeleteSelected = { viewModel.deleteSelectedAisles() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AisleHomeContent(
+    state: AisleHomeScreenState,
+    onAisleClick: (Aisle) -> Unit,
+    onFABClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onToggleSelection: (String) -> Unit,
+    onEnterSelectionMode: () -> Unit,
+    onExitSelectionMode: () -> Unit,
+    onDeleteSelected: () -> Unit
+) {
+    val context = LocalContext.current
+    val refreshState = rememberPullToRefreshState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     val noAccountMessage = stringResource(R.string.error_no_account_add_aisle)
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(stringResource(id = R.string.aisles))
-                },
+                title = { Text(stringResource(R.string.aisles)) },
                 actions = {
                     if (state.selection.isSelectionMode) {
                         IconButton(
                             onClick = {
                                 if (state.selection.selectedIds.isEmpty()) {
-                                    viewModel.exitSelectionMode()
+                                    onExitSelectionMode()
                                 } else {
                                     showDeleteDialog = true
                                 }
@@ -100,91 +124,57 @@ fun AisleHomeScreen(
                                     Icons.Default.Close
                                 else
                                     Icons.Default.DeleteForever,
-                                contentDescription = stringResource(R.string.delete_aisle)
+                                contentDescription = null
                             )
                         }
                     } else if (state.uiState is AisleHomeUiState.Success) {
-                        // selection mode
-                        IconButton(onClick = { viewModel.enterSelectionMode() }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.delete_aisle)
-                            )
+                        IconButton(onClick = onEnterSelectionMode) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
                         }
                     }
                 }
             )
         },
-        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (state.isSignedIn == true) {
-                        onFABClick()
-                    } else {
-                        Toast.makeText(
-                            context, noAccountMessage,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                    if (state.isSignedIn == true) onFABClick()
+                    else Toast.makeText(context, noAccountMessage, Toast.LENGTH_SHORT).show()
+                }
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(id = R.string.contentDescription_button_add)
-                )
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
-    ) { contentPadding ->
+    ) { padding ->
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding),
+                .padding(padding),
             state = refreshState,
             isRefreshing = state.isRefreshing,
-            onRefresh = { viewModel.refreshAisles() }
+            onRefresh = onRefresh
         ) {
             when (val ui = state.uiState) {
+
                 is AisleHomeUiState.Success ->
-                    AisleContent(
+                    AisleListContent(
                         aisles = ui.aisles,
                         onAisleClick = onAisleClick,
                         selectionState = state.selection,
-                        onToggleSelection = { viewModel.toggleSelection(it) }
+                        onToggleSelection = onToggleSelection
                     )
 
-                is AisleHomeUiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                        }
+                is AisleHomeUiState.Loading ->
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
-                }
 
-                is AisleHomeUiState.Error.Empty -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_aisles),
-                            modifier = Modifier.fillMaxSize(),
-                            textAlign = TextAlign.Center,
-                        )
+                is AisleHomeUiState.Error.Empty ->
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.no_aisles))
                     }
-                }
 
-                else -> {}
+                else -> Unit
             }
         }
 
@@ -192,7 +182,7 @@ fun AisleHomeScreen(
             show = showDeleteDialog,
             onConfirm = {
                 showDeleteDialog = false
-                viewModel.deleteSelectedAisles()
+                onDeleteSelected()
             },
             onDismiss = { showDeleteDialog = false },
             confirmButtonTitle = stringResource(R.string.confirm_delete_aisle),
@@ -202,50 +192,68 @@ fun AisleHomeScreen(
 }
 
 @Composable
-fun AisleContent(
-    modifier: Modifier = Modifier,
+fun AisleListContent(
     aisles: List<Aisle>,
     onAisleClick: (Aisle) -> Unit,
-    selectionState: AisleSelectionState,
+    selectionState: SelectionState,
     onToggleSelection: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = modifier.padding(8.dp),
+        modifier = Modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(aisles) { aisle ->
-
             SelectItemRow(
                 id = aisle.id,
-                label = aisle.name,
                 isSelectionMode = selectionState.isSelectionMode,
                 isSelected = selectionState.selectedIds.contains(aisle.id),
                 onSelectToggle = { onToggleSelection(aisle.id) },
                 onClick = { onAisleClick(aisle) }
-            )
+            ) {
+                Column {
+                    Text(
+                        text = aisle.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null
+                )
+            }
         }
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun AisleContentPreview() {
+fun AisleHomeScreenPreview() {
     RebonnteTheme {
-        AisleContent(
-            aisles = listOf(
-                Aisle(
-                    name = "Paracetamol"
+        val aisles = listOf(
+            Aisle(id = "1", name = "Painkillers"),
+            Aisle(id = "2", name = "Antibiotics"),
+            Aisle(id = "3", name = "Antiseptics")
+        )
+
+        AisleHomeContent(
+            state = AisleHomeScreenState(
+                uiState = AisleHomeUiState.Success(aisles),
+                isRefreshing = false,
+                selection = SelectionState(
+                    isSelectionMode = true,
+                    selectedIds = setOf("1", "3")
                 ),
-                Aisle(
-                    name = "Antibiotic"
-                ),
-                Aisle(
-                    name = "Antiseptic"
-                )
+                isSignedIn = true
             ),
             onAisleClick = {},
-            selectionState = AisleSelectionState(),
-            onToggleSelection = { }
+            onFABClick = {},
+            onRefresh = {},
+            onToggleSelection = {},
+            onEnterSelectionMode = {},
+            onExitSelectionMode = {},
+            onDeleteSelected = {}
         )
     }
 }

@@ -6,7 +6,6 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.AisleDto
 import com.openclassrooms.rebonnte.domain.model.Aisle
-import com.openclassrooms.rebonnte.domain.model.Medicine
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -57,19 +56,13 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
      *
      * @return A [Result] indicating whether the deletion was successful.
      */
-    override suspend fun deleteAisle(aisleId: String): Result<Unit> {
+    override suspend fun deleteAisles(ids: Set<String>): Result<Unit> {
         return try {
-            if (aisleId.isBlank()) {
-                return Result.failure(IllegalArgumentException("Aisle ID is empty"))
+            ids.forEach { id ->
+                if (id.isBlank()) error("Aisle ID empty")
+                aislesCollection.document(id).delete().await()
             }
-
-            aislesCollection
-                .document(aisleId)
-                .delete()
-                .await()
-
             Result.success(Unit)
-
         } catch (e: Exception) {
             Result.failure(e)
         }

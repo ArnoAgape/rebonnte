@@ -28,5 +28,5 @@ interface MedicineApi {
      *
      * @return A [Result] indicating whether the deletion was successful or not.
      */
-    suspend fun deleteMedicine(medicine: Medicine): Result<Unit>
+    suspend fun deleteMedicines(ids: Set<String>): Result<Unit>
 }

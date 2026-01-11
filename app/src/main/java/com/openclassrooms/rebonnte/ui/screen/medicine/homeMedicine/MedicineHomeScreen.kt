@@ -5,22 +5,29 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,118 +36,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
-import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.screen.medicine.MedicineItem
+import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
+import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun MedicineHomeScreen(
     viewModel: MedicineHomeViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val refreshState = rememberPullToRefreshState()
+    val state by viewModel.screenState.collectAsStateWithLifecycle()
     val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
-                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                snackbarHostState.showSnackbar(
+                    message = context.getString(event.message),
+                    duration = SnackbarDuration.Short
+                )
             }
 
             else -> {}
         }
     }
 
-    val noAccountMessage = stringResource(R.string.error_no_account_add_medicine)
-
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(id = R.string.medicines))
-                }
-            )
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (isSignedIn == true) {
-                        onFABClick()
-                    } else {
-                        Toast.makeText(
-                            context, noAccountMessage,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(id = R.string.contentDescription_button_add)
-                )
-            }
-        }
-    ) { contentPadding ->
-        PullToRefreshBox(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding),
-            state = refreshState,
-            isRefreshing = state.isRefreshing,
-            onRefresh = { viewModel.refreshMedicines() }
-        ) {
-            when (val ui = state.uiState) {
-                is MedicineHomeUiState.Success ->
-                    MedicineItem(
-                        medicines = ui.medicines,
-                        onMedicineClick = onMedicineClick
-                    )
-
-                is MedicineHomeUiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                }
-
-                is MedicineHomeUiState.Error.Empty -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_medicines),
-                            modifier = Modifier.fillMaxSize(),
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-
-                else -> {}
-            }
-        }
-    }
+    MedicineHomeContent(
+        state = state,
+        onRefresh = { viewModel.refreshMedicines() },
+        onMedicineClick = onMedicineClick,
+        onFABClick = onFABClick,
+        isSignedIn = isSignedIn == true,
+        onToggleSelection = { viewModel.toggleSelection(it) },
+        onEnterSelectionMode = { viewModel.enterSelectionMode() },
+        onExitSelectionMode = { viewModel.exitSelectionMode() },
+        onDeleteSelected = { viewModel.deleteSelectedMedicines() }
+    )
 }
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -151,18 +89,50 @@ fun MedicineHomeContent(
     onRefresh: () -> Unit,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit,
-    isSignedIn: Boolean
+    isSignedIn: Boolean,
+    onToggleSelection: (String) -> Unit,
+    onEnterSelectionMode: () -> Unit,
+    onExitSelectionMode: () -> Unit,
+    onDeleteSelected: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.medicines)) }
+                title = { Text(stringResource(id = R.string.medicines)) },
+                actions = {
+                    if (state.selection.isSelectionMode) {
+                        IconButton(
+                            onClick = {
+                                if (state.selection.selectedIds.isEmpty()) {
+                                    onExitSelectionMode()
+                                } else {
+                                    showDeleteDialog = true
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (state.selection.selectedIds.isEmpty())
+                                    Icons.Default.Close
+                                else
+                                    Icons.Default.DeleteForever,
+                                contentDescription = null
+                            )
+                        }
+                    } else if (state.uiState is MedicineHomeUiState.Success) {
+                        IconButton(onClick = onEnterSelectionMode) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -196,7 +166,9 @@ fun MedicineHomeContent(
                 is MedicineHomeUiState.Success -> {
                     MedicineItem(
                         medicines = ui.medicines,
-                        onMedicineClick = onMedicineClick
+                        onMedicineClick = onMedicineClick,
+                        selectionState = state.selection,
+                        onToggleSelection = onToggleSelection
                     )
                 }
 
@@ -226,6 +198,17 @@ fun MedicineHomeContent(
                 else -> Unit
             }
         }
+
+        ConfirmDeleteDialog(
+            show = showDeleteDialog,
+            onConfirm = {
+                showDeleteDialog = false
+                onDeleteSelected()
+            },
+            onDismiss = { showDeleteDialog = false },
+            confirmButtonTitle = stringResource(R.string.confirm_delete_medicine),
+            confirmButtonMessage = stringResource(R.string.confirm_delete_message_medicines)
+        )
     }
 }
 
@@ -235,9 +218,9 @@ fun MedicineHomeScreenPreview() {
     RebonnteTheme {
         // Fake medicines
         val sampleMedicines = listOf(
-            Medicine(name = "Doliprane 1000mg", stock = 12),
-            Medicine(name = "Ibuprofène 400mg", stock = 5),
-            Medicine(name = "Efferalgan Vitamine C", stock = 20)
+            Medicine(name = "Painkiller 1000 mg", stock = 12),
+            Medicine(name = "Painkiller 400 mg", stock = 5),
+            Medicine(name = "Vitamin C", stock = 20)
         )
 
         val previewState = MedicineHomeScreenState(
@@ -250,7 +233,11 @@ fun MedicineHomeScreenPreview() {
             onRefresh = {},
             onMedicineClick = {},
             onFABClick = {},
-            isSignedIn = true
+            isSignedIn = true,
+            onToggleSelection = {},
+            onEnterSelectionMode = {},
+            onExitSelectionMode = {},
+            onDeleteSelected = {}
         )
     }
 }

@@ -124,7 +124,7 @@ class MedicineDetailViewModel @Inject constructor(
             }
 
             // 2. Action: delete
-            val result = medicineRepository.deleteMedicine(medicine)
+            val result = medicineRepository.deleteMedicines(setOf(medicine.id))
 
             // 3. When success
             if (result.isSuccess) {

@@ -49,6 +49,8 @@
     <string name="success_add_medicine">Medicine added successfully</string>
     <string name="success_edit_medicine">Medicine edited successfully</string>
     <string name="success_deleted_medicine">Medicine deleted successfully</string>
+    <string name="success_deleted_medicines">Medicine(s) deleted successfully</string>
+    <string name="success_deleted_aisles">Aisle(s) deleted successfully</string>
     <string name="success_add_aisle">Aisle added successfully</string>
     <string name="success_user_updated">Details updated successfully</string>
     <string name="success_sign_up">Successfully logged in</string>
@@ -62,6 +64,7 @@
     <string name="error_sign_up">Sign up canceled or failed</string>
     <string name="error_medicine_not_found">Medicine not found</string>
     <string name="error_delete_medicine">An issue occurred while deleting the medicine</string>
+    <string name="error_delete_aisle">An issue occurred while deleting the aisle</string>
     <string name="error_invalid_form_aisle">The name of the aisle cannot be empty</string>
     <string name="error_invalid_form_medicine">The name of the medicine cannot be empty</string>
     <string name="error_no_account_add_medicine">An account is mandatory in order to add a medicine</string>

@@ -78,20 +78,13 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
      *
      * @return A [Result] indicating whether the deletion was successful.
      */
-    override suspend fun deleteMedicine(medicine: Medicine): Result<Unit> {
+    override suspend fun deleteMedicines(ids: Set<String>): Result<Unit> {
         return try {
-            val id = medicine.id
-            if (id.isBlank()) {
-                return Result.failure(IllegalArgumentException("Medicine ID is empty"))
+            ids.forEach { id ->
+                if (id.isBlank()) error("Medicine ID empty")
+                medicinesCollection.document(id).delete().await()
             }
-
-            medicinesCollection
-                .document(id)
-                .delete()
-                .await()
-
             Result.success(Unit)
-
         } catch (e: Exception) {
             Result.failure(e)
         }
