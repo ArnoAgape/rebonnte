@@ -48,6 +48,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = Color.Black,
 
     secondaryContainer = BrownGrey40,
+    onSecondaryContainer = Color.White,
 
     secondary = BrownGrey40,
     onSecondary = Color.White,

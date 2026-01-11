@@ -41,8 +41,9 @@ fun MainScreen() {
                             Icon(destination.icon, contentDescription = destination.label())
                         },
                         label = { Text(destination.label()) },
-                        selected = currentRoute == destination.route,
+                        selected = currentRoute == destination.routeName,
                         onClick = {
+                            if (currentRoute == destination.routeName) return@item
                             if (destination == AppDestinations.PROFILE) {
                                 if (loginViewModel.isSignedIn.value == true) {
                                     navController.navigate(Profile)
@@ -80,4 +81,7 @@ enum class AppDestinations(
 
     @Composable
     fun label(): String = stringResource(id = labelRes)
+
+    /** Class name used as navigation route. */
+    val routeName: String get() = route::class.qualifiedName!!
 }
