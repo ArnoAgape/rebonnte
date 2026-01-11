@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,75 +22,74 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun EmbeddedSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    isSearchActive: Boolean,
-    onActiveChanged: (Boolean) -> Unit,
+    onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var searchQuery by rememberSaveable { mutableStateOf(query) }
-    val activeChanged: (Boolean) -> Unit = { active ->
-        searchQuery = ""
-        onQueryChange("")
-        onActiveChanged(active)
-    }
-
-    val shape: Shape = RoundedCornerShape(16.dp)
+    var searchQuery by rememberSaveable(query) { mutableStateOf(query) }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(48.dp)
-            .padding(horizontal = 16.dp)
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isSearchActive) {
-            IconButton(onClick = { activeChanged(false) }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
+        // return button = close search
+        IconButton(
+            onClick = {
+                searchQuery = ""
+                onQueryChange("")
+                onClose()
             }
-        } else {
+        ) {
             Icon(
-                imageVector = Icons.Rounded.Search,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.primary
             )
         }
 
         BasicTextField(
             value = searchQuery,
-            onValueChange = { query ->
-                searchQuery = query
-                onQueryChange(query)
+            onValueChange = { text ->
+                searchQuery = text
+                onQueryChange(text)
             },
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 8.dp),
             singleLine = true,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
             decorationBox = { innerTextField ->
                 if (searchQuery.isEmpty()) {
                     Text(
-                        text = "Search",
+                        text = stringResource(R.string.search),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 innerTextField()
             }
         )
 
-        if (isSearchActive && searchQuery.isNotEmpty()) {
+        // Clear query
+        if (searchQuery.isNotEmpty()) {
             IconButton(
                 onClick = {
                     searchQuery = ""
@@ -105,5 +103,17 @@ fun EmbeddedSearchBar(
                 )
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun EmbeddedSearchBarPreview() {
+    RebonnteTheme {
+        EmbeddedSearchBar(
+            query = "paracetamol",
+            onQueryChange = {},
+            onClose = {}
+        )
     }
 }

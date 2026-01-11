@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
+import com.openclassrooms.rebonnte.navigation.EmbeddedSearchBar
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.SelectionState
@@ -78,11 +80,14 @@ fun AisleHomeScreen(
         state = state,
         onAisleClick = onAisleClick,
         onFABClick = onFABClick,
+        onSearchClick = { viewModel.activateSearch() },
         onRefresh = { viewModel.refreshAisles() },
         onToggleSelection = { viewModel.toggleSelection(it) },
         onEnterSelectionMode = { viewModel.enterSelectionMode() },
         onExitSelectionMode = { viewModel.exitSelectionMode() },
-        onDeleteSelected = { viewModel.deleteSelectedAisles() }
+        onDeleteSelected = { viewModel.deleteSelectedAisles() },
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onSearchClose = { viewModel.deactivateSearch() },
     )
 }
 
@@ -92,6 +97,9 @@ fun AisleHomeContent(
     state: AisleHomeScreenState,
     onAisleClick: (Aisle) -> Unit,
     onFABClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchClose: () -> Unit,
     onRefresh: () -> Unit,
     onToggleSelection: (String) -> Unit,
     onEnterSelectionMode: () -> Unit,
@@ -106,34 +114,51 @@ fun AisleHomeContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.aisles)) },
-                actions = {
-                    if (state.selection.isSelectionMode) {
-                        IconButton(
-                            onClick = {
-                                if (state.selection.selectedIds.isEmpty()) {
-                                    onExitSelectionMode()
-                                } else {
-                                    showDeleteDialog = true
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (state.selection.selectedIds.isEmpty())
-                                    Icons.Default.Close
-                                else
-                                    Icons.Default.DeleteForever,
-                                contentDescription = null
-                            )
+            if (state.isSearchActive) {
+                EmbeddedSearchBar(
+                    query = state.searchQuery,
+                    onQueryChange = onSearchQueryChange,
+                    onClose = onSearchClose,
+                    modifier = Modifier
+                        .padding(
+                            top = 42.dp,
+                            start = 16.dp,
+                            end = 16.dp)
+                )
+            } else {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.aisles)) },
+                    actions = {
+                        IconButton(onClick = onSearchClick) {
+                            Icon(Icons.Rounded.Search, contentDescription = null)
                         }
-                    } else if (state.uiState is AisleHomeUiState.Success) {
-                        IconButton(onClick = onEnterSelectionMode) {
-                            Icon(Icons.Default.Delete, contentDescription = null)
+
+                        if (state.selection.isSelectionMode) {
+                            IconButton(
+                                onClick = {
+                                    if (state.selection.selectedIds.isEmpty()) {
+                                        onExitSelectionMode()
+                                    } else {
+                                        showDeleteDialog = true
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (state.selection.selectedIds.isEmpty())
+                                        Icons.Default.Close
+                                    else
+                                        Icons.Default.DeleteForever,
+                                    contentDescription = null
+                                )
+                            }
+                        } else if (state.uiState is AisleHomeUiState.Success) {
+                            IconButton(onClick = onEnterSelectionMode) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -145,11 +170,11 @@ fun AisleHomeContent(
                 Icon(Icons.Default.Add, contentDescription = null)
             }
         }
-    ) { padding ->
+    ) { contentPadding ->
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(contentPadding),
             state = refreshState,
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh
@@ -249,11 +274,14 @@ fun AisleHomeScreenPreview() {
             ),
             onAisleClick = {},
             onFABClick = {},
+            onSearchClick = {},
             onRefresh = {},
             onToggleSelection = {},
             onEnterSelectionMode = {},
             onExitSelectionMode = {},
-            onDeleteSelected = {}
+            onDeleteSelected = {},
+            onSearchQueryChange = {},
+            onSearchClose = {}
         )
     }
 }

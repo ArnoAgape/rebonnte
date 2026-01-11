@@ -7,11 +7,13 @@ import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.Event
+import com.openclassrooms.rebonnte.ui.common.SearchState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel responsible for loading and refreshing the list of files.
+ * ViewModel responsible for loading and refreshing the list of aisles.
  *
  * It exposes UI state, manages refresh actions, and emits one-time
  * events such as network warnings.
@@ -38,6 +40,8 @@ class AisleHomeViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
+    private val aislesFlow = aisleRepository.aisles
+
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
@@ -45,19 +49,36 @@ class AisleHomeViewModel @Inject constructor(
 
     private val _isRefreshing = MutableStateFlow(false)
 
-    private val _uiState =
-        aisleRepository.aisles
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearchActive = MutableStateFlow(false)
+
+    private val filteredAislesFlow = combine(
+        aislesFlow,
+        _searchQuery
+    ) { aisles, query ->
+        if (query.isBlank()) {
+            aisles
+        } else {
+            aisles.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+    }
+
+    private val _uiState: Flow<AisleHomeUiState> =
+        filteredAislesFlow
             .map { aisles ->
-                if (aisles.isEmpty())
+                if (aisles.isEmpty()) {
                     AisleHomeUiState.Error.Empty()
-                else
+                } else {
                     AisleHomeUiState.Success(aisles)
+                }
             }
             .catch { e ->
                 emit(AisleHomeUiState.Error.Generic(e.message ?: "Unknown error"))
             }
 
-    val isSignedIn =
+    private val _isSignedIn =
         userRepository.isUserSignedIn()
             .stateIn(
                 viewModelScope,
@@ -65,18 +86,27 @@ class AisleHomeViewModel @Inject constructor(
                 null
             )
 
+    private val searchState: Flow<SearchState> =
+        combine(_isSearchActive, _searchQuery) { active, query ->
+            SearchState(active, query)
+        }
+
     val screenState: StateFlow<AisleHomeScreenState> =
         combine(
             _uiState,
             _isRefreshing,
             _selection,
-            isSignedIn
-        ) { ui, refreshing, selection, signedIn ->
+            _isSignedIn,
+            searchState
+        ) { ui, refreshing, selection, signedIn, search ->
+
             AisleHomeScreenState(
                 uiState = ui,
                 isRefreshing = refreshing,
                 selection = selection,
-                isSignedIn = signedIn
+                isSignedIn = signedIn,
+                isSearchActive = search.isActive,
+                searchQuery = search.query
             )
         }.stateIn(
             viewModelScope,
@@ -113,18 +143,30 @@ class AisleHomeViewModel @Inject constructor(
         }
     }
 
-    fun refreshAisles() {
+    fun activateSearch() {
+        _isSearchActive.value = true
+    }
+
+    fun deactivateSearch() {
+        _isSearchActive.value = false
+        _searchQuery.value = ""
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun refreshAisles() = viewModelScope.launch {
         if (!networkUtils.isNetworkAvailable()) {
             _events.trySend(Event.ShowMessage(R.string.no_network))
-            return
+            return@launch
         }
 
-        viewModelScope.launch {
-            _isRefreshing.value = true
-            delay(700)
-            _isRefreshing.value = false
-        }
+        _isRefreshing.value = true
+        delay(700)
+        _isRefreshing.value = false
     }
+
 }
 
 /**
@@ -136,5 +178,7 @@ data class AisleHomeScreenState(
     val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
-    val isSignedIn: Boolean? = null
+    val isSignedIn: Boolean? = null,
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = ""
 )
