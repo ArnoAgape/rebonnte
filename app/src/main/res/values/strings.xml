@@ -61,6 +61,7 @@
     <string name="success_deleted_account">Account deleted successfully</string>
 
     <string name="error_generic">An issue occurred</string>
+    <string name="error_loading">Error while loading</string>
     <string name="no_medicines_listed_in_aisle">No medicine in this aisle</string>
     <string name="no_medicines">To add a new medicine, please press the button "+"</string>
     <string name="no_aisles">To add a new aisle, please press the button "+"</string>

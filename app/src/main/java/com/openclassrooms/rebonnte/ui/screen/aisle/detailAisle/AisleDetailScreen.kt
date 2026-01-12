@@ -137,7 +137,7 @@ fun AisleDetailContent(
                                         overflow = TextOverflow.Ellipsis
                                     )
 
-                                else -> Text("Aisle")
+                                else -> Text(stringResource(R.string.aisle))
                             }
                         },
                         actions = {
@@ -229,7 +229,7 @@ fun AisleDetailContent(
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Error while loading")
+                        Text(stringResource(R.string.error_loading))
                     }
                 }
             }
@@ -258,8 +258,7 @@ fun AisleDetailScreenPreview() {
             Medicine(name = "Painkiller", stock = 5)
         )
         val previewState = AisleDetailScreenState(
-            uiState = AisleDetailUiState.Success(fakeAisle, fakeMedicines),
-            isRefreshing = false
+            uiState = AisleDetailUiState.Success(fakeAisle, fakeMedicines)
         )
 
         AisleDetailContent(

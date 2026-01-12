@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 import com.openclassrooms.rebonnte.domain.model.Medicine
 
 sealed class MedicineDetailUiState {
-    object Idle : MedicineDetailUiState()
     object Loading : MedicineDetailUiState()
     object Deleted : MedicineDetailUiState()
     data class Success(val medicine: Medicine) : MedicineDetailUiState()

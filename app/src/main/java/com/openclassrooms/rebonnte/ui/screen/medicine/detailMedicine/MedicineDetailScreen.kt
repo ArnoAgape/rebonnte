@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,11 +31,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -66,11 +68,9 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val refreshState = rememberPullToRefreshState()
+    val state by viewModel.screenState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
@@ -89,11 +89,33 @@ fun MedicineDetailScreen(
         }
     }
 
-    LaunchedEffect(state.medicineState) {
-        (state.medicineState as? MedicineDetailUiState.Success)
-            ?.medicine
-            ?.let(viewModel::initStock)
-    }
+    val medicine = (state.medicineState as? MedicineDetailUiState.Success)?.medicine
+
+    MedicineDetailContent(
+        state = state,
+        snackbarHostState = snackbarHostState,
+        onBackClick = onBackClick,
+        onRefresh = { viewModel.refreshData() },
+        onDeleteSelected = { viewModel.deleteMedicine() },
+        onEditClick = {
+            medicine?.let { onEditClick(it.id) }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MedicineDetailContent(
+    state: MedicineDetailScreenState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onDeleteSelected: () -> Unit
+) {
+
+    val refreshState = rememberPullToRefreshState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = {
@@ -109,15 +131,14 @@ fun MedicineDetailScreen(
                 title = {
                     when (state.medicineState) {
                         is MedicineDetailUiState.Success -> {
-                            val medicine = (state.medicineState as MedicineDetailUiState.Success).medicine
                             Text(
-                                text = medicine.name,
+                                text = state.medicineState.medicine.name,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
 
-                        else -> {}
+                        else -> Text(stringResource(R.string.medicine))
                     }
                 },
                 navigationIcon = {
@@ -131,10 +152,7 @@ fun MedicineDetailScreen(
                 actions = {
                     if (state.medicineState is MedicineDetailUiState.Success) {
                         IconButton(
-                            onClick = {
-                                val medicine = (state.medicineState as MedicineDetailUiState.Success).medicine
-                                onEditClick(medicine.id)
-                            }
+                            onClick = onEditClick
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -160,33 +178,157 @@ fun MedicineDetailScreen(
                 .padding(contentPadding),
             state = refreshState,
             isRefreshing = state.isRefreshing,
-            onRefresh = { viewModel.refreshData() }
+            onRefresh = onRefresh
         ) {
-            if (state.medicineState is MedicineDetailUiState.Success) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    item {
-                        DetailScreenContent(
-                            medicine = (state.medicineState as MedicineDetailUiState.Success).medicine,
-                        )
+            when (state.medicineState) {
+
+                is MedicineDetailUiState.Success -> {
+                    LazyColumn(Modifier.fillMaxSize()) {
+
+                        // Medicine section
+                        item {
+                            DetailScreenContent(
+                                medicine = state.medicineState.medicine,
+                                history = emptyList() // temporaire
+                            )
+                        }
+
+                        // History section
+                        item {
+                            when (val historyUi = state.historyState) {
+
+                                is HistoryDetailUiState.Success -> {
+                                    historyUi.history.forEach { item ->
+                                        DetailHistoryContent(history = item)
+                                    }
+                                }
+
+                                is HistoryDetailUiState.Loading -> {
+                                    CircularProgressIndicator()
+                                }
+
+                                is HistoryDetailUiState.Error.Empty -> {
+                                    Text(
+                                        text = historyUi.message,
+                                        modifier = Modifier.padding(16.dp),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+
+                                is HistoryDetailUiState.Error.Generic -> {
+                                    Text(
+                                        text = historyUi.message,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                is MedicineDetailUiState.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is MedicineDetailUiState.Error.Empty -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.error_medicine_not_found))
+                    }
+                }
+
+                is MedicineDetailUiState.Error.Generic -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.error_loading))
+                    }
+                }
+
+                is MedicineDetailUiState.Deleted -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.success_deleted_medicine))
                     }
                 }
             }
         }
 
-        ConfirmDeleteDialog(
-            show = showDeleteDialog,
-            onConfirm = {
-                showDeleteDialog = false
-                viewModel.deleteMedicine()
-            },
-            onDismiss = { showDeleteDialog = false },
-            confirmButtonTitle = stringResource(R.string.confirm_delete_medicine),
-            confirmButtonMessage = stringResource(R.string.confirm_delete_message_current_medicine)
-        )
+        if (showDeleteDialog) {
+            ConfirmDeleteDialog(
+                show = true,
+                onConfirm = {
+                    showDeleteDialog = false
+                    onDeleteSelected()
+                },
+                onDismiss = { showDeleteDialog = false },
+                confirmButtonTitle = stringResource(R.string.confirm_delete_medicine),
+                confirmButtonMessage = stringResource(R.string.confirm_delete_message_current_medicine)
+            )
+        }
 
+    }
+}
+
+@Composable
+fun DetailScreenContent(
+    modifier: Modifier = Modifier,
+    medicine: Medicine,
+    history: List<History>
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            /** ---------- NAME MEDICINE ---------- **/
+            Text(
+                text = medicine.name,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier.height(6.dp))
+
+            /** ---------- NAME AISLE ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.aisle_name,
+                    medicine.aisleName
+                )
+            )
+
+            /** ---------- STOCK ---------- **/
+            Text(
+                text = stringResource(
+                    R.string.in_stock,
+                    medicine.stock
+                )
+            )
+
+            /** ---------- HISTORY ---------- **/
+            Text(
+                text = stringResource(R.string.history),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            history.forEach { item ->
+                DetailHistoryContent(
+                    history = item
+                )
+            }
+        }
     }
 }
 
@@ -245,96 +387,52 @@ fun DetailHistoryContent(
     }
 }
 
-@Composable
-fun DetailScreenContent(
-    modifier: Modifier = Modifier,
-    medicine: Medicine
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            /** ---------- NAME MEDICINE ---------- **/
-            Text(
-                text = medicine.name,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Spacer(modifier.height(6.dp))
-
-            /** ---------- NAME AISLE ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.aisle_name,
-                    medicine.aisleName
-                )
-            )
-
-            /** ---------- STOCK ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.in_stock,
-                    medicine.stock
-                )
-            )
-
-            /** ---------- HISTORY ---------- **/
-            Text(
-                text = stringResource(R.string.history)
-            )
-        }
-    }
-}
-
 @PreviewLightDark
 @Composable
 private fun DetailScreenPreview() {
     RebonnteTheme {
-        DetailScreenContent(
-            medicine = Medicine(
-                name = "Doliprane",
-                stock = 7,
-                aisleName = "Paracetamol"
-            )
-        )
-    }
-}
 
-@PreviewLightDark
-@Composable
-private fun HistoryDetailScreenPreview() {
-    RebonnteTheme {
-        DetailScreenContent(
-            medicine = Medicine(
-                name = "Doliprane",
-                stock = 7,
-                aisleName = "Paracetamol"
+        val fakeMedicine =
+            Medicine(
+                name = "CreamVe",
+                aisleName = "Cream",
+                stock = 10
             )
-        )
-    }
-}
 
-@PreviewLightDark
-@Composable
-private fun HistoryScreenPreview() {
-    RebonnteTheme {
-        DetailHistoryContent(
-            history =
-                History(
-                    medicineName = "Doliprane",
-                    author = User(
+        val fakeHistory = listOf(
+            History(
+                author =
+                    User(
                         displayName = "John Doe"
                     ),
-                    dateTime = Instant.now(),
-                    details = "Details"
-                )
+                medicineName = "CreamVe",
+                dateTime = Instant.now(),
+                details = "New model of the cream"
+
+            ),
+            History(
+                author =
+                    User(
+                        displayName = "Donald Duck"
+                    ),
+                medicineName = "CreamVe",
+                dateTime = Instant.now(),
+                details = "10 creams CreamVe sold"
+
+            )
+        )
+
+        val previewState = MedicineDetailScreenState(
+            medicineState = MedicineDetailUiState.Success(fakeMedicine),
+            historyState = HistoryDetailUiState.Success(fakeHistory)
+        )
+
+        MedicineDetailContent(
+            state = previewState,
+            onBackClick = {},
+            onEditClick = {},
+            onRefresh = {},
+            onDeleteSelected = {}
         )
     }
 }

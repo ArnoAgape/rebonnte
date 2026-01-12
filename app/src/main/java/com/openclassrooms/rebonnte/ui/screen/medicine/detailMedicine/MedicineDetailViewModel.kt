@@ -8,19 +8,21 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
-import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,7 +30,7 @@ import javax.inject.Inject
 class MedicineDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
-    private val historyRepository: HistoryRepository,
+    historyRepository: HistoryRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
@@ -36,108 +38,79 @@ class MedicineDetailViewModel @Inject constructor(
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
-    private val _isRefreshing = MutableStateFlow(false)
-
-    private val _uiState = MutableStateFlow(
-        DetailUiState(
-            MedicineDetailUiState.Loading,
-            HistoryUiState.Loading
-        )
-    )
-    val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
-
     private val _stock = mutableIntStateOf(0)
     val stock: IntState = _stock
 
-    fun initStock(medicine: Medicine) {
-        _stock.intValue = medicine.stock
-    }
+    private val _isRefreshing = MutableStateFlow(false)
 
-    init {
-        observeMedicine()
-        observeHistory(medicineId)
-    }
-
-    private fun observeMedicine() {
-        viewModelScope.launch {
-            medicineRepository.getMedicineById(medicineId)
-                .onStart {
-                    _uiState.update {
-                        it.copy(medicineState = MedicineDetailUiState.Loading)
-                    }
+    private val medicineStateFlow: Flow<MedicineDetailUiState> =
+        medicineRepository.getMedicineById(medicineId)
+            .map { medicine ->
+                if (medicine != null) {
+                    MedicineDetailUiState.Success(medicine)
+                } else {
+                    MedicineDetailUiState.Error.Empty("Medicine not found")
                 }
-                .catch { e ->
-                    _uiState.update {
-                        it.copy(
-                            medicineState = MedicineDetailUiState.Error.Generic(
-                                e.message ?: "Unknown error"
-                            )
-                        )
-                    }
-                }
-                .collect { medicine ->
-                    val newState = if (medicine != null) {
-                        MedicineDetailUiState.Success(medicine)
-                    } else {
-                        MedicineDetailUiState.Error.Empty("Impossible to find the medicine")
-                    }
-                    _uiState.update { it.copy(medicineState = newState) }
-                }
-        }
-    }
-
-    private fun observeHistory(medicineId: String) {
-        viewModelScope.launch {
-            historyRepository.observeHistory(medicineId)
-                .onStart {
-                    _uiState.update {
-                        it.copy(historyState = HistoryUiState.Loading)
-                    }
-                }
-                .catch { e ->
-                    _uiState.update {
-                        it.copy(
-                            historyState = HistoryUiState.Error.Generic(
-                                e.message ?: "Unknown error"
-                            )
-                        )
-                    }
-                }
-                .collect { history ->
-                    val newState = if (history.isNotEmpty()) {
-                        HistoryUiState.Success(history)
-                    } else {
-                        HistoryUiState.Error.Empty("No history found")
-                    }
-                    _uiState.update { it.copy(historyState = newState) }
-                }
-        }
-    }
-
-    fun deleteMedicine() {
-        viewModelScope.launch {
-
-            // 1. Collects the current medicine
-            val medicine =
-                (_uiState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
-
-            if (medicine == null) {
-                _events.trySend(Event.ShowMessage(R.string.error_medicine_not_found))
-                return@launch
+            }
+            .onStart { emit(MedicineDetailUiState.Loading) }
+            .catch { e ->
+                emit(
+                    MedicineDetailUiState.Error.Generic(
+                        e.message ?: "Unknown error"
+                    )
+                )
             }
 
-            // 2. Action: delete
-            val result = medicineRepository.deleteMedicines(setOf(medicine.id))
-
-            // 3. When success
-            if (result.isSuccess) {
-                _uiState.update {
-                    it.copy(medicineState = MedicineDetailUiState.Deleted)
+    private val historyStateFlow: Flow<HistoryDetailUiState> =
+        historyRepository.observeHistory(medicineId)
+            .map { history ->
+                if (history.isNotEmpty()) {
+                    HistoryDetailUiState.Success(history)
+                } else {
+                    HistoryDetailUiState.Error.Empty("No history found")
                 }
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_medicine))
-            } else {
-                _events.trySend(Event.ShowMessage(R.string.error_delete_medicine))
             }
+            .onStart { emit(HistoryDetailUiState.Loading) }
+            .catch { e ->
+                emit(
+                    HistoryDetailUiState.Error.Generic(
+                        e.message ?: "Unknown error"
+                    )
+                )
+            }
+
+    val screenState: StateFlow<MedicineDetailScreenState> =
+        combine(
+            medicineStateFlow,
+            historyStateFlow,
+            _isRefreshing
+        ) { medicineState, historyState, refreshing ->
+            MedicineDetailScreenState(
+                medicineState = medicineState,
+                historyState = historyState,
+                isRefreshing = refreshing
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            MedicineDetailScreenState()
+        )
+
+    fun deleteMedicine() = viewModelScope.launch {
+        val medicine =
+            (screenState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
+
+        if (medicine == null) {
+            _events.trySend(Event.ShowMessage(R.string.error_medicine_not_found))
+            return@launch
+        }
+
+        val result = medicineRepository.deleteMedicines(setOf(medicine.id))
+
+        if (result.isSuccess) {
+            _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_medicine))
+        } else {
+            _events.trySend(Event.ShowMessage(R.string.error_delete_medicine))
         }
     }
 
@@ -156,8 +129,8 @@ class MedicineDetailViewModel @Inject constructor(
 
 }
 
-data class DetailUiState(
-    val medicineState: MedicineDetailUiState,
-    val historyState: HistoryUiState,
+data class MedicineDetailScreenState(
+    val medicineState: MedicineDetailUiState = MedicineDetailUiState.Loading,
+    val historyState: HistoryDetailUiState = HistoryDetailUiState.Loading,
     val isRefreshing: Boolean = false
 )
