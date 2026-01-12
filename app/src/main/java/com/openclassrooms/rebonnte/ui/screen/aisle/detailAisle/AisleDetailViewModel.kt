@@ -6,11 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,20 +32,37 @@ class AisleDetailViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _events = Channel<Event>()
+    private val aisleId: String =
+        checkNotNull(savedStateHandle["aisleId"])
+
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     private val _selection = MutableStateFlow(SelectionState())
 
     private val _isRefreshing = MutableStateFlow(false)
 
-    private val aisleId: String =
-        checkNotNull(savedStateHandle["aisleId"])
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearchActive = MutableStateFlow(false)
+
+    private val _filteredMedicinesFlow: Flow<List<Medicine>> =
+        combine(
+            medicineRepository.getMedicinesByAisle(aisleId),
+            _searchQuery
+        ) { medicines, query ->
+            if (query.isBlank()) {
+                medicines
+            } else {
+                medicines.filter {
+                    it.name.contains(query, ignoreCase = true)
+                }
+            }
+        }
 
     private val _uiState: StateFlow<AisleDetailUiState> =
         combine(
             aisleRepository.getAisleById(aisleId),
-            medicineRepository.getMedicinesByAisle(aisleId)
+            _filteredMedicinesFlow
         ) { aisle, medicines ->
             if (medicines.isEmpty()) {
                 AisleDetailUiState.Error.Empty()
@@ -59,7 +78,7 @@ class AisleDetailViewModel @Inject constructor(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
+                SharingStarted.WhileSubscribed(5_000),
                 AisleDetailUiState.Loading
             )
 
@@ -67,12 +86,16 @@ class AisleDetailViewModel @Inject constructor(
         combine(
             _uiState,
             _isRefreshing,
-            _selection
-        ) { ui, refreshing, selection ->
+            _selection,
+            _isSearchActive,
+            _searchQuery
+        ) { ui, refreshing, selection, searchActive, searchQuery ->
             AisleDetailScreenState(
                 uiState = ui,
                 isRefreshing = refreshing,
-                selection = selection
+                selection = selection,
+                isSearchActive = searchActive,
+                searchQuery = searchQuery
             )
         }.stateIn(
             viewModelScope,
@@ -109,6 +132,19 @@ class AisleDetailViewModel @Inject constructor(
         }
     }
 
+    fun activateSearch() {
+        _isSearchActive.value = true
+    }
+
+    fun deactivateSearch() {
+        _isSearchActive.value = false
+        _searchQuery.value = ""
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
     fun refreshAisle() {
         viewModelScope.launch {
             if (!networkUtils.isNetworkAvailable()) {
@@ -123,4 +159,6 @@ data class AisleDetailScreenState(
     val uiState: AisleDetailUiState = AisleDetailUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = ""
 )

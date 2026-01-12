@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,10 +35,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.navigation.EmbeddedSearchBar
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
@@ -70,6 +73,7 @@ fun AisleDetailScreen(
 
     AisleDetailContent(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
         onMedicineClick = onMedicineClick,
         onRefresh = { viewModel.refreshAisle() },
@@ -77,7 +81,9 @@ fun AisleDetailScreen(
         onEnterSelectionMode = { viewModel.enterSelectionMode() },
         onExitSelectionMode = { viewModel.exitSelectionMode() },
         onDeleteSelected = { viewModel.deleteSelectedMedicines() },
-        snackbarHostState = snackbarHostState
+        onSearchClick = { viewModel.activateSearch() },
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onSearchClose = { viewModel.deactivateSearch() }
     )
 }
 
@@ -85,6 +91,7 @@ fun AisleDetailScreen(
 @Composable
 fun AisleDetailContent(
     state: AisleDetailScreenState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onMedicineClick: (Medicine) -> Unit,
     onRefresh: () -> Unit = {},
@@ -92,7 +99,9 @@ fun AisleDetailContent(
     onEnterSelectionMode: () -> Unit,
     onExitSelectionMode: () -> Unit,
     onDeleteSelected: () -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    onSearchClick: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchClose: () -> Unit,
 ) {
 
     val refreshState = rememberPullToRefreshState()
@@ -103,55 +112,73 @@ fun AisleDetailContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        topBar = {
-            TopAppBar(
-                title = {
-                    when (state.uiState) {
-                        is AisleDetailUiState.Success ->
-                            Text(
-                                text = state.uiState.aisle.name,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+        topBar =
+            {
+                if (state.isSearchActive) {
+                    EmbeddedSearchBar(
+                        query = state.searchQuery,
+                        onQueryChange = onSearchQueryChange,
+                        onClose = onSearchClose,
+                        modifier = Modifier
+                            .padding(
+                                top = 42.dp,
+                                start = 16.dp,
+                                end = 16.dp
                             )
+                    )
+                } else {
+                    TopAppBar(
+                        title = {
+                            when (state.uiState) {
+                                is AisleDetailUiState.Success ->
+                                    Text(
+                                        text = state.uiState.aisle.name,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
 
-                        else -> Text("Aisle")
-                    }
-                },
-                actions = {
-                    if (state.selection.isSelectionMode) {
-                        IconButton(
-                            onClick = {
-                                if (state.selection.selectedIds.isEmpty()) {
-                                    onExitSelectionMode()
-                                } else {
-                                    showDeleteDialog = true
+                                else -> Text("Aisle")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = onSearchClick) {
+                                Icon(Icons.Rounded.Search, contentDescription = null)
+                            }
+                            if (state.selection.isSelectionMode) {
+                                IconButton(
+                                    onClick = {
+                                        if (state.selection.selectedIds.isEmpty()) {
+                                            onExitSelectionMode()
+                                        } else {
+                                            showDeleteDialog = true
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (state.selection.selectedIds.isEmpty())
+                                            Icons.Default.Close
+                                        else
+                                            Icons.Default.DeleteForever,
+                                        contentDescription = null
+                                    )
+                                }
+                            } else if (state.uiState is AisleDetailUiState.Success) {
+                                IconButton(onClick = onEnterSelectionMode) {
+                                    Icon(Icons.Default.Delete, contentDescription = null)
                                 }
                             }
-                        ) {
-                            Icon(
-                                imageVector = if (state.selection.selectedIds.isEmpty())
-                                    Icons.Default.Close
-                                else
-                                    Icons.Default.DeleteForever,
-                                contentDescription = null
-                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(id = R.string.contentDescription_go_back)
+                                )
+                            }
                         }
-                    } else if (state.uiState is AisleDetailUiState.Success) {
-                        IconButton(onClick = onEnterSelectionMode) {
-                            Icon(Icons.Default.Delete, contentDescription = null)
-                        }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.contentDescription_go_back)
-                        )
-                    }
+                    )
                 }
-            )
-        }
+            }
     ) { paddingValues ->
         PullToRefreshBox(
             modifier = Modifier
@@ -239,10 +266,13 @@ fun AisleDetailScreenPreview() {
             state = previewState,
             onBackClick = {},
             onMedicineClick = {},
+            onSearchClick = {},
             onToggleSelection = {},
             onEnterSelectionMode = {},
             onExitSelectionMode = {},
-            onDeleteSelected = {}
+            onDeleteSelected = {},
+            onSearchQueryChange = {},
+            onSearchClose = {}
         )
     }
 }

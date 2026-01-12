@@ -43,7 +43,7 @@ class EditMedicineViewModel @Inject constructor(
 
     private val _user = MutableStateFlow<User?>(null)
 
-    private val _events = Channel<Event>()
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     private val _medicine = MutableStateFlow(Medicine())

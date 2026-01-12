@@ -7,11 +7,11 @@ import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailUiState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,11 +31,29 @@ class MedicineHomeViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _events = Channel<Event>()
+    private val medicinesFlow = medicineRepository.medicines
+
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     private val _selection = MutableStateFlow(SelectionState())
     private val _isRefreshing = MutableStateFlow(false)
+
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearchActive = MutableStateFlow(false)
+
+    private val filteredMedicinesFlow = combine(
+        medicinesFlow,
+        _searchQuery
+    ) { medicines, query ->
+        if (query.isBlank()) {
+            medicines
+        } else {
+            medicines.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        }
+    }
 
     val isSignedIn =
         userRepository.isUserSignedIn()
@@ -45,8 +63,8 @@ class MedicineHomeViewModel @Inject constructor(
                 null
             )
 
-    private val _uiState =
-        medicineRepository.medicines
+    private val _uiState: Flow<MedicineHomeUiState> =
+        filteredMedicinesFlow
             .map { medicines ->
                 if (medicines.isEmpty())
                     MedicineHomeUiState.Error.Empty()
@@ -61,12 +79,16 @@ class MedicineHomeViewModel @Inject constructor(
         combine(
             _uiState,
             _isRefreshing,
-            _selection
-        ) { ui, refreshing, selection ->
+            _selection,
+            _isSearchActive,
+            _searchQuery
+        ) { ui, refreshing, selection, searchActive, searchQuery ->
             MedicineHomeScreenState(
                 uiState = ui,
                 isRefreshing = refreshing,
-                selection = selection
+                selection = selection,
+                isSearchActive = searchActive,
+                searchQuery = searchQuery
             )
         }.stateIn(
             viewModelScope,
@@ -103,6 +125,19 @@ class MedicineHomeViewModel @Inject constructor(
         }
     }
 
+    fun activateSearch() {
+        _isSearchActive.value = true
+    }
+
+    fun deactivateSearch() {
+        _isSearchActive.value = false
+        _searchQuery.value = ""
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
     fun refreshMedicines() {
         if (!networkUtils.isNetworkAvailable()) {
             _events.trySend(Event.ShowMessage(R.string.no_network))
@@ -121,4 +156,6 @@ data class MedicineHomeScreenState(
     val uiState: MedicineHomeUiState = MedicineHomeUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = ""
 )

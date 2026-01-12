@@ -13,6 +13,7 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +35,8 @@ class MedicineDetailViewModel @Inject constructor(
     private val medicineId: String = checkNotNull(savedStateHandle["medicineId"])
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
 
     private val _uiState = MutableStateFlow(
         DetailUiState(
@@ -139,11 +142,15 @@ class MedicineDetailViewModel @Inject constructor(
     }
 
     fun refreshData() {
+        if (!networkUtils.isNetworkAvailable()) {
+            _events.trySend(Event.ShowMessage(R.string.no_network))
+            return
+        }
+
         viewModelScope.launch {
-            if (!networkUtils.isNetworkAvailable()) {
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-                return@launch
-            }
+            _isRefreshing.value = true
+            delay(700)
+            _isRefreshing.value = false
         }
     }
 
@@ -151,5 +158,6 @@ class MedicineDetailViewModel @Inject constructor(
 
 data class DetailUiState(
     val medicineState: MedicineDetailUiState,
-    val historyState: HistoryUiState
+    val historyState: HistoryUiState,
+    val isRefreshing: Boolean = false
 )

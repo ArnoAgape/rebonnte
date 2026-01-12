@@ -7,7 +7,6 @@ import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.Event
-import com.openclassrooms.rebonnte.ui.common.SearchState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -181,4 +180,9 @@ data class AisleHomeScreenState(
     val isSignedIn: Boolean? = null,
     val isSearchActive: Boolean = false,
     val searchQuery: String = ""
+)
+
+data class SearchState(
+    val isActive: Boolean,
+    val query: String
 )

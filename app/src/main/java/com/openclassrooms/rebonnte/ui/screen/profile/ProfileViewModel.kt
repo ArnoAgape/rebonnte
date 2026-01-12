@@ -48,7 +48,7 @@ class ProfileViewModel @Inject constructor(
     /** Exposed immutable flow representing the currently signed-in user. */
     val user: StateFlow<User?> = _user.asStateFlow()
 
-    private val _events = Channel<Event>()
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     val isUserFieldsValid = user

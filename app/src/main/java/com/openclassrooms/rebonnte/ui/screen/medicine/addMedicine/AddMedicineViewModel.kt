@@ -39,7 +39,7 @@ class AddMedicineViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
     val uiState: StateFlow<AddMedicineUiState> = _uiState.asStateFlow()
     private val _user = MutableStateFlow<User?>(null)
-    private val _events = Channel<Event>()
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     val aisles: StateFlow<List<Aisle>> =

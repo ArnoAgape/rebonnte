@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -34,9 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.navigation.EmbeddedSearchBar
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
@@ -70,14 +73,17 @@ fun MedicineHomeScreen(
 
     MedicineHomeContent(
         state = state,
-        onRefresh = { viewModel.refreshMedicines() },
         onMedicineClick = onMedicineClick,
         onFABClick = onFABClick,
+        onSearchClick = { viewModel.activateSearch() },
+        onRefresh = { viewModel.refreshMedicines() },
         isSignedIn = isSignedIn == true,
         onToggleSelection = { viewModel.toggleSelection(it) },
         onEnterSelectionMode = { viewModel.enterSelectionMode() },
         onExitSelectionMode = { viewModel.exitSelectionMode() },
-        onDeleteSelected = { viewModel.deleteSelectedMedicines() }
+        onDeleteSelected = { viewModel.deleteSelectedMedicines() },
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onSearchClose = { viewModel.deactivateSearch() },
     )
 }
 
@@ -86,15 +92,18 @@ fun MedicineHomeScreen(
 @Composable
 fun MedicineHomeContent(
     state: MedicineHomeScreenState,
-    onRefresh: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchClose: () -> Unit,
+    onRefresh: () -> Unit,
     isSignedIn: Boolean,
     onToggleSelection: (String) -> Unit,
     onEnterSelectionMode: () -> Unit,
     onExitSelectionMode: () -> Unit,
-    onDeleteSelected: () -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    onDeleteSelected: () -> Unit
 ) {
     val context = LocalContext.current
     val refreshState = rememberPullToRefreshState()
@@ -106,34 +115,51 @@ fun MedicineHomeContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(id = R.string.medicines)) },
-                actions = {
-                    if (state.selection.isSelectionMode) {
-                        IconButton(
-                            onClick = {
-                                if (state.selection.selectedIds.isEmpty()) {
-                                    onExitSelectionMode()
-                                } else {
-                                    showDeleteDialog = true
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (state.selection.selectedIds.isEmpty())
-                                    Icons.Default.Close
-                                else
-                                    Icons.Default.DeleteForever,
-                                contentDescription = null
-                            )
+            if (state.isSearchActive) {
+                EmbeddedSearchBar(
+                    query = state.searchQuery,
+                    onQueryChange = onSearchQueryChange,
+                    onClose = onSearchClose,
+                    modifier = Modifier
+                        .padding(
+                            top = 42.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                )
+            } else {
+                TopAppBar(
+                    title = { Text(stringResource(id = R.string.medicines)) },
+                    actions = {
+                        IconButton(onClick = onSearchClick) {
+                            Icon(Icons.Rounded.Search, contentDescription = null)
                         }
-                    } else if (state.uiState is MedicineHomeUiState.Success) {
-                        IconButton(onClick = onEnterSelectionMode) {
-                            Icon(Icons.Default.Delete, contentDescription = null)
+                        if (state.selection.isSelectionMode) {
+                            IconButton(
+                                onClick = {
+                                    if (state.selection.selectedIds.isEmpty()) {
+                                        onExitSelectionMode()
+                                    } else {
+                                        showDeleteDialog = true
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (state.selection.selectedIds.isEmpty())
+                                        Icons.Default.Close
+                                    else
+                                        Icons.Default.DeleteForever,
+                                    contentDescription = null
+                                )
+                            }
+                        } else if (state.uiState is MedicineHomeUiState.Success) {
+                            IconButton(onClick = onEnterSelectionMode) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -230,14 +256,17 @@ fun MedicineHomeScreenPreview() {
 
         MedicineHomeContent(
             state = previewState,
-            onRefresh = {},
             onMedicineClick = {},
             onFABClick = {},
+            onSearchClick = {},
+            onRefresh = {},
             isSignedIn = true,
             onToggleSelection = {},
             onEnterSelectionMode = {},
             onExitSelectionMode = {},
-            onDeleteSelected = {}
+            onDeleteSelected = {},
+            onSearchQueryChange = {},
+            onSearchClose = {}
         )
     }
 }

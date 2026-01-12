@@ -159,7 +159,7 @@ fun MedicineDetailScreen(
                 .fillMaxSize()
                 .padding(contentPadding),
             state = refreshState,
-            isRefreshing = state.medicineState is MedicineDetailUiState.Loading,
+            isRefreshing = state.isRefreshing,
             onRefresh = { viewModel.refreshData() }
         ) {
             if (state.medicineState is MedicineDetailUiState.Success) {

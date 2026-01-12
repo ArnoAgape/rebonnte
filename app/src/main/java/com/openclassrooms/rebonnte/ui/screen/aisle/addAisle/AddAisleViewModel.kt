@@ -35,7 +35,7 @@ class AddAisleViewModel @Inject constructor(
     val uiState: StateFlow<AddAisleUiState> = _uiState.asStateFlow()
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
-    private val _events = Channel<Event>()
+    private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     private val _aisle = MutableStateFlow(
