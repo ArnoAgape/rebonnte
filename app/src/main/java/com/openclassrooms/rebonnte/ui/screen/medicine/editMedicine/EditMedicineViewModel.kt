@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
+import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Aisle
+import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
@@ -30,6 +32,7 @@ import javax.inject.Inject
 class EditMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
+    private val historyRepository: HistoryRepository,
     aisleRepository: AisleRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
@@ -47,11 +50,14 @@ class EditMedicineViewModel @Inject constructor(
     private val _medicine = MutableStateFlow(Medicine())
     val medicine: StateFlow<Medicine> = _medicine.asStateFlow()
 
+    private val _history = MutableStateFlow(History())
+    val history: StateFlow<History> = _history.asStateFlow()
+
     val aisles: StateFlow<List<Aisle>> =
         aisleRepository.aisles.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
         )
 
     private val _selectedAisle = MutableStateFlow<Aisle?>(null)
@@ -140,16 +146,28 @@ class EditMedicineViewModel @Inject constructor(
 
             // 3. Prepare object
             val medicineToSave = _medicine.value.copy(author = currentUser)
+            val historyToSave = _history.value.copy(author = currentUser)
 
             // 4. Call repository → Result<Unit>
-            val result = medicineRepository.editMedicine(medicineToSave)
+            val resultMedicine = medicineRepository.editMedicine(medicineToSave)
+            val resultHistory = historyRepository.addHistory(medicineId, historyToSave)
 
-            if (result.isSuccess) {
+            if (resultMedicine.isSuccess) {
                 _uiState.value = EditMedicineUiState.Success(medicineToSave)
                 _events.trySend(Event.ShowSuccessMessage(R.string.success_edit_medicine))
 
             } else {
-                val exception = result.exceptionOrNull()
+                val exception = resultMedicine.exceptionOrNull()
+                _uiState.value = EditMedicineUiState.Error.Generic("Network error: ${exception?.message}")
+                _events.trySend(Event.ShowMessage(R.string.error_generic))
+            }
+
+            if (resultHistory.isSuccess) {
+                _uiState.value = EditMedicineUiState.Success(medicineToSave)
+                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_history))
+
+            } else {
+                val exception = resultHistory.exceptionOrNull()
                 _uiState.value = EditMedicineUiState.Error.Generic("Network error: ${exception?.message}")
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
             }

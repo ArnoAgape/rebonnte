@@ -33,8 +33,8 @@ class FirebaseHistoryApi @Inject constructor() : HistoryApi {
             .map { list -> list.map { History.fromDto(it) } }
     }
 
-    override suspend fun addHistory(medicineId: String, history: History) {
-        try {
+    override suspend fun addHistory(medicineId: String, history: History): Result<Unit> {
+        return try {
             val docRef = firestore.collection("medicines")
                 .document(medicineId)
                 .collection("histories")
@@ -44,9 +44,11 @@ class FirebaseHistoryApi @Inject constructor() : HistoryApi {
 
             docRef.set(dto).await()
 
+            Result.success(Unit)
+
         } catch (e: Exception) {
             Log.e("FirebaseHistoryApi", "Error while adding history", e)
-            throw e
+            Result.failure(e)
         }
     }
 }

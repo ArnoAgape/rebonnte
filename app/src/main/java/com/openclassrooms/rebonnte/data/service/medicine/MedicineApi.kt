@@ -13,7 +13,7 @@ interface MedicineApi {
     fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>>
 
     /** Uploads a medicine. */
-    suspend fun addMedicine(medicine: Medicine)
+    suspend fun addMedicine(medicine: Medicine): Result<Unit>
 
     /** Edits a medicine. */
     suspend fun editMedicine(medicine: Medicine): Result<Unit>

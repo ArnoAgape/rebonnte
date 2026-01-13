@@ -50,6 +50,7 @@
     <string name="editing">Editing…</string>
     <string name="saving">Saving…</string>
     <string name="success_add_medicine">Medicine added successfully</string>
+    <string name="success_add_history">History added successfully</string>
     <string name="success_edit_medicine">Medicine edited successfully</string>
     <string name="success_deleted_medicine">Medicine deleted successfully</string>
     <string name="success_deleted_medicines">Medicine(s) deleted successfully</string>

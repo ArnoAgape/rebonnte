@@ -13,6 +13,6 @@ class HistoryRepository @Inject constructor(
     fun observeHistory(medicineId: String): Flow<List<History>> =
         historyApi.observeHistory(medicineId)
 
-    suspend fun addHistory(medicineId: String, history: History) =
+    suspend fun addHistory(medicineId: String, history: History): Result<Unit> =
         historyApi.addHistory(medicineId, history)
 }

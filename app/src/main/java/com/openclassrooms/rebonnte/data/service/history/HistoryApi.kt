@@ -7,5 +7,5 @@ interface HistoryApi {
     fun observeHistory(medicineId: String): Flow<List<History>>
 
     /** Uploads history. */
-    suspend fun addHistory(medicineId: String, history: History)
+    suspend fun addHistory(medicineId: String, history: History): Result<Unit>
 }

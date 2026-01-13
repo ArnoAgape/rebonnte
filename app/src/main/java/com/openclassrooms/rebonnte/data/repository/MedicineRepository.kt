@@ -24,7 +24,7 @@ class MedicineRepository @Inject constructor(
     /**
      * Uploads a new medicine to Firebase (Storage + Firestore).
      */
-    suspend fun addMedicine(medicine: Medicine): Unit = medicineApi.addMedicine(medicine)
+    suspend fun addMedicine(medicine: Medicine) = medicineApi.addMedicine(medicine)
 
     /**
      * Edits an existing medicine to Firebase (Storage + Firestore).

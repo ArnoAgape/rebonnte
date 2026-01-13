@@ -27,15 +27,16 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             .map { list -> list.map { Medicine.fromDto(it) } }
     }
 
-    override suspend fun addMedicine(medicine: Medicine) {
-        try {
+    override suspend fun addMedicine(medicine: Medicine): Result<Unit> {
+        return try {
             val docRef = medicinesCollection.document()
             val dto = medicine.copy(id = docRef.id).toDto()
             docRef.set(dto).await()
+            Result.success(Unit)
 
         } catch (e: Exception) {
             Log.e("FirebaseMedicineApi", "Error while adding medicine", e)
-            throw e
+            Result.failure(e)
         }
     }
 
