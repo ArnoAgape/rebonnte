@@ -67,7 +67,7 @@ fun NumberOfMedicinesField(
 
         IconButton(
             onClick = { onNumberOfMedicinesChange(numberOfMedicines - 1) },
-            enabled = numberOfMedicines > 1
+            enabled = numberOfMedicines > 0
         ) {
             Text("-", style = MaterialTheme.typography.headlineSmall)
         }
@@ -79,7 +79,7 @@ fun NumberOfMedicinesField(
         )
 
         IconButton(
-            onClick = { onNumberOfMedicinesChange(numberOfMedicines + 1) }
+            onClick = { onNumberOfMedicinesChange(numberOfMedicines) }
         ) {
             Text("+", style = MaterialTheme.typography.headlineSmall)
         }
@@ -121,7 +121,7 @@ fun NumberPickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val finalValue = inputValue.toIntOrNull()?.coerceAtLeast(1) ?: 1
+                    val finalValue = inputValue.toIntOrNull()?.coerceAtLeast(0) ?: 0
                     onConfirm(finalValue)
                 },
                 colors = ButtonDefaults.textButtonColors(

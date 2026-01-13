@@ -20,7 +20,7 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
     private val firestore = FirebaseFirestore.getInstance()
     private val medicinesCollection = firestore.collection("medicines")
 
-    override fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>> {
+    override fun getMedicinesOrderBy(): Flow<List<Medicine>> {
         return medicinesCollection
             .orderBy("name", Query.Direction.ASCENDING)
             .dataObjects<MedicineDto>()

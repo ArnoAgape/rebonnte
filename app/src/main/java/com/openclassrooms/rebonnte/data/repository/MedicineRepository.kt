@@ -19,7 +19,7 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes the list of all medicines ordered by ascending name.
      */
-    val medicines: Flow<List<Medicine>> = medicineApi.getMedicinesOrderByNameAsc()
+    val medicines: Flow<List<Medicine>> = medicineApi.getMedicinesOrderBy()
 
     /**
      * Uploads a new medicine to Firebase (Storage + Firestore).

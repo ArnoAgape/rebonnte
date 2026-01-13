@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicineApi {
 
     /** Returns all medicines ordered by name. */
-    fun getMedicinesOrderByNameAsc(): Flow<List<Medicine>>
+    fun getMedicinesOrderBy(): Flow<List<Medicine>>
 
     /** Uploads a medicine. */
     suspend fun addMedicine(medicine: Medicine): Result<Unit>
