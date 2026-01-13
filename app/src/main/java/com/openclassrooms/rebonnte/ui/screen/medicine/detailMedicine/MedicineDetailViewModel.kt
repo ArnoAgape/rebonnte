@@ -92,7 +92,7 @@ class MedicineDetailViewModel @Inject constructor(
             )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5_000),
+            SharingStarted.WhileSubscribed(5000),
             MedicineDetailScreenState()
         )
 

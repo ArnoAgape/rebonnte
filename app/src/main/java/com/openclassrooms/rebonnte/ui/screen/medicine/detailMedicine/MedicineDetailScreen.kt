@@ -1,20 +1,25 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -181,48 +187,28 @@ fun MedicineDetailContent(
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh
         ) {
-            when (state.medicineState) {
+            when (val ui = state.medicineState) {
 
                 is MedicineDetailUiState.Success -> {
-                    LazyColumn(Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(25.dp)
+                    ) {
 
-                        // Medicine section
+                        // ----- MEDICINE DETAILS -----
                         item {
-                            DetailScreenContent(
-                                medicine = state.medicineState.medicine,
-                                history = emptyList()
+                            MedicineHeaderContent(
+                                medicine = ui.medicine
                             )
                         }
 
-                        // History section
+                        // ----- HISTORY -----
                         item {
-                            when (val historyUi = state.historyState) {
-
-                                is HistoryDetailUiState.Success -> {
-                                    historyUi.history.forEach { item ->
-                                        DetailHistoryContent(history = item)
-                                    }
-                                }
-
-                                is HistoryDetailUiState.Loading -> {
-                                    CircularProgressIndicator()
-                                }
-
-                                is HistoryDetailUiState.Error.Empty -> {
-                                    Text(
-                                        text = historyUi.message,
-                                        modifier = Modifier.padding(16.dp),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-
-                                is HistoryDetailUiState.Error.Generic -> {
-                                    Text(
-                                        text = historyUi.message,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                }
-                            }
+                            HistorySection(
+                                historyState = state.historyState
+                            )
                         }
                     }
                 }
@@ -278,56 +264,74 @@ fun MedicineDetailContent(
 }
 
 @Composable
-fun DetailScreenContent(
-    modifier: Modifier = Modifier,
-    medicine: Medicine,
-    history: List<History>
+fun MedicineHeaderContent(medicine: Medicine) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = medicine.name,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Text(stringResource(R.string.aisle_name, medicine.aisleName))
+        Text(stringResource(R.string.in_stock, medicine.stock))
+    }
+}
+
+@Composable
+fun HistorySection(
+    historyState: HistoryDetailUiState
 ) {
-    Surface(
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = modifier
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Column {
+
+        // ----- HEADER -----
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .clickable { isExpanded = !isExpanded },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
-            /** ---------- NAME MEDICINE ---------- **/
-            Text(
-                text = medicine.name,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Spacer(modifier.height(6.dp))
-
-            /** ---------- NAME AISLE ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.aisle_name,
-                    medicine.aisleName
-                )
-            )
-
-            /** ---------- STOCK ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.in_stock,
-                    medicine.stock
-                )
-            )
-
-            /** ---------- HISTORY ---------- **/
             Text(
                 text = stringResource(R.string.history),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
             )
 
-            history.forEach { item ->
-                DetailHistoryContent(
-                    history = item
-                )
+            Icon(
+                imageVector = if (isExpanded)
+                    Icons.Default.ExpandLess
+                else
+                    Icons.Default.ExpandMore,
+                contentDescription = null
+            )
+        }
+
+        // ----- CONTENT -----
+        AnimatedVisibility(visible = isExpanded) {
+            when (historyState) {
+
+                is HistoryDetailUiState.Success -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 320.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(historyState.history) { item ->
+                            DetailHistoryContent(history = item)
+                        }
+                    }
+                }
+
+                is HistoryDetailUiState.Loading ->
+                    CircularProgressIndicator()
+
+                is HistoryDetailUiState.Error.Empty ->
+                    Text(historyState.message)
+
+                is HistoryDetailUiState.Error.Generic ->
+                    Text(historyState.message)
             }
         }
     }
