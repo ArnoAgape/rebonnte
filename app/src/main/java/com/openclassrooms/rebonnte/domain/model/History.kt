@@ -9,7 +9,8 @@ data class History(
     val medicineName: String = "",
     val author: User? = null,
     val dateTime: Instant = Instant.now(),
-    val details: String = ""
+    val quantity: Int = 0,
+    val changeType: StockChangeType = StockChangeType.ADDED
 ) {
     fun toDto(): HistoryDto {
         return HistoryDto(
@@ -17,7 +18,8 @@ data class History(
             medicineName = medicineName,
             author = author?.toDto(),
             dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
-            details = details
+            quantity = quantity,
+            changeType = changeType
         )
     }
 
@@ -28,7 +30,8 @@ data class History(
                 medicineName = dto.medicineName,
                 author = dto.author?.let { User.fromDto(it) },
                 dateTime = dto.dateTime.toDate().toInstant(),
-                details = dto.details
+                quantity = dto.quantity,
+                changeType = dto.changeType
             )
         }
     }

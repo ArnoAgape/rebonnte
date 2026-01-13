@@ -11,6 +11,7 @@ import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.StockChangeType
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +41,8 @@ class EditMedicineViewModel @Inject constructor(
 
     private val medicineId: String = checkNotNull(savedStateHandle["medicineId"])
 
+    private var originalMedicine: Medicine? = null
+
     private val _uiState = MutableStateFlow<EditMedicineUiState>(EditMedicineUiState.Idle)
     val uiState: StateFlow<EditMedicineUiState> = _uiState.asStateFlow()
 
@@ -49,9 +53,6 @@ class EditMedicineViewModel @Inject constructor(
 
     private val _medicine = MutableStateFlow(Medicine())
     val medicine: StateFlow<Medicine> = _medicine.asStateFlow()
-
-    private val _history = MutableStateFlow(History())
-    val history: StateFlow<History> = _history.asStateFlow()
 
     val aisles: StateFlow<List<Aisle>> =
         aisleRepository.aisles.stateIn(
@@ -144,40 +145,68 @@ class EditMedicineViewModel @Inject constructor(
 
             _uiState.value = EditMedicineUiState.Loading
 
-            // 3. Prepare object
+            // 3. Prepare objects
+            val oldMedicine = originalMedicine
+            if (oldMedicine == null) {
+                _events.trySend(Event.ShowMessage(R.string.error_generic))
+                return@launch
+            }
             val medicineToSave = _medicine.value.copy(author = currentUser)
-            val historyToSave = _history.value.copy(author = currentUser)
 
-            // 4. Call repository → Result<Unit>
+            // 4. Delta of stock
+            val delta = medicineToSave.stock - oldMedicine.stock
+
+            // 5. Saving medicine
             val resultMedicine = medicineRepository.editMedicine(medicineToSave)
-            val resultHistory = historyRepository.addHistory(medicineId, historyToSave)
 
-            if (resultMedicine.isSuccess) {
-                _uiState.value = EditMedicineUiState.Success(medicineToSave)
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_edit_medicine))
-
-            } else {
+            if (resultMedicine.isFailure) {
                 val exception = resultMedicine.exceptionOrNull()
                 _uiState.value = EditMedicineUiState.Error.Generic("Network error: ${exception?.message}")
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
+                return@launch
             }
 
-            if (resultHistory.isSuccess) {
-                _uiState.value = EditMedicineUiState.Success(medicineToSave)
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_history))
+            // 6. History generated only if stock updated
+            if (delta != 0) {
+                val history = buildStockHistory(
+                    medicine = medicineToSave,
+                    delta = delta,
+                    author = currentUser
+                )
 
-            } else {
-                val exception = resultHistory.exceptionOrNull()
-                _uiState.value = EditMedicineUiState.Error.Generic("Network error: ${exception?.message}")
-                _events.trySend(Event.ShowMessage(R.string.error_generic))
+                historyRepository.addHistory(medicineId, history)
             }
+
+            // 7. Final success
+            _uiState.value = EditMedicineUiState.Success(medicineToSave)
+            _events.trySend(Event.ShowSuccessMessage(R.string.success_edit_medicine))
         }
+    }
+
+    fun buildStockHistory(
+        medicine: Medicine,
+        delta: Int,
+        author: User
+    ): History {
+        return History(
+            medicineName = medicine.name,
+            author = author,
+            dateTime = Instant.now(),
+            quantity = kotlin.math.abs(delta),
+            changeType = if (delta > 0)
+                StockChangeType.ADDED
+            else
+                StockChangeType.REMOVED
+        )
     }
 
     fun getCurrentMedicine() {
         viewModelScope.launch {
             medicineRepository.getMedicineById(medicineId).collect { m ->
                 if (m != null) {
+                    if (originalMedicine == null) {
+                        originalMedicine = m
+                    }
                     _medicine.value = m
                 }
             }

@@ -7,7 +7,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -63,10 +62,6 @@ fun DateTimeField(
 
     // --- DatePicker ---
     if (showDatePicker) {
-        val todayUtcMillis = LocalDate.now()
-            .atStartOfDay(ZoneId.of("UTC"))
-            .toInstant()
-            .toEpochMilli()
 
         val initialMillis = currentDate
             .atStartOfDay(ZoneId.of("UTC"))
@@ -74,12 +69,7 @@ fun DateTimeField(
             .toEpochMilli()
 
         val dateState = rememberDatePickerState(
-            initialSelectedDateMillis = initialMillis,
-            selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis >= todayUtcMillis
-                }
-            }
+            initialSelectedDateMillis = initialMillis
         )
 
         DatePickerDialog(

@@ -27,8 +27,12 @@
     <string name="by">By %1$s</string>
     <string name="medicine_name">Medicine name: %1$s</string>
     <string name="aisle_name">Aisle: %1$s</string>
+
     <string name="medicine_details">Medicine details: %1$s</string>
     <string name="in_stock">%1$d in stock</string>
+    <string name="history_stock_added">%1$d %2$s added to stock</string>
+    <string name="history_stock_removed">%1$d %2$s removed from stock</string>
+
     <string name="close">Close</string>
     <string name="add">Add</string>
     <string name="search">Search</string>
@@ -49,6 +53,7 @@
     <string name="adding">Adding…</string>
     <string name="editing">Editing…</string>
     <string name="saving">Saving…</string>
+
     <string name="success_add_medicine">Medicine added successfully</string>
     <string name="success_add_history">History added successfully</string>
     <string name="success_edit_medicine">Medicine edited successfully</string>

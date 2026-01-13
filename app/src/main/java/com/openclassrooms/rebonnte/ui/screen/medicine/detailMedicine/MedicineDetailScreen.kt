@@ -54,13 +54,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.model.User
+import com.openclassrooms.rebonnte.domain.model.StockChangeType
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import com.openclassrooms.rebonnte.ui.utils.Format
-import java.time.Instant
 
 /**
  * Displays the detail view of a file.
@@ -68,7 +67,6 @@ import java.time.Instant
  * @param viewModel The ViewModel providing file data and state.
  * @param onBackClick Callback invoked when the back button is pressed.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineDetailScreen(
     viewModel: MedicineDetailViewModel,
@@ -204,7 +202,8 @@ fun MedicineDetailContent(
                         // ----- HISTORY -----
                         HistorySection(
                             historyState = state.historyState,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier
+                                .weight(1f, fill = false)
                         )
                     }
                 }
@@ -260,16 +259,55 @@ fun MedicineDetailContent(
 }
 
 @Composable
-fun MedicineHeaderContent(medicine: Medicine) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = medicine.name,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
+fun MedicineHeaderContent(
+    medicine: Medicine,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 1.dp,
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-        Text(stringResource(R.string.aisle_name, medicine.aisleName))
-        Text(stringResource(R.string.in_stock, medicine.stock))
+            // 🔹 MEDICINE NAME
+            Text(
+                text = medicine.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // 🔹 AISLE + STOCK
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // Aisle
+                Text(
+                    text = medicine.aisleName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Stock
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        text = stringResource(R.string.in_stock, medicine.stock),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -338,55 +376,70 @@ fun HistorySection(
 
 @Composable
 fun DetailHistoryContent(
-    modifier: Modifier = Modifier,
-    history: History
+    history: History,
+    modifier: Modifier = Modifier
 ) {
+    val isAdded = history.changeType == StockChangeType.ADDED
+
+    val actionColor = if (isAdded)
+        MaterialTheme.colorScheme.primary
+    else
+        MaterialTheme.colorScheme.error
+
+    val actionText = when (history.changeType) {
+        StockChangeType.ADDED ->
+            stringResource(
+                R.string.history_stock_added,
+                history.quantity,
+                history.medicineName
+            )
+
+        StockChangeType.REMOVED ->
+            stringResource(
+                R.string.history_stock_removed,
+                history.quantity,
+                history.medicineName
+            )
+    }
+
+    val (date, time) = Format.getLocalizedDateParts(history.dateTime)
+
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 1.dp,
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(
-            modifier = modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
 
-            /** ---------- USER ---------- **/
-            history.author?.displayName?.let {
+            // ACTION
+            Text(
+                text = actionText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = actionColor
+            )
+
+            // AUTHOR + DATE
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                history.author?.displayName?.let {
+                    Text(
+                        text = stringResource(R.string.by, it),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
                 Text(
-                    text = stringResource(
-                        R.string.by,
-                        history.author.displayName
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    text = stringResource(R.string.updated_on, date, time),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            /** ---------- NAME MEDICINE ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.medicine_name,
-                    history.medicineName
-                )
-            )
-
-            /** ---------- DATE ---------- **/
-            val (date, time) = Format.getLocalizedDateParts(history.dateTime)
-            Text(
-                text = stringResource(
-                    R.string.updated_on,
-                    date, time
-                )
-            )
-
-            /** ---------- DETAILS ---------- **/
-            Text(
-                text = stringResource(
-                    R.string.medicine_details,
-                    history.details
-                )
-            )
         }
     }
 }
@@ -403,32 +456,8 @@ private fun DetailScreenPreview() {
                 stock = 10
             )
 
-        val fakeHistory = listOf(
-            History(
-                author =
-                    User(
-                        displayName = "John Doe"
-                    ),
-                medicineName = "CreamVe",
-                dateTime = Instant.now(),
-                details = "New model of the cream"
-
-            ),
-            History(
-                author =
-                    User(
-                        displayName = "Donald Duck"
-                    ),
-                medicineName = "CreamVe",
-                dateTime = Instant.now(),
-                details = "10 creams CreamVe sold"
-
-            )
-        )
-
         val previewState = MedicineDetailScreenState(
-            medicineState = MedicineDetailUiState.Success(fakeMedicine),
-            historyState = HistoryDetailUiState.Success(fakeHistory)
+            medicineState = MedicineDetailUiState.Success(fakeMedicine)
         )
 
         MedicineDetailContent(
