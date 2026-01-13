@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -190,26 +192,20 @@ fun MedicineDetailContent(
             when (val ui = state.medicineState) {
 
                 is MedicineDetailUiState.Success -> {
-                    LazyColumn(
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(25.dp)
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-
                         // ----- MEDICINE DETAILS -----
-                        item {
-                            MedicineHeaderContent(
-                                medicine = ui.medicine
-                            )
-                        }
+                        MedicineHeaderContent(medicine = ui.medicine)
 
                         // ----- HISTORY -----
-                        item {
-                            HistorySection(
-                                historyState = state.historyState
-                            )
-                        }
+                        HistorySection(
+                            historyState = state.historyState,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
                     }
                 }
 
@@ -279,11 +275,12 @@ fun MedicineHeaderContent(medicine: Medicine) {
 
 @Composable
 fun HistorySection(
-    historyState: HistoryDetailUiState
+    historyState: HistoryDetailUiState,
+    modifier: Modifier = Modifier
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
-    Column {
+    Column(modifier = modifier) {
 
         // ----- HEADER -----
         Row(
@@ -307,6 +304,8 @@ fun HistorySection(
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         // ----- CONTENT -----
         AnimatedVisibility(visible = isExpanded) {
             when (historyState) {
@@ -315,7 +314,7 @@ fun HistorySection(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 320.dp),
+                            .heightIn(max = 500.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(historyState.history) { item ->
@@ -343,7 +342,7 @@ fun DetailHistoryContent(
     history: History
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = modifier
