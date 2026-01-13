@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.addAisle
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,7 +51,6 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAisleScreen(
@@ -61,14 +60,15 @@ fun AddAisleScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
                 val result = snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
-                    actionLabel = context.getString(R.string.try_again),
+                    message = resources.getString(event.message),
+                    actionLabel = resources.getString(R.string.try_again),
                     withDismissAction = true,
                     duration = SnackbarDuration.Short
                 )

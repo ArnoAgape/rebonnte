@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,7 +60,6 @@ import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.NumberO
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import java.time.Instant
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMedicineScreen(
@@ -70,6 +69,7 @@ fun EditMedicineScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val aisles = viewModel.aisles.collectAsState().value
     val selectedAisle = viewModel.selectedAisle.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,8 +78,8 @@ fun EditMedicineScreen(
         when (event) {
             is Event.ShowMessage -> {
                 val result = snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
-                    actionLabel = context.getString(R.string.try_again),
+                    message = resources.getString(event.message),
+                    actionLabel = resources.getString(R.string.try_again),
                     withDismissAction = true,
                     duration = SnackbarDuration.Short
                 )
@@ -248,7 +248,7 @@ private fun EditMedicineContent(
 
             /** ---------- SAVE BUTTON ---------- **/
             Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = onSaveClicked,
                 enabled = isMedicineValid && !isLoading
             ) {
@@ -273,7 +273,7 @@ fun EditMedicineContentPreview() {
         EditMedicineContent(
             medicine = Medicine(
                 id = "1",
-                name = "Doliprane",
+                name = "Painkiller",
                 stock = 10,
                 aisleId = "1",
                 aisleName = "Paracetamol"

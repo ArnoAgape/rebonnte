@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -46,7 +46,6 @@ import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun MedicineHomeScreen(
     viewModel: MedicineHomeViewModel,
@@ -56,13 +55,13 @@ fun MedicineHomeScreen(
     val state by viewModel.screenState.collectAsStateWithLifecycle()
     val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
+                    message = resources.getString(event.message),
                     duration = SnackbarDuration.Short
                 )
             }
@@ -87,7 +86,6 @@ fun MedicineHomeScreen(
     )
 }
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineHomeContent(
@@ -106,6 +104,7 @@ fun MedicineHomeContent(
     onDeleteSelected: () -> Unit
 ) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val refreshState = rememberPullToRefreshState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -167,7 +166,7 @@ fun MedicineHomeContent(
                     if (isSignedIn) onFABClick()
                     else Toast.makeText(
                         context,
-                        context.getString(R.string.error_no_account_add_medicine),
+                        resources.getString(R.string.error_no_account_add_medicine),
                         Toast.LENGTH_SHORT
                     ).show()
                 }

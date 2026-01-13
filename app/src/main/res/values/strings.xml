@@ -77,7 +77,7 @@
     <string name="error_no_account_profile">An account is mandatory in order to update your profile</string>
     <string name="no_network">No network available</string>
     <string name="try_again">Try again</string>
-    <string name="hint_number_of_medicines">Stock:</string>
+    <string name="hint_number_of_medicines">Stock</string>
     <string name="contentDescription_go_back">Go back</string>
     <string name="contentDescription_button_add">Add</string>
     <string name="hint_date">Date</string>

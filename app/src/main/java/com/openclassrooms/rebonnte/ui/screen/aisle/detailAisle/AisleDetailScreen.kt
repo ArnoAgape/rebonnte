@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -47,7 +46,6 @@ import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun AisleDetailScreen(
     viewModel: AisleDetailViewModel,
@@ -56,13 +54,13 @@ fun AisleDetailScreen(
 ) {
     val state by viewModel.screenState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
             is Event.ShowMessage -> {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
+                    message = resources.getString(event.message),
                     duration = SnackbarDuration.Short
                 )
             }

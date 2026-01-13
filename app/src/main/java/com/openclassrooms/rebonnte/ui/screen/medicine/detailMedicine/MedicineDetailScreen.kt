@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -60,7 +60,6 @@ import java.time.Instant
  * @param viewModel The ViewModel providing file data and state.
  * @param onBackClick Callback invoked when the back button is pressed.
  */
-@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineDetailScreen(
@@ -68,6 +67,8 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit
 ) {
+
+    val resources = LocalResources.current
     val context = LocalContext.current
     val state by viewModel.screenState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -76,7 +77,7 @@ fun MedicineDetailScreen(
         when (event) {
             is Event.ShowMessage -> {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
+                    message = resources.getString(event.message),
                     duration = SnackbarDuration.Short
                 )
             }
@@ -189,7 +190,7 @@ fun MedicineDetailContent(
                         item {
                             DetailScreenContent(
                                 medicine = state.medicineState.medicine,
-                                history = emptyList() // temporaire
+                                history = emptyList()
                             )
                         }
 

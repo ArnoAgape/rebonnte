@@ -59,11 +59,11 @@ fun NumberOfMedicinesField(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(5.dp))
-            .padding(8.dp),
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(stringResource(id = R.string.hint_number_of_medicines))
+        Text(stringResource(id = R.string.hint_number_of_medicines), modifier = Modifier.padding(start = 12.dp))
 
         IconButton(
             onClick = { onNumberOfMedicinesChange(numberOfMedicines - 1) },
@@ -73,7 +73,7 @@ fun NumberOfMedicinesField(
         }
 
         Text(
-            numberOfMedicines.toString(),
+            text = numberOfMedicines.toString(),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.clickable { isDialogOpen = true }
         )

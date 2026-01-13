@@ -12,7 +12,6 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +31,7 @@ class EditMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
     aisleRepository: AisleRepository,
-    private val userRepository: UserRepository,
-    private val networkUtils: NetworkUtils
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val medicineId: String = checkNotNull(savedStateHandle["medicineId"])
@@ -124,13 +122,7 @@ class EditMedicineViewModel @Inject constructor(
     fun editMedicine() {
         viewModelScope.launch {
 
-            // 1. Check network
-            if (!networkUtils.isNetworkAvailable()) {
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-                return@launch
-            }
-
-            // 2. Check user logged in
+            // 1. Check user logged in
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = EditMedicineUiState.Error.NoAccount()
@@ -138,7 +130,7 @@ class EditMedicineViewModel @Inject constructor(
                 return@launch
             }
 
-            // 3. Validate form
+            // 2. Validate form
             if (!isMedicineValid.value) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                 return@launch
@@ -146,10 +138,10 @@ class EditMedicineViewModel @Inject constructor(
 
             _uiState.value = EditMedicineUiState.Loading
 
-            // 4. Prepare object
+            // 3. Prepare object
             val medicineToSave = _medicine.value.copy(author = currentUser)
 
-            // 5. Call repository → Result<Unit>
+            // 4. Call repository → Result<Unit>
             val result = medicineRepository.editMedicine(medicineToSave)
 
             if (result.isSuccess) {

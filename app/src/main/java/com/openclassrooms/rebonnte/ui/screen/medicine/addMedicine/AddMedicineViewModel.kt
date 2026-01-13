@@ -11,7 +11,6 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +31,7 @@ import javax.inject.Inject
 class AddMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
     aisleRepository: AisleRepository,
-    private val userRepository: UserRepository,
-    private val networkUtils: NetworkUtils
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
@@ -135,13 +133,7 @@ class AddMedicineViewModel @Inject constructor(
     fun addMedicine() {
         viewModelScope.launch {
 
-            // 1. Network checking
-            if (!networkUtils.isNetworkAvailable()) {
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-                return@launch
-            }
-
-            // 2. If user logged in checking
+            // 1. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = AddMedicineUiState.Error.NoAccount()
@@ -152,10 +144,10 @@ class AddMedicineViewModel @Inject constructor(
             _uiState.value = AddMedicineUiState.Loading
 
             try {
-                // 3. Creation of a medicine with current user
+                // 2. Creation of a medicine with current user
                 val medicineToSave = _medicine.value.copy(author = currentUser)
 
-                // 4. Upload Storage + Firestore
+                // 3. Upload Storage + Firestore
                 if (!isMedicineValid.value) {
                     _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                     return@launch
@@ -163,17 +155,17 @@ class AddMedicineViewModel @Inject constructor(
 
                 medicineRepository.addMedicine(medicineToSave)
 
-                // 5. Success UI
+                // 4. Success UI
                 _uiState.value = AddMedicineUiState.Success(medicineToSave)
                 _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
 
             } catch (e: IOException) {
-                // 6. Network error (impossible upload)
+                // 5. Network error (impossible upload)
                 _uiState.value = AddMedicineUiState.Error.Generic("Network error: ${e.message}")
                 _events.trySend(Event.ShowMessage(R.string.no_network))
 
             } catch (_: Exception) {
-                // 7. Generic error (Firebase Storage, Firestore, etc.)
+                // 6. Generic error (Firebase Storage, Firestore, etc.)
                 _uiState.value = AddMedicineUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
             }
