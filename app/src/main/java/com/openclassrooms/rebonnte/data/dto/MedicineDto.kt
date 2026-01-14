@@ -9,6 +9,7 @@ data class MedicineDto(
     val id : String = "",
     val name: String = "",
     val stock: Int = 0,
+    val createdAt: Timestamp = Timestamp.now(),
     val dateTime: Timestamp = Timestamp.now(),
     val aisleId: String = "",
     val aisleName: String = "",

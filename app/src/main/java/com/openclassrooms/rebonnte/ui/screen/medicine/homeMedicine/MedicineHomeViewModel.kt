@@ -2,13 +2,18 @@ package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.Query
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
+import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -31,7 +37,22 @@ class MedicineHomeViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val medicinesFlow = medicineRepository.medicines
+    private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
+
+    fun onSortSelected(sort: MedicineSort) {
+        _sort.value = sort
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _medicines: StateFlow<List<Medicine>> =
+        _sort.flatMapLatest { sort ->
+            val (field, direction) = sort.toFirestoreOrder()
+            medicineRepository.getMedicinesOrderBy(field, direction)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
@@ -43,7 +64,7 @@ class MedicineHomeViewModel @Inject constructor(
     private val _isSearchActive = MutableStateFlow(false)
 
     private val filteredMedicinesFlow = combine(
-        medicinesFlow,
+        _medicines,
         _searchQuery
     ) { medicines, query ->
         if (query.isBlank()) {
@@ -150,6 +171,28 @@ class MedicineHomeViewModel @Inject constructor(
             _isRefreshing.value = false
         }
     }
+
+    fun MedicineSort.toFirestoreOrder(): Pair<MedicineOrderField, Query.Direction> =
+        when (this) {
+            MedicineSort.NAME_ASC ->
+                MedicineOrderField.NAME to Query.Direction.ASCENDING
+
+            MedicineSort.NAME_DESC ->
+                MedicineOrderField.NAME to Query.Direction.DESCENDING
+
+            MedicineSort.STOCK_ASC ->
+                MedicineOrderField.STOCK to Query.Direction.ASCENDING
+
+            MedicineSort.STOCK_DESC ->
+                MedicineOrderField.STOCK to Query.Direction.DESCENDING
+
+            MedicineSort.DATE_NEWEST ->
+                MedicineOrderField.CREATED_AT to Query.Direction.DESCENDING
+
+            MedicineSort.DATE_OLDEST ->
+                MedicineOrderField.CREATED_AT to Query.Direction.ASCENDING
+        }
+
 }
 
 data class MedicineHomeScreenState(

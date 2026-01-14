@@ -5,11 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,11 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import com.openclassrooms.rebonnte.navigation.EmbeddedSearchBar
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
+import com.openclassrooms.rebonnte.ui.common.components.MedicineSortMenu
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
@@ -76,7 +78,7 @@ fun MedicineHomeScreen(
         onMedicineClick = onMedicineClick,
         onFABClick = onFABClick,
         onSearchClick = { viewModel.activateSearch() },
-        onFilterClick = {},
+        onSortClick = { sort -> viewModel.onSortSelected(sort) },
         onRefresh = { viewModel.refreshMedicines() },
         isSignedIn = isSignedIn == true,
         onToggleSelection = { viewModel.toggleSelection(it) },
@@ -96,7 +98,7 @@ fun MedicineHomeContent(
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onFilterClick: () -> Unit,
+    onSortClick: (MedicineSort) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchClose: () -> Unit,
     onRefresh: () -> Unit,
@@ -110,6 +112,7 @@ fun MedicineHomeContent(
     val resources = LocalResources.current
     val refreshState = rememberPullToRefreshState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -136,9 +139,14 @@ fun MedicineHomeContent(
                         IconButton(onClick = onSearchClick) {
                             Icon(Icons.Rounded.Search, contentDescription = null)
                         }
-                        IconButton(onClick = onFilterClick) {
-                            Icon(Icons.Rounded.FilterList, contentDescription = null)
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null)
                         }
+                        MedicineSortMenu(
+                            expanded = sortMenuExpanded,
+                            onDismiss = { sortMenuExpanded = false },
+                            onSortSelected = { sort -> onSortClick(sort) }
+                        )
                         if (state.selection.isSelectionMode) {
                             IconButton(
                                 onClick = {
@@ -264,7 +272,7 @@ fun MedicineHomeScreenPreview() {
             onMedicineClick = {},
             onFABClick = {},
             onSearchClick = {},
-            onFilterClick = {},
+            onSortClick = {},
             onRefresh = {},
             isSignedIn = true,
             onToggleSelection = {},

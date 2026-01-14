@@ -1,7 +1,9 @@
 package com.openclassrooms.rebonnte.data.repository
 
+import com.google.firebase.firestore.Query
 import com.openclassrooms.rebonnte.data.service.medicine.MedicineApi
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,7 +21,8 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes the list of all medicines ordered by ascending name.
      */
-    val medicines: Flow<List<Medicine>> = medicineApi.getMedicinesOrderBy()
+    fun getMedicinesOrderBy(field: MedicineOrderField,direction: Query.Direction): Flow<List<Medicine>> =
+        medicineApi.getMedicinesOrderBy(field, direction)
 
     /**
      * Uploads a new medicine to Firebase (Storage + Firestore).

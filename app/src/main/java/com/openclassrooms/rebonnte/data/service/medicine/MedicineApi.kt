@@ -1,6 +1,8 @@
 package com.openclassrooms.rebonnte.data.service.medicine
 
+import com.google.firebase.firestore.Query
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -10,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicineApi {
 
     /** Returns all medicines ordered by name. */
-    fun getMedicinesOrderBy(): Flow<List<Medicine>>
+    fun getMedicinesOrderBy(field: MedicineOrderField,direction: Query.Direction): Flow<List<Medicine>>
 
     /** Uploads a medicine. */
     suspend fun addMedicine(medicine: Medicine): Result<Unit>

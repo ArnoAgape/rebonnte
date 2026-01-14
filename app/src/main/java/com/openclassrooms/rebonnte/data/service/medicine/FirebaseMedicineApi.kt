@@ -6,6 +6,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.MedicineDto
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,9 +20,9 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
     private val firestore = FirebaseFirestore.getInstance()
     private val medicinesCollection = firestore.collection("medicines")
 
-    override fun getMedicinesOrderBy(): Flow<List<Medicine>> {
+    override fun getMedicinesOrderBy(field: MedicineOrderField,direction: Query.Direction): Flow<List<Medicine>> {
         return medicinesCollection
-            .orderBy("name", Query.Direction.ASCENDING)
+            .orderBy(field.firestoreField, direction)
             .dataObjects<MedicineDto>()
             .map { list -> list.map { Medicine.fromDto(it) } }
     }

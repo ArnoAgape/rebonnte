@@ -36,6 +36,12 @@
     <string name="close">Close</string>
     <string name="add">Add</string>
     <string name="search">Search</string>
+    <string name="sort_by_name_asc">Name (A → Z)</string>
+    <string name="sort_by_name_desc">Name (Z → A)</string>
+    <string name="sort_by_date_newest">Added date (newest → oldest)</string>
+    <string name="sort_by_date_oldest">Added date (oldest → newest)</string>
+    <string name="sort_by_stock_asc">Stock (ascending)</string>
+    <string name="sort_by_stock_desc">Stock (descending)</string>
     <string name="add_medicine">Add a medicine</string>
     <string name="edit_medicine">Edit a medicine</string>
     <string name="delete_medicine">Delete a medicine</string>
