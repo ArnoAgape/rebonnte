@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
 
@@ -143,32 +142,21 @@ class AddMedicineViewModel @Inject constructor(
 
             _uiState.value = AddMedicineUiState.Loading
 
-            try {
-                // 2. Creation of a medicine with current user
-                val medicineToSave = _medicine.value.copy(author = currentUser)
+            // 2. Creation of a medicine with current user
+            val medicineToSave = _medicine.value.copy(author = currentUser)
 
-                // 3. Upload Storage + Firestore
-                if (!isMedicineValid.value) {
-                    _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
-                    return@launch
-                }
-
-                medicineRepository.addMedicine(medicineToSave)
-
-                // 4. Success UI
-                _uiState.value = AddMedicineUiState.Success(medicineToSave)
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
-
-            } catch (e: IOException) {
-                // 5. Network error (impossible upload)
-                _uiState.value = AddMedicineUiState.Error.Generic("Network error: ${e.message}")
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-
-            } catch (_: Exception) {
-                // 6. Generic error (Firebase Storage, Firestore, etc.)
-                _uiState.value = AddMedicineUiState.Error.Generic()
-                _events.trySend(Event.ShowMessage(R.string.error_generic))
+            // 3. Upload Storage + Firestore
+            if (!isMedicineValid.value) {
+                _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
+                return@launch
             }
+
+            medicineRepository.addMedicine(medicineToSave)
+
+            // 4. Success UI
+            _uiState.value = AddMedicineUiState.Success(medicineToSave)
+            _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
+
         }
     }
 }

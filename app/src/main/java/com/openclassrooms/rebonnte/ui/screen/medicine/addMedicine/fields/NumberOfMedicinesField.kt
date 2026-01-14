@@ -79,7 +79,7 @@ fun NumberOfMedicinesField(
         )
 
         IconButton(
-            onClick = { onNumberOfMedicinesChange(numberOfMedicines) }
+            onClick = { onNumberOfMedicinesChange(numberOfMedicines + 1) }
         ) {
             Text("+", style = MaterialTheme.typography.headlineSmall)
         }

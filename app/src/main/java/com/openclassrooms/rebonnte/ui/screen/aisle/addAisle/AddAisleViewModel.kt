@@ -8,7 +8,6 @@ import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -102,30 +100,18 @@ class AddAisleViewModel @Inject constructor(
 
             _uiState.value = AddAisleUiState.Loading
 
-            try {
-
-                // 4. Upload Storage + Firestore
-                if (!isAisleValid.value) {
-                    _events.trySend(Event.ShowMessage(R.string.error_invalid_form_aisle))
-                    return@launch
-                }
-
-                aisleRepository.addAisle(_aisle.value)
-
-                // 5. Success UI
-                _uiState.value = AddAisleUiState.Success(_aisle.value)
-                _events.trySend(Event.ShowSuccessMessage(R.string.success_add_aisle))
-
-            } catch (e: IOException) {
-                // 6. Network error (impossible upload)
-                _uiState.value = AddAisleUiState.Error.Generic("Network error: ${e.message}")
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-
-            } catch (_: Exception) {
-                // 7. Generic error (Firebase Storage, Firestore, etc.)
-                _uiState.value = AddAisleUiState.Error.Generic()
-                _events.trySend(Event.ShowMessage(R.string.error_generic))
+            // 4. Upload Storage + Firestore
+            if (!isAisleValid.value) {
+                _events.trySend(Event.ShowMessage(R.string.error_invalid_form_aisle))
+                return@launch
             }
+
+            aisleRepository.addAisle(_aisle.value)
+
+            // 5. Success UI
+            _uiState.value = AddAisleUiState.Success(_aisle.value)
+            _events.trySend(Event.ShowSuccessMessage(R.string.success_add_aisle))
+
         }
     }
 }

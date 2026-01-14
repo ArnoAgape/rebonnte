@@ -9,7 +9,6 @@ import com.openclassrooms.rebonnte.domain.model.History
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
 
 class FirebaseHistoryApi @Inject constructor() : HistoryApi {
 
@@ -42,7 +41,7 @@ class FirebaseHistoryApi @Inject constructor() : HistoryApi {
 
             val dto = history.copy(id = docRef.id).toDto()
 
-            docRef.set(dto).await()
+            docRef.set(dto)
 
             Result.success(Unit)
 
