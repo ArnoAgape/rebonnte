@@ -27,8 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddAisleViewModel @Inject constructor(
     private val aisleRepository: AisleRepository,
-    private val userRepository: UserRepository,
-    private val networkUtils: NetworkUtils
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AddAisleUiState>(AddAisleUiState.Idle)
@@ -92,12 +91,6 @@ class AddAisleViewModel @Inject constructor(
 
     fun addAisle() {
         viewModelScope.launch {
-
-            // 1. Network checking
-            if (!networkUtils.isNetworkAvailable()) {
-                _events.trySend(Event.ShowMessage(R.string.no_network))
-                return@launch
-            }
 
             // 2. If user logged in checking
             val currentUser = _user.value

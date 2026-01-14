@@ -9,7 +9,6 @@ import com.openclassrooms.rebonnte.domain.model.Aisle
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
 
 class FirebaseAisleApi @Inject constructor() : AisleApi {
 
@@ -29,7 +28,7 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
 
             val dto = aisle.copy(id = docRef.id).toDto()
 
-            docRef.set(dto).await()
+            docRef.set(dto)
 
         } catch (e: Exception) {
             Log.e("FirebaseAisleApi", "Error while adding aisle", e)
@@ -60,7 +59,7 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
         return try {
             ids.forEach { id ->
                 if (id.isBlank()) error("Aisle ID empty")
-                aislesCollection.document(id).delete().await()
+                aislesCollection.document(id).delete()
             }
             Result.success(Unit)
         } catch (e: Exception) {

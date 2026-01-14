@@ -9,7 +9,6 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
 
 /**
  * Firebase implementation of [MedicineApi].
@@ -31,7 +30,7 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
         return try {
             val docRef = medicinesCollection.document()
             val dto = medicine.copy(id = docRef.id).toDto()
-            docRef.set(dto).await()
+            docRef.set(dto)
             Result.success(Unit)
 
         } catch (e: Exception) {
@@ -47,7 +46,6 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             medicinesCollection
                 .document(medicine.id)
                 .set(dto)
-                .await()
 
             Result.success(Unit)
 
@@ -83,7 +81,7 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
         return try {
             ids.forEach { id ->
                 if (id.isBlank()) error("Medicine ID empty")
-                medicinesCollection.document(id).delete().await()
+                medicinesCollection.document(id).delete()
             }
             Result.success(Unit)
         } catch (e: Exception) {
