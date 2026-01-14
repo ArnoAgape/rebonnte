@@ -263,6 +263,9 @@ fun MedicineHeaderContent(
     medicine: Medicine,
     modifier: Modifier = Modifier
 ) {
+
+    val date = Format.getShortLocalizedDate(medicine.dateTime)
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -290,6 +293,13 @@ fun MedicineHeaderContent(
                 // Aisle
                 Text(
                     text = medicine.aisleName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Date
+                Text(
+                    text = date,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

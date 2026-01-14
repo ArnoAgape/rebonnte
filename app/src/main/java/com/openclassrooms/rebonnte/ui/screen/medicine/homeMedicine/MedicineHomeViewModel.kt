@@ -37,11 +37,16 @@ class MedicineHomeViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val eventsFlow = _events.receiveAsFlow()
 
-    fun onSortSelected(sort: MedicineSort) {
-        _sort.value = sort
-    }
+    private val _selection = MutableStateFlow(SelectionState())
+    private val _isRefreshing = MutableStateFlow(false)
+
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearchActive = MutableStateFlow(false)
+
+    private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _medicines: StateFlow<List<Medicine>> =
@@ -53,15 +58,6 @@ class MedicineHomeViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
-
-    private val _events = Channel<Event>(Channel.BUFFERED)
-    val eventsFlow = _events.receiveAsFlow()
-
-    private val _selection = MutableStateFlow(SelectionState())
-    private val _isRefreshing = MutableStateFlow(false)
-
-    private val _searchQuery = MutableStateFlow("")
-    private val _isSearchActive = MutableStateFlow(false)
 
     private val filteredMedicinesFlow = combine(
         _medicines,
@@ -116,6 +112,10 @@ class MedicineHomeViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             MedicineHomeScreenState()
         )
+
+    fun onSortSelected(sort: MedicineSort) {
+        _sort.value = sort
+    }
 
     fun enterSelectionMode() {
         _selection.update { it.copy(isSelectionMode = true) }

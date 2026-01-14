@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte.ui.utils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalQueries.localDate
 import java.util.Locale
 
 object Format {
@@ -45,6 +46,29 @@ object Format {
             val time = timeFormatter.format(localTime)
 
             date to time
+        }
+    }
+
+    fun getShortLocalizedDate(
+        instant: Instant,
+        locale: Locale = Locale.getDefault(),
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): String {
+
+        val zoned = instant.atZone(zoneId)
+        val localDate = zoned.toLocalDate()
+
+        return if (locale.language == "fr") {
+
+            DateTimeFormatter
+                .ofPattern("dd/MM/yy", locale)
+                .format(localDate)
+
+        } else {
+
+            DateTimeFormatter
+                .ofPattern("MM/dd/yy", locale)
+                .format(localDate)
         }
     }
 
