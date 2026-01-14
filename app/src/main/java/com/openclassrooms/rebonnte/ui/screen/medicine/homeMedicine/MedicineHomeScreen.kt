@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,6 +76,7 @@ fun MedicineHomeScreen(
         onMedicineClick = onMedicineClick,
         onFABClick = onFABClick,
         onSearchClick = { viewModel.activateSearch() },
+        onFilterClick = {},
         onRefresh = { viewModel.refreshMedicines() },
         isSignedIn = isSignedIn == true,
         onToggleSelection = { viewModel.toggleSelection(it) },
@@ -94,6 +96,7 @@ fun MedicineHomeContent(
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onFilterClick: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchClose: () -> Unit,
     onRefresh: () -> Unit,
@@ -132,6 +135,9 @@ fun MedicineHomeContent(
                     actions = {
                         IconButton(onClick = onSearchClick) {
                             Icon(Icons.Rounded.Search, contentDescription = null)
+                        }
+                        IconButton(onClick = onFilterClick) {
+                            Icon(Icons.Rounded.FilterList, contentDescription = null)
                         }
                         if (state.selection.isSelectionMode) {
                             IconButton(
@@ -258,6 +264,7 @@ fun MedicineHomeScreenPreview() {
             onMedicineClick = {},
             onFABClick = {},
             onSearchClick = {},
+            onFilterClick = {},
             onRefresh = {},
             isSignedIn = true,
             onToggleSelection = {},
