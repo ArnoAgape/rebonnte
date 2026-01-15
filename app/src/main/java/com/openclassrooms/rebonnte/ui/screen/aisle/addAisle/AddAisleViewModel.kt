@@ -73,7 +73,7 @@ class AddAisleViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = AddAisleScreenState()
         )
 
@@ -101,7 +101,7 @@ class AddAisleViewModel @Inject constructor(
             _uiState.value = AddAisleUiState.Loading
 
             // 2. Upload Firestore
-            if (!isAisleValid.value) {
+            if (_aisle.value.name.isBlank()) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_aisle))
                 return@launch
             }
