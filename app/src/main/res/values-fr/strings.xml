@@ -144,6 +144,8 @@
     <string name="contentDescription_button_delete_medicine">Supprimer un médicament</string>
     <string name="contentDescription_button_add_aisle">Ajouter une nouvelle allée</string>
     <string name="contentDescription_expand_history">Afficher l’historique</string>
+    <string name="contentDescription_stock_add_medicine">Ajouter un médicament au stock</string>
+    <string name="contentDescription_stock_remove_medicine">Supprimer un médicament du stock</string>
 
     <string name="hint_date">Date</string>
     <string name="hint_time">Heure</string>

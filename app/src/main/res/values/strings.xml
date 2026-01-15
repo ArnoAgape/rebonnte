@@ -111,6 +111,8 @@
     <string name="contentDescription_button_delete_medicine">Delete a medicine</string>
     <string name="contentDescription_button_add_aisle">Add a new aisle</string>
     <string name="contentDescription_expand_history">Click here to show the history</string>
+    <string name="contentDescription_stock_add_medicine">Add a medicine to stock</string>
+    <string name="contentDescription_stock_remove_medicine">Remove a medicine from stock</string>
     <string name="hint_date">Date</string>
     <string name="hint_time">Time</string>
     <string name="hint_medicine_name">Medicine name</string>

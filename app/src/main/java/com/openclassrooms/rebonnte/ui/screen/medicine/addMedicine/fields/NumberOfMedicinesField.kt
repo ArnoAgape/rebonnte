@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
@@ -67,8 +69,11 @@ fun NumberOfMedicinesField(
 
         IconButton(
             onClick = { onNumberOfMedicinesChange(numberOfMedicines - 1) },
-            enabled = numberOfMedicines > 0
-        ) {
+            enabled = numberOfMedicines > 0,
+            modifier = Modifier
+                .semantics {
+                    contentDescription = context.getString(R.string.contentDescription_stock_remove_medicine)
+                }        ) {
             Text("-", style = MaterialTheme.typography.headlineSmall)
         }
 
@@ -79,7 +84,11 @@ fun NumberOfMedicinesField(
         )
 
         IconButton(
-            onClick = { onNumberOfMedicinesChange(numberOfMedicines + 1) }
+            onClick = { onNumberOfMedicinesChange(numberOfMedicines + 1) },
+            modifier = Modifier
+                .semantics {
+                    contentDescription = context.getString(R.string.contentDescription_stock_add_medicine)
+                }
         ) {
             Text("+", style = MaterialTheme.typography.headlineSmall)
         }
