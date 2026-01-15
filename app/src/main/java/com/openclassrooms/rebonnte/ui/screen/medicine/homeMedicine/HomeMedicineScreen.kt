@@ -54,8 +54,8 @@ import com.openclassrooms.rebonnte.ui.common.components.MedicineSortMenu
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
-fun MedicineHomeScreen(
-    viewModel: MedicineHomeViewModel,
+fun HomeMedicineScreen(
+    viewModel: HomeMedicineViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onFABClick: () -> Unit
 ) {
@@ -185,7 +185,7 @@ fun MedicineHomeContent(
                                     contentDescription = stringResource(R.string.contentDescription_button_delete)
                                 )
                             }
-                        } else if (state.uiState is MedicineHomeUiState.Success) {
+                        } else if (state.uiState is HomeMedicineUiState.Success) {
                             IconButton(onClick = onEnterSelectionMode) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
@@ -225,7 +225,7 @@ fun MedicineHomeContent(
         ) {
             when (val ui = state.uiState) {
 
-                is MedicineHomeUiState.Success -> {
+                is HomeMedicineUiState.Success -> {
                     MedicineItem(
                         medicines = ui.medicines,
                         onMedicineClick = onMedicineClick,
@@ -234,7 +234,7 @@ fun MedicineHomeContent(
                     )
                 }
 
-                is MedicineHomeUiState.Loading -> {
+                is HomeMedicineUiState.Loading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -244,7 +244,7 @@ fun MedicineHomeContent(
                     }
                 }
 
-                is MedicineHomeUiState.Error.Empty -> {
+                is HomeMedicineUiState.Error.Empty -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -293,7 +293,7 @@ fun MedicineHomeScreenPreview() {
         )
 
         val previewState = MedicineHomeScreenState(
-            uiState = MedicineHomeUiState.Success(sampleMedicines),
+            uiState = HomeMedicineUiState.Success(sampleMedicines),
             isRefreshing = false
         )
 

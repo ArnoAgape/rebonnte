@@ -69,8 +69,8 @@ import com.openclassrooms.rebonnte.ui.utils.Format
  * @param onBackClick Callback invoked when the back button is pressed.
  */
 @Composable
-fun MedicineDetailScreen(
-    viewModel: MedicineDetailViewModel,
+fun DetailMedicineScreen(
+    viewModel: DetailMedicineViewModel,
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit
 ) {
@@ -97,7 +97,7 @@ fun MedicineDetailScreen(
         }
     }
 
-    val medicine = (state.medicineState as? MedicineDetailUiState.Success)?.medicine
+    val medicine = (state.medicineState as? DetailMedicineUiState.Success)?.medicine
 
     MedicineDetailContent(
         state = state,
@@ -138,7 +138,7 @@ fun MedicineDetailContent(
             TopAppBar(
                 title = {
                     when (state.medicineState) {
-                        is MedicineDetailUiState.Success -> {
+                        is DetailMedicineUiState.Success -> {
                             Text(
                                 text = state.medicineState.medicine.name,
                                 maxLines = 1,
@@ -158,7 +158,7 @@ fun MedicineDetailContent(
                     }
                 },
                 actions = {
-                    if (state.medicineState is MedicineDetailUiState.Success) {
+                    if (state.medicineState is DetailMedicineUiState.Success) {
                         IconButton(
                             onClick = onEditClick
                         ) {
@@ -190,7 +190,7 @@ fun MedicineDetailContent(
         ) {
             when (val ui = state.medicineState) {
 
-                is MedicineDetailUiState.Success -> {
+                is DetailMedicineUiState.Success -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -209,19 +209,19 @@ fun MedicineDetailContent(
                     }
                 }
 
-                is MedicineDetailUiState.Loading -> {
+                is DetailMedicineUiState.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
                 }
 
-                is MedicineDetailUiState.Error.Empty -> {
+                is DetailMedicineUiState.Error.Empty -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(stringResource(R.string.error_medicine_not_found))
                     }
                 }
 
-                is MedicineDetailUiState.Error.Generic -> {
+                is DetailMedicineUiState.Error.Generic -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -231,7 +231,7 @@ fun MedicineDetailContent(
                     }
                 }
 
-                is MedicineDetailUiState.Deleted -> {
+                is DetailMedicineUiState.Deleted -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -324,7 +324,7 @@ fun MedicineHeaderContent(
 
 @Composable
 fun HistorySection(
-    historyState: HistoryDetailUiState,
+    historyState: DetailHistoryUiState,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -359,7 +359,7 @@ fun HistorySection(
         AnimatedVisibility(visible = isExpanded) {
             when (historyState) {
 
-                is HistoryDetailUiState.Success -> {
+                is DetailHistoryUiState.Success -> {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -372,13 +372,13 @@ fun HistorySection(
                     }
                 }
 
-                is HistoryDetailUiState.Loading ->
+                is DetailHistoryUiState.Loading ->
                     CircularProgressIndicator()
 
-                is HistoryDetailUiState.Error.Empty ->
+                is DetailHistoryUiState.Error.Empty ->
                     Text(historyState.message)
 
-                is HistoryDetailUiState.Error.Generic ->
+                is DetailHistoryUiState.Error.Generic ->
                     Text(historyState.message)
             }
         }
@@ -468,7 +468,7 @@ private fun DetailScreenPreview() {
             )
 
         val previewState = MedicineDetailScreenState(
-            medicineState = MedicineDetailUiState.Success(fakeMedicine)
+            medicineState = DetailMedicineUiState.Success(fakeMedicine)
         )
 
         MedicineDetailContent(

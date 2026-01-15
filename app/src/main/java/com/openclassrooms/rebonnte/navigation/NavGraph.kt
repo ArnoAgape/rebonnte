@@ -11,16 +11,16 @@ import com.openclassrooms.rebonnte.ui.screen.aisle.addAisle.AddAisleScreen
 import com.openclassrooms.rebonnte.ui.screen.aisle.addAisle.AddAisleViewModel
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.AddMedicineViewModel
-import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeScreen
-import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.AisleHomeViewModel
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailScreen
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.AisleDetailViewModel
-import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailScreen
-import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.MedicineDetailViewModel
+import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.HomeAisleScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.homeAisle.HomeAisleViewModel
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.DetailAisleScreen
+import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.DetailAisleViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.DetailMedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine.DetailMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.authSignInLauncher
-import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeScreen
-import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.MedicineHomeViewModel
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.HomeMedicineScreen
+import com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine.HomeMedicineViewModel
 import com.openclassrooms.rebonnte.ui.screen.login.LoginScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine.EditMedicineScreen
 import com.openclassrooms.rebonnte.ui.screen.medicine.editMedicine.EditMedicineViewModel
@@ -60,24 +60,24 @@ fun AppNavGraph(
         }
 
         composable<HomeAisle> {
-            AisleHomeScreen(
-                viewModel = hiltViewModel<AisleHomeViewModel>(),
+            HomeAisleScreen(
+                viewModel = hiltViewModel<HomeAisleViewModel>(),
                 onFABClick = { navController.navigate(AddAisle) },
                 onAisleClick = { aisle -> navController.navigate(DetailAisle(aisle.id)) }
             )
         }
 
         composable<HomeMedicine> {
-            MedicineHomeScreen(
-                viewModel = hiltViewModel<MedicineHomeViewModel>(),
+            HomeMedicineScreen(
+                viewModel = hiltViewModel<HomeMedicineViewModel>(),
                 onFABClick = { navController.navigate(AddMedicine) },
                 onMedicineClick = { medicine -> navController.navigate(DetailMedicine(medicine.id)) }
             )
         }
 
         composable<DetailAisle> {
-            AisleDetailScreen(
-                viewModel = hiltViewModel<AisleDetailViewModel>(),
+            DetailAisleScreen(
+                viewModel = hiltViewModel<DetailAisleViewModel>(),
                 onMedicineClick = { medicine ->
                     navController.navigate(
                         DetailMedicine(medicine.id)
@@ -88,8 +88,8 @@ fun AppNavGraph(
         }
 
         composable<DetailMedicine> {
-            MedicineDetailScreen(
-                viewModel = hiltViewModel<MedicineDetailViewModel>(),
+            DetailMedicineScreen(
+                viewModel = hiltViewModel<DetailMedicineViewModel>(),
                 onBackClick = { navController.navigateUp() },
                 onEditClick = { medicineId ->
                     navController.navigate(EditMedicine(medicineId))

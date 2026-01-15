@@ -177,7 +177,7 @@ class EditMedicineViewModel @Inject constructor(
                 historyRepository.addHistory(medicineId, history)
             }
 
-            // 7. Final success
+            // 7. Success UI
             _uiState.value = EditMedicineUiState.Success(medicineToSave)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_edit_medicine))
         }

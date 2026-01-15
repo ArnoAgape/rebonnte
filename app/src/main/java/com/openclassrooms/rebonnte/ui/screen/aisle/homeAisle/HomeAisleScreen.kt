@@ -57,8 +57,8 @@ import com.openclassrooms.rebonnte.ui.common.components.SelectItemRow
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
-fun AisleHomeScreen(
-    viewModel: AisleHomeViewModel,
+fun HomeAisleScreen(
+    viewModel: HomeAisleViewModel,
     onAisleClick: (Aisle) -> Unit,
     onFABClick: () -> Unit
 ) {
@@ -167,7 +167,7 @@ fun AisleHomeContent(
                                     contentDescription = stringResource(R.string.contentDescription_button_delete)
                                 )
                             }
-                        } else if (state.uiState is AisleHomeUiState.Success) {
+                        } else if (state.uiState is HomeAisleUiState.Success) {
                             IconButton(onClick = onEnterSelectionMode) {
                                 Icon(
                                     Icons.Default.Delete,
@@ -203,7 +203,7 @@ fun AisleHomeContent(
         ) {
             when (val ui = state.uiState) {
 
-                is AisleHomeUiState.Success ->
+                is HomeAisleUiState.Success ->
                     AisleListContent(
                         aisles = ui.aisles,
                         onAisleClick = onAisleClick,
@@ -211,12 +211,12 @@ fun AisleHomeContent(
                         onToggleSelection = onToggleSelection
                     )
 
-                is AisleHomeUiState.Loading ->
+                is HomeAisleUiState.Loading ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
 
-                is AisleHomeUiState.Error.Empty ->
+                is HomeAisleUiState.Error.Empty ->
                     Box(
                         Modifier
                             .fillMaxSize()
@@ -300,7 +300,7 @@ fun AisleHomeScreenPreview() {
 
         AisleHomeContent(
             state = AisleHomeScreenState(
-                uiState = AisleHomeUiState.Success(aisles),
+                uiState = HomeAisleUiState.Success(aisles),
                 isRefreshing = false,
                 selection = SelectionState(
                     isSelectionMode = true,

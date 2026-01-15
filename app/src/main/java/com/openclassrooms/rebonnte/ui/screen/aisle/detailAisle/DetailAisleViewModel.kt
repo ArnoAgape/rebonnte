@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AisleDetailViewModel @Inject constructor(
+class DetailAisleViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
     aisleRepository: AisleRepository,
     savedStateHandle: SavedStateHandle,
@@ -59,27 +59,27 @@ class AisleDetailViewModel @Inject constructor(
             }
         }
 
-    private val _uiState: StateFlow<AisleDetailUiState> =
+    private val _uiState: StateFlow<DetailAisleUiState> =
         combine(
             aisleRepository.getAisleById(aisleId),
             _filteredMedicinesFlow
         ) { aisle, medicines ->
             if (medicines.isEmpty()) {
-                AisleDetailUiState.Error.Empty()
+                DetailAisleUiState.Error.Empty()
             } else {
-                AisleDetailUiState.Success(
+                DetailAisleUiState.Success(
                     aisle = aisle,
                     medicines = medicines
                 )
             }
         }
             .catch { e ->
-                emit(AisleDetailUiState.Error.Generic(e.message ?: "Unknown error"))
+                emit(DetailAisleUiState.Error.Generic(e.message ?: "Unknown error"))
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5_000),
-                AisleDetailUiState.Loading
+                DetailAisleUiState.Loading
             )
 
     val screenState: StateFlow<AisleDetailScreenState> =
@@ -156,7 +156,7 @@ class AisleDetailViewModel @Inject constructor(
 }
 
 data class AisleDetailScreenState(
-    val uiState: AisleDetailUiState = AisleDetailUiState.Loading,
+    val uiState: DetailAisleUiState = DetailAisleUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
     val isSearchActive: Boolean = false,

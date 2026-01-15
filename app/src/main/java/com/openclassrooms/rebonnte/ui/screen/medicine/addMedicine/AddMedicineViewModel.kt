@@ -145,7 +145,7 @@ class AddMedicineViewModel @Inject constructor(
             // 2. Creation of a medicine with current user
             val medicineToSave = _medicine.value.copy(author = currentUser)
 
-            // 3. Upload Storage + Firestore
+            // 3. Upload Firestore
             if (!isMedicineValid.value) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                 return@launch

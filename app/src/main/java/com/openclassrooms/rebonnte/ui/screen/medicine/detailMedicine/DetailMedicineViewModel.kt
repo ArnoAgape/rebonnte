@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineDetailViewModel @Inject constructor(
+class DetailMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
     historyRepository: HistoryRepository,
@@ -43,37 +43,37 @@ class MedicineDetailViewModel @Inject constructor(
 
     private val _isRefreshing = MutableStateFlow(false)
 
-    private val medicineStateFlow: Flow<MedicineDetailUiState> =
+    private val medicineStateFlow: Flow<DetailMedicineUiState> =
         medicineRepository.getMedicineById(medicineId)
             .map { medicine ->
                 if (medicine != null) {
-                    MedicineDetailUiState.Success(medicine)
+                    DetailMedicineUiState.Success(medicine)
                 } else {
-                    MedicineDetailUiState.Error.Empty("Medicine not found")
+                    DetailMedicineUiState.Error.Empty("Medicine not found")
                 }
             }
-            .onStart { emit(MedicineDetailUiState.Loading) }
+            .onStart { emit(DetailMedicineUiState.Loading) }
             .catch { e ->
                 emit(
-                    MedicineDetailUiState.Error.Generic(
+                    DetailMedicineUiState.Error.Generic(
                         e.message ?: "Unknown error"
                     )
                 )
             }
 
-    private val historyStateFlow: Flow<HistoryDetailUiState> =
+    private val historyStateFlow: Flow<DetailHistoryUiState> =
         historyRepository.observeHistory(medicineId)
             .map { history ->
                 if (history.isNotEmpty()) {
-                    HistoryDetailUiState.Success(history)
+                    DetailHistoryUiState.Success(history)
                 } else {
-                    HistoryDetailUiState.Error.Empty("No history found")
+                    DetailHistoryUiState.Error.Empty("No history found")
                 }
             }
-            .onStart { emit(HistoryDetailUiState.Loading) }
+            .onStart { emit(DetailHistoryUiState.Loading) }
             .catch { e ->
                 emit(
-                    HistoryDetailUiState.Error.Generic(
+                    DetailHistoryUiState.Error.Generic(
                         e.message ?: "Unknown error"
                     )
                 )
@@ -98,7 +98,7 @@ class MedicineDetailViewModel @Inject constructor(
 
     fun deleteMedicine() = viewModelScope.launch {
         val medicine =
-            (screenState.value.medicineState as? MedicineDetailUiState.Success)?.medicine
+            (screenState.value.medicineState as? DetailMedicineUiState.Success)?.medicine
 
         if (medicine == null) {
             _events.trySend(Event.ShowMessage(R.string.error_medicine_not_found))
@@ -130,7 +130,7 @@ class MedicineDetailViewModel @Inject constructor(
 }
 
 data class MedicineDetailScreenState(
-    val medicineState: MedicineDetailUiState = MedicineDetailUiState.Loading,
-    val historyState: HistoryDetailUiState = HistoryDetailUiState.Loading,
+    val medicineState: DetailMedicineUiState = DetailMedicineUiState.Loading,
+    val historyState: DetailHistoryUiState = DetailHistoryUiState.Loading,
     val isRefreshing: Boolean = false
 )

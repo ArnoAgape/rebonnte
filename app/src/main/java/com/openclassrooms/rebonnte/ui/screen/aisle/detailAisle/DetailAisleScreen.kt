@@ -47,8 +47,8 @@ import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
-fun AisleDetailScreen(
-    viewModel: AisleDetailViewModel,
+fun DetailAisleScreen(
+    viewModel: DetailAisleViewModel,
     onMedicineClick: (Medicine) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -128,7 +128,7 @@ fun AisleDetailContent(
                     TopAppBar(
                         title = {
                             when (state.uiState) {
-                                is AisleDetailUiState.Success ->
+                                is DetailAisleUiState.Success ->
                                     Text(
                                         text = state.uiState.aisle.name,
                                         maxLines = 1,
@@ -160,7 +160,7 @@ fun AisleDetailContent(
                                         contentDescription = stringResource(R.string.contentDescription_button_delete)
                                     )
                                 }
-                            } else if (state.uiState is AisleDetailUiState.Success) {
+                            } else if (state.uiState is DetailAisleUiState.Success) {
                                 IconButton(onClick = onEnterSelectionMode) {
                                     Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.contentDescription_button_delete))
                                 }
@@ -189,7 +189,7 @@ fun AisleDetailContent(
 
             when (val ui = state.uiState) {
 
-                is AisleDetailUiState.Success -> {
+                is DetailAisleUiState.Success -> {
                     MedicineItem(
                         medicines = ui.medicines,
                         onMedicineClick = onMedicineClick,
@@ -198,7 +198,7 @@ fun AisleDetailContent(
                     )
                 }
 
-                is AisleDetailUiState.Loading -> {
+                is DetailAisleUiState.Loading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -209,7 +209,7 @@ fun AisleDetailContent(
                     }
                 }
 
-                is AisleDetailUiState.Error.Empty -> {
+                is DetailAisleUiState.Error.Empty -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -220,7 +220,7 @@ fun AisleDetailContent(
                     }
                 }
 
-                is AisleDetailUiState.Error.Generic -> {
+                is DetailAisleUiState.Error.Generic -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -256,7 +256,7 @@ fun AisleDetailScreenPreview() {
             Medicine(name = "Painkiller", stock = 5)
         )
         val previewState = AisleDetailScreenState(
-            uiState = AisleDetailUiState.Success(fakeAisle, fakeMedicines)
+            uiState = DetailAisleUiState.Success(fakeAisle, fakeMedicines)
         )
 
         AisleDetailContent(

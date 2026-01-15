@@ -90,7 +90,7 @@ class AddAisleViewModel @Inject constructor(
     fun addAisle() {
         viewModelScope.launch {
 
-            // 2. If user logged in checking
+            // 1. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = AddAisleUiState.Error.NoAccount()
@@ -100,7 +100,7 @@ class AddAisleViewModel @Inject constructor(
 
             _uiState.value = AddAisleUiState.Loading
 
-            // 4. Upload Storage + Firestore
+            // 2. Upload Firestore
             if (!isAisleValid.value) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_aisle))
                 return@launch
@@ -108,7 +108,7 @@ class AddAisleViewModel @Inject constructor(
 
             aisleRepository.addAisle(_aisle.value)
 
-            // 5. Success UI
+            // 3. Success UI
             _uiState.value = AddAisleUiState.Success(_aisle.value)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_add_aisle))
 

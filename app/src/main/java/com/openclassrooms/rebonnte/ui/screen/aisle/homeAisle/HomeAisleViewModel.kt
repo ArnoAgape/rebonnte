@@ -9,7 +9,6 @@ import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -31,9 +30,8 @@ import javax.inject.Inject
  * It exposes UI state, manages refresh actions, and emits one-time
  * events such as network warnings.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class AisleHomeViewModel @Inject constructor(
+class HomeAisleViewModel @Inject constructor(
     private val aisleRepository: AisleRepository,
     userRepository: UserRepository,
     private val networkUtils: NetworkUtils
@@ -64,17 +62,17 @@ class AisleHomeViewModel @Inject constructor(
         }
     }
 
-    private val _uiState: Flow<AisleHomeUiState> =
+    private val _uiState: Flow<HomeAisleUiState> =
         filteredAislesFlow
             .map { aisles ->
                 if (aisles.isEmpty()) {
-                    AisleHomeUiState.Error.Empty()
+                    HomeAisleUiState.Error.Empty()
                 } else {
-                    AisleHomeUiState.Success(aisles)
+                    HomeAisleUiState.Success(aisles)
                 }
             }
             .catch { e ->
-                emit(AisleHomeUiState.Error.Generic(e.message ?: "Unknown error"))
+                emit(HomeAisleUiState.Error.Generic(e.message ?: "Unknown error"))
             }
 
     private val _isSignedIn =
@@ -174,7 +172,7 @@ class AisleHomeViewModel @Inject constructor(
  */
 
 data class AisleHomeScreenState(
-    val uiState: AisleHomeUiState = AisleHomeUiState.Loading,
+    val uiState: HomeAisleUiState = HomeAisleUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
     val isSignedIn: Boolean? = null,

@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineHomeViewModel @Inject constructor(
+class HomeMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
     userRepository: UserRepository,
     private val networkUtils: NetworkUtils
@@ -80,16 +80,16 @@ class MedicineHomeViewModel @Inject constructor(
                 null
             )
 
-    private val _uiState: Flow<MedicineHomeUiState> =
+    private val _uiState: Flow<HomeMedicineUiState> =
         filteredMedicinesFlow
             .map { medicines ->
                 if (medicines.isEmpty())
-                    MedicineHomeUiState.Error.Empty()
+                    HomeMedicineUiState.Error.Empty()
                 else
-                    MedicineHomeUiState.Success(medicines)
+                    HomeMedicineUiState.Success(medicines)
             }
             .catch { e ->
-                emit(MedicineHomeUiState.Error.Generic(e.message ?: "Unknown error"))
+                emit(HomeMedicineUiState.Error.Generic(e.message ?: "Unknown error"))
             }
 
     val screenState: StateFlow<MedicineHomeScreenState> =
@@ -196,7 +196,7 @@ class MedicineHomeViewModel @Inject constructor(
 }
 
 data class MedicineHomeScreenState(
-    val uiState: MedicineHomeUiState = MedicineHomeUiState.Loading,
+    val uiState: HomeMedicineUiState = HomeMedicineUiState.Loading,
     val isRefreshing: Boolean = false,
     val selection: SelectionState = SelectionState(),
     val isSearchActive: Boolean = false,
