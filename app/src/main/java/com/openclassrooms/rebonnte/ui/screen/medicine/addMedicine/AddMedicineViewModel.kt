@@ -104,7 +104,7 @@ class AddMedicineViewModel @Inject constructor(
     fun onAction(formEvent: FormEvent) {
         when (formEvent) {
             is FormEvent.NameChanged -> {
-                _medicine.update { it.copy(name = formEvent.name) }
+                _medicine.update { it.copy(name = formEvent.name.trim()) }
             }
 
             is FormEvent.StockSet -> {

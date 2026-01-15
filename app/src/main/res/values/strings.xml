@@ -26,13 +26,22 @@
     <string name="or">or</string>
     <string name="updated_on">Updated on %1$s at %2$s</string>
     <string name="by">By %1$s</string>
-    <string name="medicine_name">Medicine name: %1$s</string>
-    <string name="aisle_name">Aisle: %1$s</string>
 
-    <string name="medicine_details">Medicine details: %1$s</string>
-    <string name="in_stock">%1$d in stock</string>
-    <string name="history_stock_added">%1$d %2$s added to stock</string>
-    <string name="history_stock_removed">%1$d %2$s removed from stock</string>
+    <plurals name="stock_quantity">
+        <item quantity="zero">Out of stock</item>
+        <item quantity="one">%d in stock</item>
+        <item quantity="other">%d in stock</item>
+    </plurals>
+
+    <plurals name="history_stock_added">
+        <item quantity="one">%d unit added to stock</item>
+        <item quantity="other">%d units added to stock</item>
+    </plurals>
+
+    <plurals name="history_stock_removed">
+        <item quantity="one">%d unit removed from stock</item>
+        <item quantity="other">%d units removed from stock</item>
+    </plurals>
 
     <string name="close">Close</string>
     <string name="add">Add</string>

@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -311,7 +312,7 @@ fun MedicineHeaderContent(
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        text = stringResource(R.string.in_stock, medicine.stock),
+                        text = pluralStringResource(R.plurals.stock_quantity, medicine.stock, medicine.stock),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -398,17 +399,17 @@ fun DetailHistoryContent(
 
     val actionText = when (history.changeType) {
         StockChangeType.ADDED ->
-            stringResource(
-                R.string.history_stock_added,
-                history.quantity,
-                history.medicineName
+            pluralStringResource(
+                id = R.plurals.history_stock_added,
+                count = history.quantity,
+                history.quantity
             )
 
         StockChangeType.REMOVED ->
-            stringResource(
-                R.string.history_stock_removed,
+            pluralStringResource(
+                R.plurals.history_stock_removed,
                 history.quantity,
-                history.medicineName
+                history.quantity
             )
     }
 

@@ -84,7 +84,7 @@ class AddAisleViewModel @Inject constructor(
     }
 
     fun onNameChanged(name: String) {
-        _aisle.update { it.copy(name = name) }
+        _aisle.update { it.copy(name = name.trim()) }
     }
 
     fun addAisle() {

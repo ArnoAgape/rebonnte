@@ -12,7 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
@@ -47,7 +47,7 @@ fun MedicineItem(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = stringResource(R.string.in_stock, medicine.stock)
+                        text = pluralStringResource(R.plurals.stock_quantity, medicine.stock, medicine.stock)
                     )
                 }
 

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">rebonnte</string>
 
     <string name="auth_check_title">Bienvenue sur Rebonnté</string>
@@ -42,14 +42,21 @@
     <string name="updated_on">Mis à jour le %1$s à %2$s</string>
     <string name="by">Par %1$s</string>
 
-    <string name="medicine_name">Nom du médicament : %1$s</string>
-    <string name="aisle_name">Allée : %1$s</string>
+    <plurals name="stock_quantity" tools:ignore="MissingQuantity,UnusedQuantity">
+        <item quantity="zero">Aucun en stock</item>
+        <item quantity="one">%d en stock</item>
+        <item quantity="other">%d en stock</item>
+    </plurals>
 
-    <string name="medicine_details">Détails du médicament : %1$s</string>
-    <string name="in_stock">%1$d en stock</string>
+    <plurals name="history_stock_added" tools:ignore="MissingQuantity">
+        <item quantity="one">%d unité ajoutée au stock</item>
+        <item quantity="other">%d unités ajoutées au stock</item>
+    </plurals>
 
-    <string name="history_stock_added">%1$d %2$s ajouté(s) au stock</string>
-    <string name="history_stock_removed">%1$d %2$s retiré(s) du stock</string>
+    <plurals name="history_stock_removed" tools:ignore="MissingQuantity">
+        <item quantity="one">%d unité retirée du stock</item>
+        <item quantity="other">%d unités retirées du stock</item>
+    </plurals>
 
     <string name="close">Fermer</string>
     <string name="add">Ajouter</string>
