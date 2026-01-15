@@ -107,6 +107,8 @@
     <string name="contentDescription_button_search_medicines">Search among the medicines</string>
     <string name="contentDescription_button_sort_medicines">Sort medicines</string>
     <string name="contentDescription_button_delete">Delete the selected elements</string>
+    <string name="contentDescription_button_delete_aisle">Delete an aisle</string>
+    <string name="contentDescription_button_delete_medicine">Delete a medicine</string>
     <string name="contentDescription_button_add_aisle">Add a new aisle</string>
     <string name="contentDescription_expand_history">Click here to show the history</string>
     <string name="hint_date">Date</string>

@@ -171,7 +171,7 @@ fun AisleHomeContent(
                             IconButton(onClick = onEnterSelectionMode) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.contentDescription_button_delete)
+                                    contentDescription = stringResource(R.string.contentDescription_button_delete_aisle)
                                 )
                             }
                         }

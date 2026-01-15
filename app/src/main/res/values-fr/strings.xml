@@ -70,8 +70,8 @@
     <string name="sort_by_stock_desc">Stock (décroissant)</string>
 
     <string name="add_medicine">Ajouter un médicament</string>
-    <string name="edit_medicine">Modifier un médicament</string>
-    <string name="delete_medicine">Supprimer un médicament</string>
+    <string name="edit_medicine">Modifier médicament</string>
+    <string name="delete_medicine">Supprimer médicament</string>
     <string name="delete_aisle">Supprimer une allée</string>
     <string name="add_aisle">Ajouter une allée</string>
     <string name="delete">Supprimer</string>
@@ -135,11 +135,13 @@
 
     <string name="hint_number_of_medicines">Stock</string>
     <string name="contentDescription_go_back">Retour</string>
-    <string name="contentDescription_button_add_medicine">Ajouter</string>
+    <string name="contentDescription_button_add_medicine">Ajouter un nouveau médicament</string>
     <string name="contentDescription_button_search_aisles">Rechercher parmi les allées</string>
     <string name="contentDescription_button_search_medicines">Rechercher parmi les médicaments</string>
     <string name="contentDescription_button_sort_medicines">Trier les médicaments</string>
     <string name="contentDescription_button_delete">Supprimer les éléments sélectionnés</string>
+    <string name="contentDescription_button_delete_aisle">Supprimer une allée</string>
+    <string name="contentDescription_button_delete_medicine">Supprimer un médicament</string>
     <string name="contentDescription_button_add_aisle">Ajouter une nouvelle allée</string>
     <string name="contentDescription_expand_history">Afficher l’historique</string>
 

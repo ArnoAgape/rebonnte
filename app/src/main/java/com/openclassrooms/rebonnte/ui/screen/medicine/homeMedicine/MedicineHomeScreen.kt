@@ -151,10 +151,16 @@ fun MedicineHomeContent(
                     title = { Text(stringResource(id = R.string.medicines)) },
                     actions = {
                         IconButton(onClick = onSearchClick) {
-                            Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.contentDescription_button_search_medicines))
+                            Icon(
+                                Icons.Rounded.Search,
+                                contentDescription = stringResource(R.string.contentDescription_button_search_medicines)
+                            )
                         }
                         IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = stringResource(R.string.contentDescription_button_sort_medicines))
+                            Icon(
+                                Icons.AutoMirrored.Rounded.Sort,
+                                contentDescription = stringResource(R.string.contentDescription_button_sort_medicines)
+                            )
                         }
                         MedicineSortMenu(
                             expanded = sortMenuExpanded,
@@ -181,7 +187,10 @@ fun MedicineHomeContent(
                             }
                         } else if (state.uiState is MedicineHomeUiState.Success) {
                             IconButton(onClick = onEnterSelectionMode) {
-                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.contentDescription_button_delete))
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.contentDescription_button_delete_medicine)
+                                )
                             }
                         }
                     }
