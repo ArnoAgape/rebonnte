@@ -20,13 +20,12 @@ import androidx.compose.ui.res.stringResource
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.common.components.PickerField
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimeField(
+fun DateField(
     modifier: Modifier = Modifier,
     value: Instant,
     onValueChange: (Instant) -> Unit,
@@ -35,12 +34,10 @@ fun DateTimeField(
 
     val zone = ZoneId.systemDefault()
 
-    // Convert Instant -> LocalDate + LocalTime
+    // Convert Instant -> LocalDate
     val currentDate = value.atZone(zone).toLocalDate()
 
     var showDatePicker by remember { mutableStateOf(false) }
-
-    var tempPickedDate by remember { mutableStateOf<LocalDate?>(null) }
 
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     val display = value.atZone(zone).format(formatter)
@@ -73,11 +70,17 @@ fun DateTimeField(
                         val utcMillis = dateState.selectedDateMillis
                         if (utcMillis != null) {
 
-                            tempPickedDate = Instant.ofEpochMilli(utcMillis)
+                            val pickedDate = Instant.ofEpochMilli(utcMillis)
                                 .atZone(ZoneId.of("UTC"))
                                 .toLocalDate()
-                            showDatePicker = false
-                        } else showDatePicker = false
+
+                            val resultInstant = pickedDate
+                                .atStartOfDay(zone)
+                                .toInstant()
+
+                            onValueChange(resultInstant)
+                        }
+                        showDatePicker = false
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant

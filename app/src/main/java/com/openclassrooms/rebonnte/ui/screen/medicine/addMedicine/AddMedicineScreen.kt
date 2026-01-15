@@ -54,7 +54,7 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.AisleDropdown
-import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.DateTimeField
+import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.DateField
 import com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields.NumberOfMedicinesField
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import java.time.Instant
@@ -216,7 +216,7 @@ private fun AddMedicineContent(
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    DateTimeField(
+                    DateField(
                         modifier = Modifier.fillMaxWidth(),
                         value = dateTime,
                         onValueChange = onDateTimeChange,
@@ -286,7 +286,7 @@ private fun AddMedicineContentPreview() {
             onDateTimeChange = {},
             numberOfMedicines = 3,
             onNumberOfMedicinesChange = {},
-            nameMedicine = "Doliprane",
+            nameMedicine = "Paracetamol",
             onNameMedicineChanged = {},
             aisles = fakeAisles,
             selectedAisle = fakeAisles.first(),
