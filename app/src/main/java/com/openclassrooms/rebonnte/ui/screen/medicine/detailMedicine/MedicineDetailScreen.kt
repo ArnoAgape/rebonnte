@@ -348,7 +348,7 @@ fun HistorySection(
                     Icons.Default.ExpandLess
                 else
                     Icons.Default.ExpandMore,
-                contentDescription = null
+                contentDescription = stringResource(R.string.contentDescription_expand_history)
             )
         }
 

@@ -140,7 +140,7 @@ fun AisleDetailContent(
                         },
                         actions = {
                             IconButton(onClick = onSearchClick) {
-                                Icon(Icons.Rounded.Search, contentDescription = null)
+                                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.contentDescription_button_search_medicines))
                             }
                             if (state.selection.isSelectionMode) {
                                 IconButton(
@@ -157,12 +157,12 @@ fun AisleDetailContent(
                                             Icons.Default.Close
                                         else
                                             Icons.Default.DeleteForever,
-                                        contentDescription = null
+                                        contentDescription = stringResource(R.string.contentDescription_button_delete)
                                     )
                                 }
                             } else if (state.uiState is AisleDetailUiState.Success) {
                                 IconButton(onClick = onEnterSelectionMode) {
-                                    Icon(Icons.Default.Delete, contentDescription = null)
+                                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.contentDescription_button_delete))
                                 }
                             }
                         },

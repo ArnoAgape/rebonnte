@@ -1,0 +1,144 @@
+<resources>
+    <string name="app_name" translatable="false">rebonnte</string>
+
+    <string name="auth_check_title">Bienvenue sur Rebonnté</string>
+    <string name="auth_check_logo">Logo Rebonnté</string>
+    <string name="auth_check_subtitle">L’application qui vous permet de gérer un stock pharmaceutique</string>
+    <string name="auth_check_button">Se connecter</string>
+
+    <string name="profile_picture">Votre photo de profil</string>
+    <string name="user_name">Nom</string>
+    <string name="user_email">Adresse e-mail</string>
+    <string name="user_phone">Numéro de téléphone</string>
+    <string name="user_picture">Photo de profil</string>
+
+    <string name="history">Historique :</string>
+    <string name="action_sign_out">Se déconnecter</string>
+    <string name="confirm_sign_out_message">Êtes-vous sûr de vouloir vous déconnecter ?</string>
+
+    <string name="action_add">Ajouter</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_delete_account">Supprimer le compte</string>
+
+    <string name="confirm_delete_medicine">Supprimer le médicament</string>
+    <string name="confirm_delete_aisle">Supprimer l’allée</string>
+
+    <string name="confirm_delete_message_current_medicine">
+        Vous êtes sur le point de supprimer ce médicament. Cette action est irréversible. Continuer ?
+    </string>
+    <string name="confirm_delete_message_medicines">
+        Vous êtes sur le point de supprimer le(s) médicament(s) sélectionné(s). Cette action est irréversible. Continuer ?
+    </string>
+    <string name="confirm_delete_message_aisle">
+        Vous êtes sur le point de supprimer la ou les allées sélectionnées. Cette action est irréversible. Continuer ?
+    </string>
+    <string name="confirm_delete_account_message">
+        Vous êtes sur le point de supprimer votre compte. Cette action est irréversible. Continuer ?
+    </string>
+
+    <string name="cancel">Annuler</string>
+    <string name="or">ou</string>
+
+    <string name="updated_on">Mis à jour le %1$s à %2$s</string>
+    <string name="by">Par %1$s</string>
+
+    <string name="medicine_name">Nom du médicament : %1$s</string>
+    <string name="aisle_name">Allée : %1$s</string>
+
+    <string name="medicine_details">Détails du médicament : %1$s</string>
+    <string name="in_stock">%1$d en stock</string>
+
+    <string name="history_stock_added">%1$d %2$s ajouté(s) au stock</string>
+    <string name="history_stock_removed">%1$d %2$s retiré(s) du stock</string>
+
+    <string name="close">Fermer</string>
+    <string name="add">Ajouter</string>
+    <string name="search">Rechercher</string>
+
+    <string name="sort_by_name_asc">Nom (A → Z)</string>
+    <string name="sort_by_name_desc">Nom (Z → A)</string>
+    <string name="sort_by_date_newest">Date d’ajout (récent → ancien)</string>
+    <string name="sort_by_date_oldest">Date d’ajout (ancien → récent)</string>
+    <string name="sort_by_stock_asc">Stock (croissant)</string>
+    <string name="sort_by_stock_desc">Stock (décroissant)</string>
+
+    <string name="add_medicine">Ajouter un médicament</string>
+    <string name="edit_medicine">Modifier un médicament</string>
+    <string name="delete_medicine">Supprimer un médicament</string>
+    <string name="delete_aisle">Supprimer une allée</string>
+    <string name="add_aisle">Ajouter une allée</string>
+    <string name="delete">Supprimer</string>
+
+    <string name="home">Accueil</string>
+    <string name="aisle">Allée</string>
+    <string name="aisles">Allées</string>
+    <string name="notifications">Notifications</string>
+    <string name="profile">Profil</string>
+    <string name="medicine">Médicament</string>
+    <string name="medicines">Médicaments</string>
+
+    <string name="loading">Chargement…</string>
+    <string name="adding">Ajout…</string>
+    <string name="editing">Modification…</string>
+    <string name="saving">Enregistrement…</string>
+
+    <string name="success_add_medicine">Médicament ajouté avec succès</string>
+    <string name="success_add_history">Historique ajouté avec succès</string>
+    <string name="success_edit_medicine">Médicament modifié avec succès</string>
+    <string name="success_deleted_medicine">Médicament supprimé avec succès</string>
+    <string name="success_deleted_medicines">Médicament(s) supprimé(s) avec succès</string>
+    <string name="success_deleted_aisles">Allée(s) supprimée(s) avec succès</string>
+    <string name="success_add_aisle">Allée ajoutée avec succès</string>
+    <string name="success_user_updated">Informations mises à jour avec succès</string>
+    <string name="success_sign_up">Connexion réussie</string>
+    <string name="success_sign_out">Déconnexion réussie</string>
+    <string name="success_deleted_account">Compte supprimé avec succès</string>
+
+    <string name="error_generic">Une erreur est survenue</string>
+    <string name="error_loading">Erreur lors du chargement</string>
+
+    <string name="no_medicines_listed_in_aisle">Aucun médicament dans cette allée</string>
+    <string name="no_medicines">Pour ajouter un médicament, appuyez sur le bouton « + »</string>
+    <string name="no_aisles">Pour ajouter une allée, appuyez sur le bouton « + »</string>
+
+    <string name="error_sign_up">Inscription annulée ou échouée</string>
+    <string name="error_medicine_not_found">Médicament introuvable</string>
+    <string name="error_delete_medicine">Une erreur est survenue lors de la suppression du médicament</string>
+    <string name="error_delete_aisle">Une erreur est survenue lors de la suppression de l’allée</string>
+
+    <string name="error_invalid_form_aisle">Le nom de l’allée ne peut pas être vide</string>
+    <string name="error_invalid_form_medicine">Le nom du médicament ne peut pas être vide</string>
+
+    <string name="error_no_account_add_medicine">
+        Un compte est requis pour ajouter un médicament
+    </string>
+    <string name="error_no_account_edit_medicine">
+        Un compte est requis pour modifier un médicament
+    </string>
+    <string name="error_no_account_add_aisle">
+        Un compte est requis pour ajouter une allée
+    </string>
+    <string name="error_no_account_profile">
+        Un compte est requis pour modifier votre profil
+    </string>
+
+    <string name="no_network">Aucune connexion réseau disponible</string>
+    <string name="try_again">Réessayer</string>
+
+    <string name="hint_number_of_medicines">Stock</string>
+    <string name="contentDescription_go_back">Retour</string>
+    <string name="contentDescription_button_add_medicine">Ajouter</string>
+    <string name="contentDescription_button_search_aisles">Rechercher parmi les allées</string>
+    <string name="contentDescription_button_search_medicines">Rechercher parmi les médicaments</string>
+    <string name="contentDescription_button_sort_medicines">Trier les médicaments</string>
+    <string name="contentDescription_button_delete">Supprimer les éléments sélectionnés</string>
+    <string name="contentDescription_button_add_aisle">Ajouter une nouvelle allée</string>
+    <string name="contentDescription_expand_history">Afficher l’historique</string>
+
+    <string name="hint_date">Date</string>
+    <string name="hint_time">Heure</string>
+    <string name="hint_medicine_name">Nom du médicament</string>
+    <string name="hint_aisle_name">Nom de l’allée</string>
+    <string name="hint_datetime">Date de réception</string>
+
+</resources>

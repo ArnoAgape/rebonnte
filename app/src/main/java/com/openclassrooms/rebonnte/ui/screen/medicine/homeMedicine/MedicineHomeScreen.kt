@@ -137,10 +137,10 @@ fun MedicineHomeContent(
                     title = { Text(stringResource(id = R.string.medicines)) },
                     actions = {
                         IconButton(onClick = onSearchClick) {
-                            Icon(Icons.Rounded.Search, contentDescription = null)
+                            Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.contentDescription_button_search_medicines))
                         }
                         IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = stringResource(R.string.contentDescription_button_sort_medicines))
                         }
                         MedicineSortMenu(
                             expanded = sortMenuExpanded,
@@ -162,12 +162,12 @@ fun MedicineHomeContent(
                                         Icons.Default.Close
                                     else
                                         Icons.Default.DeleteForever,
-                                    contentDescription = null
+                                    contentDescription = stringResource(R.string.contentDescription_button_delete)
                                 )
                             }
                         } else if (state.uiState is MedicineHomeUiState.Success) {
                             IconButton(onClick = onEnterSelectionMode) {
-                                Icon(Icons.Default.Delete, contentDescription = null)
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.contentDescription_button_delete))
                             }
                         }
                     }
@@ -187,7 +187,7 @@ fun MedicineHomeContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(id = R.string.contentDescription_button_add)
+                    contentDescription = stringResource(id = R.string.contentDescription_button_add_medicine)
                 )
             }
         }

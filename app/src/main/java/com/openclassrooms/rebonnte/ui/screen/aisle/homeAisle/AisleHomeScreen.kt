@@ -121,14 +121,18 @@ fun AisleHomeContent(
                         .padding(
                             top = 42.dp,
                             start = 16.dp,
-                            end = 16.dp)
+                            end = 16.dp
+                        )
                 )
             } else {
                 TopAppBar(
                     title = { Text(stringResource(R.string.aisles)) },
                     actions = {
                         IconButton(onClick = onSearchClick) {
-                            Icon(Icons.Rounded.Search, contentDescription = null)
+                            Icon(
+                                Icons.Rounded.Search,
+                                contentDescription = stringResource(R.string.contentDescription_button_search_aisles)
+                            )
                         }
 
                         if (state.selection.isSelectionMode) {
@@ -146,12 +150,15 @@ fun AisleHomeContent(
                                         Icons.Default.Close
                                     else
                                         Icons.Default.DeleteForever,
-                                    contentDescription = null
+                                    contentDescription = stringResource(R.string.contentDescription_button_delete)
                                 )
                             }
                         } else if (state.uiState is AisleHomeUiState.Success) {
                             IconButton(onClick = onEnterSelectionMode) {
-                                Icon(Icons.Default.Delete, contentDescription = null)
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.contentDescription_button_delete)
+                                )
                             }
                         }
                     }
@@ -165,7 +172,10 @@ fun AisleHomeContent(
                     else Toast.makeText(context, noAccountMessage, Toast.LENGTH_SHORT).show()
                 }
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.contentDescription_button_add_aisle)
+                )
             }
         }
     ) { contentPadding ->

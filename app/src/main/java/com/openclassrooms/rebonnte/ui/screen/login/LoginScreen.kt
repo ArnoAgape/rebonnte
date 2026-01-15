@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -64,7 +63,7 @@ fun LoginScreen(
                         // Logo
                         Image(
                             painter = painterResource(id = R.drawable.ic_app_logo),
-                            contentDescription = "Logo of Rebonnté",
+                            contentDescription = stringResource(R.string.auth_check_logo),
                             modifier = Modifier
                                 .size(160.dp)
                                 .padding(bottom = 16.dp)
