@@ -238,11 +238,18 @@ fun MedicineHomeContent(
                 is MedicineHomeUiState.Error.Empty -> {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .padding(20.dp),
                         contentAlignment = Alignment.Center
                     ) {
+                        val message =
+                            if (state.isSearchActive && state.searchQuery.isNotBlank()) {
+                                stringResource(R.string.error_medicine_not_found)
+                            } else {
+                                stringResource(R.string.no_medicines)
+                            }
                         Text(
-                            text = stringResource(R.string.no_medicines),
+                            text = message,
                             textAlign = TextAlign.Center
                         )
                     }

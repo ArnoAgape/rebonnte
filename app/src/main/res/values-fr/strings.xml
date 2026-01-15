@@ -110,6 +110,7 @@
 
     <string name="error_sign_up">Inscription annulée ou échouée</string>
     <string name="error_medicine_not_found">Médicament introuvable</string>
+    <string name="error_aisle_not_found">Allée introuvable</string>
     <string name="error_delete_medicine">Une erreur est survenue lors de la suppression du médicament</string>
     <string name="error_delete_aisle">Une erreur est survenue lors de la suppression de l’allée</string>
 

@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -216,8 +217,22 @@ fun AisleHomeContent(
                     }
 
                 is AisleHomeUiState.Error.Empty ->
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.no_aisles))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val message =
+                            if (state.isSearchActive && state.searchQuery.isNotBlank()) {
+                                stringResource(R.string.error_aisle_not_found)
+                            } else {
+                                stringResource(R.string.no_aisles)
+                            }
+                        Text(
+                            text = message,
+                            textAlign = TextAlign.Center
+                        )
                     }
 
                 else -> Unit

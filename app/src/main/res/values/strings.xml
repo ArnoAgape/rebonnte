@@ -89,6 +89,7 @@
     <string name="no_aisles">To add a new aisle, please press the button "+"</string>
     <string name="error_sign_up">Sign up canceled or failed</string>
     <string name="error_medicine_not_found">Medicine not found</string>
+    <string name="error_aisle_not_found">Aisle not found</string>
     <string name="error_delete_medicine">An issue occurred while deleting the medicine</string>
     <string name="error_delete_aisle">An issue occurred while deleting the aisle</string>
     <string name="error_invalid_form_aisle">The name of the aisle cannot be empty</string>
@@ -101,7 +102,7 @@
     <string name="try_again">Try again</string>
     <string name="hint_number_of_medicines">Stock</string>
     <string name="contentDescription_go_back">Go back</string>
-    <string name="contentDescription_button_add_medicine">Add</string>
+    <string name="contentDescription_button_add_medicine">Add a new medicine</string>
     <string name="contentDescription_button_search_aisles">Search among the aisles</string>
     <string name="contentDescription_button_search_medicines">Search among the medicines</string>
     <string name="contentDescription_button_sort_medicines">Sort medicines</string>
