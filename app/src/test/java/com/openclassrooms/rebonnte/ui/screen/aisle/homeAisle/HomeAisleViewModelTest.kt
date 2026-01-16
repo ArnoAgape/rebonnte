@@ -7,10 +7,7 @@ import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.DetailAisleUiState
-import com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle.DetailAisleViewModel
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
