@@ -39,9 +39,7 @@ class DetailAisleViewModel @Inject constructor(
     val eventsFlow = _events.receiveAsFlow()
 
     private val _selection = MutableStateFlow(SelectionState())
-
     private val _isRefreshing = MutableStateFlow(false)
-
     private val _searchQuery = MutableStateFlow("")
     private val _isSearchActive = MutableStateFlow(false)
 
