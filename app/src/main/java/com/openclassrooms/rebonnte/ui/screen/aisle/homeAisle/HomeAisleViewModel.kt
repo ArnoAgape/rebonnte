@@ -37,8 +37,6 @@ class HomeAisleViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val aislesFlow = aisleRepository.aisles
-
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
@@ -50,7 +48,7 @@ class HomeAisleViewModel @Inject constructor(
     private val _isSearchActive = MutableStateFlow(false)
 
     private val filteredAislesFlow = combine(
-        aislesFlow,
+        aisleRepository.getAisles(),
         _searchQuery
     ) { aisles, query ->
         if (query.isBlank()) {

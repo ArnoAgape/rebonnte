@@ -94,6 +94,21 @@ object TestUtils {
         )
     }
 
+    fun fakeAisles(id: String): List<Aisle> {
+        return listOf(
+            Aisle(
+                id = id,
+                name = "Painkiller",
+                createdAt = Timestamp(1233356000, 212120)
+            ),
+            Aisle(
+                id = id,
+                name = "Cream",
+                createdAt = Timestamp(1233356000, 212120),
+            )
+        )
+    }
+
     /**
      * Creates a fake [History] instance with predefined values.
      *

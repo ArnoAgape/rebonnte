@@ -14,7 +14,6 @@ import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
-import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import io.mockk.coEvery
@@ -33,7 +32,6 @@ class DetailAisleViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var aisleRepo: AisleRepository
     private lateinit var medicineRepo: MedicineRepository
-    private lateinit var userRepo: UserRepository
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var networkUtils: NetworkUtils
 
@@ -42,7 +40,6 @@ class DetailAisleViewModelTest {
     fun setup() {
         aisleRepo = mockk()
         medicineRepo = mockk()
-        userRepo = mockk()
         networkUtils = mockk()
 
         savedStateHandle = SavedStateHandle().apply {

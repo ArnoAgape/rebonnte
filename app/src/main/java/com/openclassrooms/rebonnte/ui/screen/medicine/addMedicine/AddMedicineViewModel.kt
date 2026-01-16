@@ -40,7 +40,7 @@ class AddMedicineViewModel @Inject constructor(
     val eventsFlow = _events.receiveAsFlow()
 
     val aisles: StateFlow<List<Aisle>> =
-        aisleRepository.aisles
+        aisleRepository.getAisles()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),

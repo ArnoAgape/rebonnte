@@ -55,7 +55,7 @@ class EditMedicineViewModel @Inject constructor(
     val medicine: StateFlow<Medicine> = _medicine.asStateFlow()
 
     val aisles: StateFlow<List<Aisle>> =
-        aisleRepository.aisles.stateIn(
+        aisleRepository.getAisles().stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()

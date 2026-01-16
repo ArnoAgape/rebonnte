@@ -12,7 +12,7 @@ class AisleRepository @Inject constructor(
     /**
      * Observes the list of all aisles ordered by ascending name.
      */
-    val aisles: Flow<List<Aisle>> = aisleApi.getAislesOrderByNameAsc()
+    fun getAisles(): Flow<List<Aisle>> = aisleApi.getAislesOrderByNameAsc()
 
     /**
      * Uploads a new aisle to Firebase (Storage + Firestore).
