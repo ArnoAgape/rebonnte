@@ -2,7 +2,6 @@ package com.openclassrooms.rebonnte.data.service.aisle
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.AisleDto
 import com.openclassrooms.rebonnte.domain.model.Aisle
@@ -15,9 +14,20 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
     private val firestore = FirebaseFirestore.getInstance()
     private val aislesCollection = firestore.collection("aisles")
 
-    override fun getAislesOrderByNameAsc(): Flow<List<Aisle>> {
-        return aislesCollection
-            .orderBy("name", Query.Direction.ASCENDING)
+    override fun getAisles(searchQuery: String): Flow<List<Aisle>> {
+
+        val q = searchQuery.trim().lowercase()
+        Log.e("AISLE_SEARCH", "query='$q'")
+
+
+        val query = aislesCollection
+            .orderBy("nameLowercase")
+            .let {
+                if (q.isBlank()) it
+                else it.startAt(q).endAt(q + "\uf8ff")
+            }
+
+        return query
             .dataObjects<AisleDto>()
             .map { list -> list.map { Aisle.fromDto(it) } }
     }
@@ -26,7 +36,10 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
         try {
             val docRef = aislesCollection.document()
 
-            val dto = aisle.copy(id = docRef.id).toDto()
+            val dto = aisle.copy(
+                id = docRef.id,
+                nameLowercase = aisle.name.lowercase()
+            ).toDto()
 
             docRef.set(dto)
 

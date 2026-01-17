@@ -6,6 +6,7 @@ import com.openclassrooms.rebonnte.data.dto.AisleDto
 data class Aisle(
     val id: String = "",
     val name: String = "",
+    val nameLowercase: String = "",
     val createdAt: Timestamp = Timestamp.now(),
     val medicines: List<Medicine> = emptyList()
 ) {
@@ -13,6 +14,7 @@ data class Aisle(
         return AisleDto(
             id = id,
             name = name,
+            nameLowercase = nameLowercase,
             createdAt = createdAt,
             medicines = medicines
         )
@@ -23,6 +25,7 @@ data class Aisle(
             return Aisle(
                 id = dto.id,
                 name = dto.name,
+                nameLowercase = dto.nameLowercase,
                 createdAt = dto.createdAt,
                 medicines = dto.medicines
             )

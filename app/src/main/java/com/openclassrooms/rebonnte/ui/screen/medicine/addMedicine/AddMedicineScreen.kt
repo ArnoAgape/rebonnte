@@ -69,8 +69,6 @@ fun AddMedicineScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val resources = LocalResources.current
     val context = LocalContext.current
-    val aisles = viewModel.aisles.collectAsState().value
-    val selectedAisle = viewModel.selectedAisle.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
 
     EventsEffect(viewModel.eventsFlow) { event ->
@@ -127,8 +125,8 @@ fun AddMedicineScreen(
                     },
                     nameMedicine = aisleToDisplay.name,
                     onNameMedicineChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
-                    aisles = aisles,
-                    selectedAisle = selectedAisle,
+                    aisles = state.aisles,
+                    selectedAisle = state.selectedAisle,
                     onAisleSelected = { viewModel.onAction(FormEvent.AisleSelected(it)) },
                     onSaveClicked = { viewModel.addMedicine() },
                     isMedicineValid = state.isValid,

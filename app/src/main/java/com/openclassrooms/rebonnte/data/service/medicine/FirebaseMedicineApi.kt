@@ -2,7 +2,6 @@ package com.openclassrooms.rebonnte.data.service.medicine
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.MedicineDto
 import com.openclassrooms.rebonnte.domain.model.Medicine
@@ -21,17 +20,38 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
     private val firestore = FirebaseFirestore.getInstance()
     private val medicinesCollection = firestore.collection("medicines")
 
-    override fun getMedicinesOrderBy(field: MedicineOrderField, direction: MedicineSort): Flow<List<Medicine>> {
-        return medicinesCollection
-            .orderBy(field.firestoreField, direction.firestoreDirection)
+    override fun getAllMedicines(
+        sort: MedicineSort,
+        searchQuery: String
+    ): Flow<List<Medicine>> {
+
+        Log.e("REPO_CALL", "sort=$sort query=$searchQuery")
+
+        val q = searchQuery.trim().lowercase()
+
+        val baseQuery = if (q.isBlank()) {
+            medicinesCollection
+        } else {
+            medicinesCollection
+                .orderBy("nameLowercase")
+                .startAt(q)
+                .endAt(q + "\uf8ff")
+        }
+
+        return baseQuery
             .dataObjects<MedicineDto>()
-            .map { list -> list.map { Medicine.fromDto(it) } }
+            .map { dto ->
+                sort.sort(dto.map { Medicine.fromDto(it) })
+            }
     }
 
     override suspend fun addMedicine(medicine: Medicine): Result<Unit> {
         return try {
             val docRef = medicinesCollection.document()
-            val dto = medicine.copy(id = docRef.id).toDto()
+            val dto = medicine.copy(
+                id = docRef.id,
+                nameLowercase = medicine.name.lowercase()
+            ).toDto()
             docRef.set(dto)
             Result.success(Unit)
 
@@ -43,7 +63,9 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
 
     override suspend fun editMedicine(medicine: Medicine): Result<Unit> {
         return try {
-            val dto = medicine.toDto()
+            val dto = medicine.copy(
+                nameLowercase = medicine.name.lowercase()
+            ).toDto()
 
             medicinesCollection
                 .document(medicine.id)
@@ -57,7 +79,7 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
         }
     }
 
-    override fun getMedicineById(medicineId: String): Flow<Medicine?> {
+    override fun getMedicineById(medicineId: String): Flow<Medicine> {
         return medicinesCollection
             .whereEqualTo("id", medicineId)
             .limit(1)
@@ -65,13 +87,25 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             .map { Medicine.fromDto(it.first()) }
     }
 
-    override fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>> {
-        return medicinesCollection
-            .whereEqualTo("aisleId", aisleId)
-            .orderBy("aisleName", Query.Direction.ASCENDING)
+    override fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>> {
+        val q = searchQuery.trim().lowercase()
+        val query = if (q.isBlank()) {
+            medicinesCollection
+                .whereEqualTo("aisleId", aisleId)
+                .orderBy("nameLowercase")
+        } else {
+            medicinesCollection
+                .whereEqualTo("aisleId", aisleId)
+                .orderBy("nameLowercase")
+                .startAt(q)
+                .endAt(q + "\uf8ff")
+        }
+
+        return query
             .dataObjects<MedicineDto>()
             .map { list ->
-                list.map { Medicine.fromDto(it) } }
+                list.map { Medicine.fromDto(it) }
+            }
     }
 
     /**

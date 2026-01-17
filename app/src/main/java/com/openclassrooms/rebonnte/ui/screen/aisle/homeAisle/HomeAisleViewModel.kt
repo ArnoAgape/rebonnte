@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +20,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -30,6 +36,7 @@ import javax.inject.Inject
  * It exposes UI state, manages refresh actions, and emits one-time
  * events such as network warnings.
  */
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @HiltViewModel
 class HomeAisleViewModel @Inject constructor(
     private val aisleRepository: AisleRepository,
@@ -47,21 +54,16 @@ class HomeAisleViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     private val _isSearchActive = MutableStateFlow(false)
 
-    private val filteredAislesFlow = combine(
-        aisleRepository.getAisles(),
+    private val aislesFlow: Flow<List<Aisle>> =
         _searchQuery
-    ) { aisles, query ->
-        if (query.isBlank()) {
-            aisles
-        } else {
-            aisles.filter {
-                it.name.contains(query, ignoreCase = true)
-            }
-        }
+            .debounce(300)
+            .distinctUntilChanged()
+            .flatMapLatest { query ->
+        aisleRepository.getAllAisles(query)
     }
 
     private val _uiState: Flow<HomeAisleUiState> =
-        filteredAislesFlow
+        aislesFlow
             .map { aisles ->
                 if (aisles.isEmpty()) {
                     HomeAisleUiState.Error.Empty()

@@ -35,7 +35,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,8 +69,6 @@ fun EditMedicineScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val resources = LocalResources.current
-    val aisles = viewModel.aisles.collectAsState().value
-    val selectedAisle = viewModel.selectedAisle.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
 
     EventsEffect(viewModel.eventsFlow) { event ->
@@ -123,8 +120,8 @@ fun EditMedicineScreen(
                         viewModel.onAction(FormEvent.StockSet(newValue))
                     },
                     onNameMedicineChanged = { viewModel.onAction(FormEvent.NameChanged(it)) },
-                    aisles = aisles,
-                    selectedAisle = selectedAisle,
+                    aisles = state.aisles,
+                    selectedAisle = state.selectedAisle,
                     onAisleSelected = { viewModel.onAction(FormEvent.AisleSelected(it)) },
                     onSaveClicked = { viewModel.editMedicine() },
                     isMedicineValid = state.isValid,

@@ -8,6 +8,7 @@ import java.io.Serializable
 data class MedicineDto(
     val id : String = "",
     val name: String = "",
+    val nameLowercase: String = "",
     val stock: Int = 0,
     val createdAt: Timestamp = Timestamp.now(),
     val dateTime: Timestamp = Timestamp.now(),

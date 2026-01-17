@@ -33,28 +33,26 @@ class AddMedicineViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
-    val uiState: StateFlow<AddMedicineUiState> = _uiState.asStateFlow()
+    private val uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
     private val _user = MutableStateFlow<User?>(null)
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
-    val aisles: StateFlow<List<Aisle>> =
-        aisleRepository.getAisles()
+    private val aisles: StateFlow<List<Aisle>> =
+        aisleRepository.getAllAisles()
             .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyList()
             )
 
-    private val _selectedAisle = MutableStateFlow<Aisle?>(null)
-    val selectedAisle = _selectedAisle.asStateFlow()
+    private val selectedAisle = MutableStateFlow<Aisle?>(null)
 
     private val _medicine = MutableStateFlow(
         Medicine(
             id = "",
             name = "",
-            stock = 1,
+            stock = 0,
             dateTime = Instant.now(),
             aisleName = "",
             histories = emptyList()
@@ -70,7 +68,7 @@ class AddMedicineViewModel @Inject constructor(
     /**
      * StateFlow derived from the post that emits a FormError if the title is empty, null otherwise.
      */
-    val isMedicineValid = medicine
+    private val isMedicineValid = medicine
         .map { it.name.isNotBlank() }
         .stateIn(
             scope = viewModelScope,
@@ -82,16 +80,20 @@ class AddMedicineViewModel @Inject constructor(
         combine(
             uiState,
             medicine,
-            isMedicineValid
-        ) { ui, m, valid ->
+            isMedicineValid,
+            aisles,
+            selectedAisle
+        ) { ui, m, valid, a, s ->
             AddScreenState(
                 uiState = ui,
                 medicine = m,
                 isValid = valid,
+                aisles = a,
+                selectedAisle = s
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = AddScreenState()
         )
 
@@ -116,7 +118,7 @@ class AddMedicineViewModel @Inject constructor(
             }
 
             is FormEvent.AisleSelected -> {
-                _selectedAisle.value = formEvent.aisle
+                selectedAisle.value = formEvent.aisle
                 _medicine.update {
                     it.copy(
                         aisleId = formEvent.aisle.id,
@@ -135,26 +137,26 @@ class AddMedicineViewModel @Inject constructor(
             // 1. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
-                _uiState.value = AddMedicineUiState.Error.NoAccount()
+                uiState.value = AddMedicineUiState.Error.NoAccount()
                 _events.trySend(Event.ShowMessage(R.string.error_no_account_add_medicine))
                 return@launch
             }
-
-            _uiState.value = AddMedicineUiState.Loading
 
             // 2. Creation of a medicine with current user
             val medicineToSave = _medicine.value.copy(author = currentUser)
 
             // 3. Upload Firestore
-            if (!isMedicineValid.value) {
+            val name = _medicine.value.name.trim()
+            if (name.isBlank()) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                 return@launch
             }
 
+            uiState.value = AddMedicineUiState.Loading
             medicineRepository.addMedicine(medicineToSave)
 
             // 4. Success UI
-            _uiState.value = AddMedicineUiState.Success(medicineToSave)
+            uiState.value = AddMedicineUiState.Success(medicineToSave)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
 
         }
@@ -164,5 +166,7 @@ class AddMedicineViewModel @Inject constructor(
 data class AddScreenState(
     val uiState: AddMedicineUiState = AddMedicineUiState.Idle,
     val medicine: Medicine = Medicine(),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val aisles: List<Aisle> = emptyList(),
+    val selectedAisle: Aisle? = null
 )

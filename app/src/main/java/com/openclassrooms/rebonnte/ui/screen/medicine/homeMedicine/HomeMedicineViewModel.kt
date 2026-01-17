@@ -2,18 +2,17 @@ package com.openclassrooms.rebonnte.ui.screen.medicine.homeMedicine
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.Query
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -22,14 +21,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Locale
+import java.util.Locale.getDefault
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @HiltViewModel
 class HomeMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
@@ -48,30 +52,21 @@ class HomeMedicineViewModel @Inject constructor(
 
     private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _medicines: StateFlow<List<Medicine>> =
-        _sort
-            .flatMapLatest { sort ->
-                medicineRepository.getMedicinesOrderBy(sort)
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                emptyList()
-            )
-
-    private val filteredMedicinesFlow = combine(
-        _medicines,
-        _searchQuery
-    ) { medicines, query ->
-        if (query.isBlank()) {
-            medicines
-        } else {
-            medicines.filter {
-                it.name.contains(query, ignoreCase = true)
-            }
+    private val medicinesFlow: Flow<List<Medicine>> =
+        combine(
+            _searchQuery
+                .debounce(300)
+                .distinctUntilChanged(),
+            _sort
+        ) { query, sort ->
+            sort to query
         }
-    }
+            .flatMapLatest { (sort, query) ->
+                medicineRepository.getAllMedicines(
+                    sort = sort,
+                    searchQuery = query
+                )
+            }
 
     val isSignedIn =
         userRepository.isUserSignedIn()
@@ -82,7 +77,7 @@ class HomeMedicineViewModel @Inject constructor(
             )
 
     private val _uiState: Flow<HomeMedicineUiState> =
-        filteredMedicinesFlow
+        medicinesFlow
             .map { medicines ->
                 if (medicines.isEmpty())
                     HomeMedicineUiState.Error.Empty()
@@ -172,27 +167,6 @@ class HomeMedicineViewModel @Inject constructor(
             _isRefreshing.value = false
         }
     }
-
-    fun MedicineSort.toFirestoreOrder(): Pair<MedicineOrderField, Query.Direction> =
-        when (this) {
-            MedicineSort.NAME_ASC ->
-                MedicineOrderField.NAME to Query.Direction.ASCENDING
-
-            MedicineSort.NAME_DESC ->
-                MedicineOrderField.NAME to Query.Direction.DESCENDING
-
-            MedicineSort.STOCK_ASC ->
-                MedicineOrderField.STOCK to Query.Direction.ASCENDING
-
-            MedicineSort.STOCK_DESC ->
-                MedicineOrderField.STOCK to Query.Direction.DESCENDING
-
-            MedicineSort.DATE_NEWEST ->
-                MedicineOrderField.CREATED_AT to Query.Direction.DESCENDING
-
-            MedicineSort.DATE_OLDEST ->
-                MedicineOrderField.CREATED_AT to Query.Direction.ASCENDING
-        }
 
 }
 

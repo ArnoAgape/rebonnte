@@ -7,6 +7,7 @@ import java.time.Instant
 data class Medicine(
     val id : String = "",
     val name: String = "",
+    val nameLowercase: String = "",
     val stock: Int = 0,
     val createdAt: Timestamp = Timestamp.now(),
     val dateTime: Instant = Instant.now(),
@@ -19,6 +20,7 @@ data class Medicine(
         return MedicineDto(
             id = id,
             name = name,
+            nameLowercase = nameLowercase,
             stock = stock,
             createdAt = createdAt,
             dateTime = Timestamp(dateTime.epochSecond, dateTime.nano),
@@ -34,6 +36,7 @@ data class Medicine(
             return Medicine(
                 id = dto.id,
                 name = dto.name,
+                nameLowercase = dto.nameLowercase,
                 stock = dto.stock,
                 createdAt = dto.createdAt,
                 dateTime = dto.dateTime.toDate().toInstant(),

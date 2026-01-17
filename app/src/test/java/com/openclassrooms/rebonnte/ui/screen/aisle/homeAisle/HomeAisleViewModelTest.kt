@@ -25,7 +25,7 @@ class HomeAisleViewModelTest {
     private val networkUtils: NetworkUtils = mockk()
 
     private fun createViewModel(): HomeAisleViewModel {
-        every { aisleRepo.getAisles() } returns flowOf(emptyList())
+        every { aisleRepo.getAllAisles() } returns flowOf(emptyList())
         every { networkUtils.isNetworkAvailable() } returns true
         every { userRepo.isUserSignedIn() } returns flowOf(true)
 
@@ -49,7 +49,7 @@ class HomeAisleViewModelTest {
     @Test
     fun `when aisles list is not empty uiState is Success`() = runTest {
 
-        every { aisleRepo.getAisles() } returns flowOf(TestUtils.fakeAisles(id = "123"))
+        every { aisleRepo.getAllAisles() } returns flowOf(TestUtils.fakeAisles(id = "123"))
         every { networkUtils.isNetworkAvailable() } returns true
         every { userRepo.isUserSignedIn() } returns flowOf(true)
 

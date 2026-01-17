@@ -2,16 +2,25 @@ package com.openclassrooms.rebonnte.domain.model
 
 import com.google.firebase.firestore.Query
 
-enum class MedicineSort(
-    val firestoreField: MedicineOrderField,
-    val firestoreDirection: Query.Direction
-) {
-    NAME_ASC(MedicineOrderField.NAME, Query.Direction.ASCENDING),
-    NAME_DESC(MedicineOrderField.NAME, Query.Direction.DESCENDING),
+enum class MedicineSort {
+    NAME_ASC,
+    NAME_DESC,
+    STOCK_ASC,
+    STOCK_DESC,
+    DATE_NEWEST,
+    DATE_OLDEST;
 
-    STOCK_ASC(MedicineOrderField.STOCK, Query.Direction.ASCENDING),
-    STOCK_DESC(MedicineOrderField.STOCK, Query.Direction.DESCENDING),
+    fun sort(medicines: List<Medicine>): List<Medicine> =
+        when (this) {
 
-    DATE_NEWEST(MedicineOrderField.CREATED_AT, Query.Direction.DESCENDING),
-    DATE_OLDEST(MedicineOrderField.CREATED_AT, Query.Direction.ASCENDING)
+            NAME_ASC -> medicines.sortedBy { it.nameLowercase.ifBlank { it.name.lowercase() } }
+            NAME_DESC -> medicines.sortedByDescending { it.nameLowercase.ifBlank { it.name.lowercase() } }
+
+            STOCK_ASC -> medicines.sortedBy { it.stock }
+            STOCK_DESC -> medicines.sortedByDescending { it.stock }
+
+            DATE_NEWEST -> medicines.sortedByDescending { it.createdAt }
+            DATE_OLDEST -> medicines.sortedBy { it.createdAt }
+
+        }
 }

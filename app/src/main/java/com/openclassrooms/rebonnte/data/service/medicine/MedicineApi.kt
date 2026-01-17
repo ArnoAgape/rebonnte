@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicineApi {
 
     /** Returns all medicines ordered by name. */
-    fun getMedicinesOrderBy(field: MedicineOrderField, direction: MedicineSort): Flow<List<Medicine>>
+    fun getAllMedicines(sort: MedicineSort, searchQuery: String): Flow<List<Medicine>>
 
     /** Uploads a medicine. */
     suspend fun addMedicine(medicine: Medicine): Result<Unit>
@@ -21,9 +21,9 @@ interface MedicineApi {
     suspend fun editMedicine(medicine: Medicine): Result<Unit>
 
     /** Observes a medicine by its ID. */
-    fun getMedicineById(medicineId: String): Flow<Medicine?>
+    fun getMedicineById(medicineId: String): Flow<Medicine>
 
-    fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>>
+    fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>>
 
     /**
      * Permanently deletes the current medicine.

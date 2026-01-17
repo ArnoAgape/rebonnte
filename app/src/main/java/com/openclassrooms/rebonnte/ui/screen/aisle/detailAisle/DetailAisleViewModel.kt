@@ -11,19 +11,24 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DetailAisleViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
@@ -43,24 +48,24 @@ class DetailAisleViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     private val _isSearchActive = MutableStateFlow(false)
 
-    private val _filteredMedicinesFlow: Flow<List<Medicine>> =
-        combine(
-            medicineRepository.getMedicinesByAisle(aisleId),
-            _searchQuery
-        ) { medicines, query ->
-            if (query.isBlank()) {
-                medicines
-            } else {
-                medicines.filter {
-                    it.name.contains(query, ignoreCase = true)
-                }
+    private val medicinesFlow: StateFlow<List<Medicine>> =
+        _searchQuery
+            .flatMapLatest { query ->
+                medicineRepository.getMedicinesByAisle(
+                    aisleId = aisleId,
+                    searchQuery = query
+                )
             }
-        }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                emptyList()
+            )
 
     private val _uiState: StateFlow<DetailAisleUiState> =
         combine(
             aisleRepository.getAisleById(aisleId),
-            _filteredMedicinesFlow
+            medicinesFlow
         ) { aisle, medicines ->
             if (medicines.isEmpty()) {
                 DetailAisleUiState.Error.Empty()
@@ -76,7 +81,7 @@ class DetailAisleViewModel @Inject constructor(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(5_000),
+                SharingStarted.WhileSubscribed(5000),
                 DetailAisleUiState.Loading
             )
 

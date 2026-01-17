@@ -20,10 +20,10 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes the list of all medicines ordered by ascending name.
      */
-    fun getMedicinesOrderBy(sort: MedicineSort): Flow<List<Medicine>> =
-        medicineApi.getMedicinesOrderBy(
-            field = sort.firestoreField,
-            direction = sort
+    fun getAllMedicines(sort: MedicineSort, searchQuery: String): Flow<List<Medicine>> =
+        medicineApi.getAllMedicines(
+            sort = sort,
+            searchQuery = searchQuery
         )
 
     /**
@@ -41,9 +41,9 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes a single medicine by its unique ID.
      */
-    fun getMedicineById(medicineId: String): Flow<Medicine?> =
+    fun getMedicineById(medicineId: String): Flow<Medicine> =
         medicineApi.getMedicineById(medicineId)
 
-    fun getMedicinesByAisle(aisleId: String): Flow<List<Medicine>> =
-        medicineApi.getMedicinesByAisle(aisleId)
+    fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>> =
+        medicineApi.getMedicinesByAisle(aisleId, searchQuery)
 }

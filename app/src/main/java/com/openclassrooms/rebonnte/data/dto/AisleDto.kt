@@ -7,6 +7,7 @@ import java.io.Serializable
 data class AisleDto(
     val id: String = "",
     val name: String = "",
+    val nameLowercase: String = "",
     val createdAt: Timestamp = Timestamp.now(),
     val medicines: List<Medicine> = emptyList()
 ) : Serializable
