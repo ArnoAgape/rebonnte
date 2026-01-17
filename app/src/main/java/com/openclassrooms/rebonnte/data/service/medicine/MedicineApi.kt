@@ -1,7 +1,6 @@
 package com.openclassrooms.rebonnte.data.service.medicine
 
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import kotlinx.coroutines.flow.Flow
 

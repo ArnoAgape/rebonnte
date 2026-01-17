@@ -1,7 +1,5 @@
 package com.openclassrooms.rebonnte.domain.model
 
-import com.google.firebase.firestore.Query
-
 enum class MedicineSort {
     NAME_ASC,
     NAME_DESC,

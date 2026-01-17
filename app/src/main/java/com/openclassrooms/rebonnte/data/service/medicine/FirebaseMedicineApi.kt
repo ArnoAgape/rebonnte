@@ -5,7 +5,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.dataObjects
 import com.openclassrooms.rebonnte.data.dto.MedicineDto
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.model.MedicineOrderField
 import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
