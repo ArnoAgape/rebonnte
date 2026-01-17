@@ -30,17 +30,14 @@ class DetailAisleViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var aisleRepo: AisleRepository
-    private lateinit var medicineRepo: MedicineRepository
+    private val aisleRepo: AisleRepository = mockk()
+    private val medicineRepo: MedicineRepository = mockk()
     private lateinit var savedStateHandle: SavedStateHandle
-    private lateinit var networkUtils: NetworkUtils
+    private val networkUtils: NetworkUtils = mockk()
 
 
     @Before
     fun setup() {
-        aisleRepo = mockk()
-        medicineRepo = mockk()
-        networkUtils = mockk()
 
         savedStateHandle = SavedStateHandle().apply {
             set("aisleId", "123")
@@ -101,7 +98,7 @@ class DetailAisleViewModelTest {
         viewModel.screenState.test {
             val state = awaitItem()
             assertThat(state.selection.isSelectionMode).isTrue()
-        }
+        } 
     }
 
     @Test

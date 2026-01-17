@@ -12,7 +12,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,18 +19,10 @@ class HomeAisleViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var aisleRepo: AisleRepository
+    private val aisleRepo: AisleRepository = mockk()
 
-    private lateinit var userRepo: UserRepository
-    private lateinit var networkUtils: NetworkUtils
-
-
-    @Before
-    fun setup() {
-        aisleRepo = mockk()
-        userRepo = mockk()
-        networkUtils = mockk()
-    }
+    private val userRepo: UserRepository = mockk()
+    private val networkUtils: NetworkUtils = mockk()
 
     private fun createViewModel(): HomeAisleViewModel {
         every { aisleRepo.getAisles() } returns flowOf(emptyList())

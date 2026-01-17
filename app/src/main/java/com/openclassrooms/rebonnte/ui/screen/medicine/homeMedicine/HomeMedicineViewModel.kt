@@ -50,14 +50,15 @@ class HomeMedicineViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _medicines: StateFlow<List<Medicine>> =
-        _sort.flatMapLatest { sort ->
-            val (field, direction) = sort.toFirestoreOrder()
-            medicineRepository.getMedicinesOrderBy(field, direction)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
+        _sort
+            .flatMapLatest { sort ->
+                medicineRepository.getMedicinesOrderBy(sort)
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyList()
+            )
 
     private val filteredMedicinesFlow = combine(
         _medicines,

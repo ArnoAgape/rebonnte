@@ -21,14 +21,12 @@ class AddAisleViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var aisleRepo: AisleRepository
-    private lateinit var userRepo: UserRepository
+    private val aisleRepo: AisleRepository = mockk()
+    private val userRepo: UserRepository = mockk()
     private lateinit var viewModel: AddAisleViewModel
 
     @Before
     fun setup() {
-        aisleRepo = mockk()
-        userRepo = mockk()
 
         coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser(id = "1")
 
