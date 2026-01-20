@@ -63,6 +63,7 @@ fun HomeMedicineScreen(
     val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
+    val context = LocalContext.current
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
@@ -73,7 +74,9 @@ fun HomeMedicineScreen(
                 )
             }
 
-            else -> {}
+            is Event.ShowSuccessMessage -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

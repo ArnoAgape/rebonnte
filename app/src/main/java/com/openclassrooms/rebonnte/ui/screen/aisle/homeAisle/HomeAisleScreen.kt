@@ -192,11 +192,11 @@ fun AisleHomeContent(
                 )
             }
         }
-    ) { contentPadding ->
+    ) { paddingValues ->
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding),
+                .padding(paddingValues),
             state = refreshState,
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh

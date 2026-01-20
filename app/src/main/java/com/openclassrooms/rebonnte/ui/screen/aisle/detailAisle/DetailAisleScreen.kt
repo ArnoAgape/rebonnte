@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.detailAisle
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -59,6 +61,7 @@ fun DetailAisleScreen(
     val state by viewModel.screenState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
+    val context = LocalContext.current
 
     EventsEffect(viewModel.eventsFlow) { event ->
         when (event) {
@@ -69,7 +72,9 @@ fun DetailAisleScreen(
                 )
             }
 
-            else -> {}
+            is Event.ShowSuccessMessage -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -200,7 +205,6 @@ fun AisleDetailContent(
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh
         ) {
-
             when (val ui = state.uiState) {
 
                 is DetailAisleUiState.Success -> {

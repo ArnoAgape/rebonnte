@@ -36,6 +36,39 @@ object TestUtils {
         )
     }
 
+    fun fakeMedicines(id: String): List<Medicine> {
+        return listOf(
+            Medicine(
+                id = id,
+                aisleName = "Painkiller",
+                name = "Paracetamol",
+                stock = 10,
+                createdAt = Timestamp(1233356000, 212120),
+                dateTime = Instant.now(),
+                author = User(
+                    id = "1",
+                    displayName = "John Doe",
+                    phoneNumber = "06 01 02 03 04",
+                    email = "jdoe@mail.com"
+                )
+            ),
+            Medicine(
+                id = id,
+                aisleName = "Cream",
+                name = "CreamVe",
+                stock = 15,
+                createdAt = Timestamp(1233356000, 212120),
+                dateTime = Instant.now(),
+                author = User(
+                    id = "1",
+                    displayName = "John Doe",
+                    phoneNumber = "06 01 02 03 04",
+                    email = "jdoe@mail.com"
+                )
+            )
+        )
+    }
+
     /**
      * Creates a fake [Aisle] instance with predefined values.
      *
@@ -120,13 +153,50 @@ object TestUtils {
             id = id,
             medicineName = "Paracetamol",
             changeType = StockChangeType.ADDED,
-            quantity = 10,
+            quantity = 11,
             dateTime = Instant.now(),
             author = User(
                 id = "1",
                 displayName = "John Doe",
                 phoneNumber = "06 01 02 03 04",
                 email = "jdoe@mail.com"
+            )
+        )
+    }
+
+    /**
+     * Creates a list of fake [History] instance with predefined values.
+     *
+     * @param id Unique identifier for the history.
+     * @return A fake [History] used for testing.
+     */
+    fun fakeHistories(id: String): List<History> {
+        return listOf(
+            History(
+                id = id,
+                medicineName = "Paracetamol",
+                changeType = StockChangeType.ADDED,
+                quantity = 10,
+                dateTime = Instant.now(),
+                author = User(
+                    id = "1",
+                    displayName = "John Doe",
+                    phoneNumber = "06 01 02 03 04",
+                    email = "jdoe@mail.com"
+                )
+            ),
+            History(
+                id = id,
+                medicineName = "Fervex",
+                changeType = StockChangeType.REMOVED,
+                quantity = 15,
+                dateTime = Instant.now(),
+                author = User(
+                    id = "1",
+                    displayName = "John Doe",
+                    phoneNumber = "06 01 02 03 04",
+                    email = "jdoe@mail.com"
+                )
             )
         )
     }

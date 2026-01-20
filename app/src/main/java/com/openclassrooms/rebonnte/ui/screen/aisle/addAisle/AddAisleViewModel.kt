@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.aisle.addAisle
 
-import android.R.attr.name
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R

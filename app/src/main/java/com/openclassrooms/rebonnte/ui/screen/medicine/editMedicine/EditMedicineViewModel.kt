@@ -54,8 +54,8 @@ class EditMedicineViewModel @Inject constructor(
 
     private val aisles: StateFlow<List<Aisle>> =
         aisleRepository.getAllAisles().stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -63,9 +63,9 @@ class EditMedicineViewModel @Inject constructor(
         combine(aisles, medicine) { aisleList, med ->
             aisleList.firstOrNull { it.id == med.aisleId }
         }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            null
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
         )
 
     /**
@@ -75,9 +75,9 @@ class EditMedicineViewModel @Inject constructor(
         medicine
             .map { it.name.isNotBlank() }
             .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                false
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = false
             )
 
     val state: StateFlow<EditScreenState> =
@@ -97,7 +97,7 @@ class EditMedicineViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = EditScreenState()
         )
 

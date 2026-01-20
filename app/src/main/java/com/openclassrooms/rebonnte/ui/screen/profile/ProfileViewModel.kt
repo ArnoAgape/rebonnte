@@ -15,7 +15,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -40,18 +39,14 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
-    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     /** Backing state for the current user profile. */
     private val _user = MutableStateFlow<User?>(null)
 
-    /** Exposed immutable flow representing the currently signed-in user. */
-    val user: StateFlow<User?> = _user.asStateFlow()
-
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
-    val isUserFieldsValid = user
+    val isUserFieldsValid = _user
         .map { currentUser ->
             val displayName = currentUser?.displayName.orEmpty()
             displayName.isNotBlank() && emailValidator.validate(currentUser?.email)
@@ -60,8 +55,8 @@ class ProfileViewModel @Inject constructor(
 
     val state: StateFlow<ProfileScreenState> =
         combine(
-            uiState,
-            user,
+            _uiState,
+            _user,
             isUserFieldsValid
         ) { ui, u, valid ->
             ProfileScreenState(
@@ -71,7 +66,7 @@ class ProfileViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = ProfileScreenState()
         )
 

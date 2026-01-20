@@ -17,11 +17,7 @@ class HistoryRepository @Inject constructor(
     fun observeHistory(medicineId: String): Flow<List<History>> =
         historyApi.observeHistory(medicineId)
 
-    suspend fun addStockHistory(
-        medicine: Medicine,
-        delta: Int,
-        author: User
-    ) {
+    suspend fun addStockHistory(medicine: Medicine, delta: Int, author: User) {
         val history = History(
             medicineName = medicine.name,
             author = author,

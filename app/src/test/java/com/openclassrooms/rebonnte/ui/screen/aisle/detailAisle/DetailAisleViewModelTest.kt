@@ -11,6 +11,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import com.openclassrooms.rebonnte.MainDispatcherRule
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
@@ -46,7 +47,7 @@ class DetailAisleViewModelTest {
 
     private fun createViewModel(): DetailAisleViewModel {
         every { aisleRepo.getAisleById(any()) } returns flowOf(TestUtils.fakeAisle("123"))
-        every { medicineRepo.getMedicinesByAisle(any()) } returns flowOf(emptyList())
+        every { medicineRepo.getMedicinesByAisle(any(), any()) } returns flowOf(emptyList())
         every { networkUtils.isNetworkAvailable() } returns true
 
         return DetailAisleViewModel(
@@ -63,7 +64,7 @@ class DetailAisleViewModelTest {
 
         viewModel.screenState.test {
             val state = awaitItem()
-            assertThat(state.uiState).isInstanceOf(DetailAisleUiState.Error.Empty::class.java)
+            assertThat(state.uiState).isEqualTo(DetailAisleUiState.Error.Empty())
         }
     }
 
@@ -73,7 +74,7 @@ class DetailAisleViewModelTest {
         val medicines = listOf(TestUtils.fakeMedicine("1"), TestUtils.fakeMedicine("2"))
 
         every { aisleRepo.getAisleById("123") } returns flowOf(aisle)
-        every { medicineRepo.getMedicinesByAisle("123") } returns flowOf(medicines)
+        every { medicineRepo.getMedicinesByAisle("123", any()) } returns flowOf(medicines)
         every { networkUtils.isNetworkAvailable() } returns true
 
         val viewModel = DetailAisleViewModel(
@@ -85,7 +86,7 @@ class DetailAisleViewModelTest {
 
         viewModel.screenState.test {
             val state = awaitItem()
-            assertThat(state.uiState).isInstanceOf(DetailAisleUiState.Success::class.java)
+            assertThat(state.uiState).isEqualTo(DetailAisleUiState.Success(aisle, medicines))
         }
     }
 
@@ -149,8 +150,10 @@ class DetailAisleViewModelTest {
             viewModel.deleteSelectedMedicines()
 
             val event = awaitItem()
-            assertThat(event)
-                .isInstanceOf(Event.ShowSuccessMessage::class.java)
+            assertThat(event).isInstanceOf(Event.ShowSuccessMessage::class.java)
+
+            val successEvent = event as Event.ShowSuccessMessage
+            assertThat(successEvent.message).isEqualTo(R.string.success_deleted_medicines)
         }
 
         viewModel.screenState.test {
@@ -209,8 +212,10 @@ class DetailAisleViewModelTest {
             viewModel.refreshAisle()
 
             val event = awaitItem()
-            assertThat(event)
-                .isInstanceOf(Event.ShowMessage::class.java)
+            assertThat(event).isInstanceOf(Event.ShowMessage::class.java)
+
+            val offlineEvent = event as Event.ShowMessage
+            assertThat(offlineEvent.message).isEqualTo(R.string.no_network)
         }
     }
 

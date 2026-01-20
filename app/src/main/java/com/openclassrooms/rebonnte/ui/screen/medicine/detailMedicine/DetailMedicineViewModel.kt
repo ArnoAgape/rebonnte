@@ -1,7 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.detailMedicine
 
-import androidx.compose.runtime.IntState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,9 +35,6 @@ class DetailMedicineViewModel @Inject constructor(
     private val medicineId: String = checkNotNull(savedStateHandle["medicineId"])
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
-
-    private val _stock = mutableIntStateOf(0)
-    val stock: IntState = _stock
 
     private val _isRefreshing = MutableStateFlow(false)
 
@@ -115,15 +110,11 @@ class DetailMedicineViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        if (!networkUtils.isNetworkAvailable()) {
-            _events.trySend(Event.ShowMessage(R.string.no_network))
-            return
-        }
-
         viewModelScope.launch {
-            _isRefreshing.value = true
-            delay(700)
-            _isRefreshing.value = false
+            if (!networkUtils.isNetworkAvailable()) {
+                _events.trySend(Event.ShowMessage(R.string.no_network))
+                return@launch
+            }
         }
     }
 

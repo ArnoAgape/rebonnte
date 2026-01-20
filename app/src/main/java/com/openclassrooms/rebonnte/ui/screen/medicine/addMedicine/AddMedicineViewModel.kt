@@ -8,7 +8,6 @@ import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,14 +15,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,52 +31,37 @@ class AddMedicineViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val uiState = MutableStateFlow<AddMedicineUiState>(AddMedicineUiState.Idle)
-    private val _user = MutableStateFlow<User?>(null)
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
     private val aisles: StateFlow<List<Aisle>> =
         aisleRepository.getAllAisles()
             .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                emptyList()
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = emptyList()
             )
 
     private val selectedAisle = MutableStateFlow<Aisle?>(null)
 
-    private val _medicine = MutableStateFlow(
-        Medicine(
-            id = "",
-            name = "",
-            stock = 0,
-            dateTime = Instant.now(),
-            aisleName = "",
-            histories = emptyList()
-        )
-    )
-
-    /**
-     * Public state flow representing the current post being edited.
-     * This is immutable for consumers.
-     */
-    val medicine: StateFlow<Medicine> = _medicine.asStateFlow()
+    private val _medicine = MutableStateFlow(Medicine())
 
     /**
      * StateFlow derived from the post that emits a FormError if the title is empty, null otherwise.
      */
-    private val isMedicineValid = medicine
+    private val isMedicineValid: StateFlow<Boolean> =
+        _medicine
         .map { it.name.isNotBlank() }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = false
         )
 
     val state: StateFlow<AddScreenState> =
         combine(
             uiState,
-            medicine,
+            _medicine,
             isMedicineValid,
             aisles,
             selectedAisle
@@ -93,15 +75,9 @@ class AddMedicineViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = AddScreenState()
         )
-
-    init {
-        viewModelScope.launch {
-            _user.value = userRepository.getCurrentUser()
-        }
-    }
 
     fun onAction(formEvent: FormEvent) {
         when (formEvent) {
@@ -134,28 +110,23 @@ class AddMedicineViewModel @Inject constructor(
     fun addMedicine() {
         viewModelScope.launch {
 
-            // 1. If user logged in checking
-            val currentUser = _user.value
-            if (currentUser == null) {
-                uiState.value = AddMedicineUiState.Error.NoAccount()
+            val user = userRepository.getCurrentUser()
+            if (user == null) {
                 _events.trySend(Event.ShowMessage(R.string.error_no_account_add_medicine))
                 return@launch
             }
 
-            // 2. Creation of a medicine with current user
-            val medicineToSave = _medicine.value.copy(author = currentUser)
-
-            // 3. Upload Firestore
             val name = _medicine.value.name.trim()
             if (name.isBlank()) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                 return@launch
             }
 
+            val medicineToSave = _medicine.value.copy(name = name)
+
             uiState.value = AddMedicineUiState.Loading
             medicineRepository.addMedicine(medicineToSave)
 
-            // 4. Success UI
             uiState.value = AddMedicineUiState.Success(medicineToSave)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
 

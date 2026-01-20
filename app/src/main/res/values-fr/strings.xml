@@ -105,7 +105,7 @@
     <string name="error_loading">Erreur lors du chargement</string>
 
     <string name="no_medicines_listed_in_aisle">Aucun médicament dans cette allée</string>
-    <string name="no_medicines">Pour ajouter un médicament, appuyez sur le bouton « + »</string>
+    <string name="no_medicines">Pour ajouter un médicament, appuyez sur le bouton « + »</string>
     <string name="no_aisles">Pour ajouter une allée, appuyez sur le bouton « + »</string>
 
     <string name="error_sign_up">Inscription annulée ou échouée</string>

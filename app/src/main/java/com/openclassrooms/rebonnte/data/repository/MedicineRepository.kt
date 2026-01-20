@@ -41,7 +41,7 @@ class MedicineRepository @Inject constructor(
     /**
      * Observes a single medicine by its unique ID.
      */
-    fun getMedicineById(medicineId: String): Flow<Medicine> =
+    fun getMedicineById(medicineId: String): Flow<Medicine?> =
         medicineApi.getMedicineById(medicineId)
 
     fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>> =

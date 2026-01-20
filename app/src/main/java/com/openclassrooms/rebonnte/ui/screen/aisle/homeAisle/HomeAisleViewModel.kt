@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,7 +82,7 @@ class HomeAisleViewModel @Inject constructor(
                 null
             )
 
-    private val searchState: Flow<SearchState> =
+    private val _searchState: Flow<SearchState> =
         combine(_isSearchActive, _searchQuery) { active, query ->
             SearchState(active, query)
         }
@@ -94,7 +93,7 @@ class HomeAisleViewModel @Inject constructor(
             _isRefreshing,
             _selection,
             _isSignedIn,
-            searchState
+            _searchState
         ) { ui, refreshing, selection, signedIn, search ->
 
             AisleHomeScreenState(
@@ -153,15 +152,13 @@ class HomeAisleViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
-    fun refreshAisles() = viewModelScope.launch {
-        if (!networkUtils.isNetworkAvailable()) {
-            _events.trySend(Event.ShowMessage(R.string.no_network))
-            return@launch
+    fun refreshAisles() {
+        viewModelScope.launch {
+            if (!networkUtils.isNetworkAvailable()) {
+                _events.trySend(Event.ShowMessage(R.string.no_network))
+                return@launch
+            }
         }
-
-        _isRefreshing.value = true
-        delay(700)
-        _isRefreshing.value = false
     }
 
 }
