@@ -2,6 +2,8 @@ name: Android CI
 
 on:
   pull_request:
+  push:
+    branches: [ main ]
 
 jobs:
   buildAndTests:
