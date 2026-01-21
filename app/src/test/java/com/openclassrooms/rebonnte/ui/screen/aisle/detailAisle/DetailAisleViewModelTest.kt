@@ -47,7 +47,7 @@ class DetailAisleViewModelTest {
 
     private fun createViewModel(): DetailAisleViewModel {
         every { aisleRepo.getAisleById(any()) } returns flowOf(TestUtils.fakeAisle("123"))
-        every { medicineRepo.getMedicinesByAisle(any(), any()) } returns flowOf(emptyList())
+        every { medicineRepo.getMedicinesByAisle(any(), any(), any()) } returns flowOf(emptyList())
         every { networkUtils.isNetworkAvailable() } returns true
 
         return DetailAisleViewModel(
@@ -74,7 +74,7 @@ class DetailAisleViewModelTest {
         val medicines = listOf(TestUtils.fakeMedicine("1"), TestUtils.fakeMedicine("2"))
 
         every { aisleRepo.getAisleById("123") } returns flowOf(aisle)
-        every { medicineRepo.getMedicinesByAisle("123", any()) } returns flowOf(medicines)
+        every { medicineRepo.getMedicinesByAisle(any(), "123", any()) } returns flowOf(medicines)
         every { networkUtils.isNetworkAvailable() } returns true
 
         val viewModel = DetailAisleViewModel(
