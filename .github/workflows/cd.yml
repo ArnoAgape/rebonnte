@@ -21,6 +21,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # Rebuild keystore.properties
+      - name: Decode keystore.properties
+        run: echo "${{ secrets.KEYSTORE_PROPERTIES_BASE64 }}" | base64 --decode > keystore.properties
+
       # Rebuild the keystore file from Base64
       - name: Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/upload-keystore.jks
