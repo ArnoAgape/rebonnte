@@ -49,7 +49,7 @@ class EditMedicineViewModelTest {
 
         every { aisleRepo.getAisleById(any()) } returns flowOf(TestUtils.fakeAisle("123"))
         every { aisleRepo.getAllAisles() } returns flowOf(TestUtils.fakeAisles("123"))
-        every { medicineRepo.getMedicinesByAisle(any(), any()) } returns flowOf(emptyList())
+        every { medicineRepo.getMedicinesByAisle(any(), any(), any()) } returns flowOf(emptyList())
         every { medicineRepo.getMedicineById(any()) } returns flowOf(TestUtils.fakeMedicine("123"))
         coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
         coEvery { historyRepo.addStockHistory(any(), any(), any()) } just Runs
