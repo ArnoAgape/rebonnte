@@ -7,6 +7,7 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
@@ -19,6 +20,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -45,11 +48,20 @@ class DetailAisleViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     private val _searchQuery = MutableStateFlow("")
     private val _isSearchActive = MutableStateFlow(false)
+    private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
 
     private val medicinesFlow: StateFlow<List<Medicine>> =
-        _searchQuery
-            .flatMapLatest { query ->
+        combine(
+            _searchQuery
+                .debounce(300)
+                .distinctUntilChanged(),
+            _sort
+        ) { query, sort ->
+            sort to query
+        }
+            .flatMapLatest { (sort, query) ->
                 medicineRepository.getMedicinesByAisle(
+                    sort = sort,
                     aisleId = aisleId,
                     searchQuery = query
                 )
@@ -103,6 +115,10 @@ class DetailAisleViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             AisleDetailScreenState()
         )
+
+    fun onSortSelected(sort: MedicineSort) {
+        _sort.value = sort
+    }
 
     fun enterSelectionMode() {
         _selection.update { it.copy(isSelectionMode = true) }
