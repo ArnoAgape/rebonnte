@@ -64,7 +64,6 @@ class HomeMedicineViewModelTest {
         viewModel.screenState.test {
             val loading = awaitItem()
             assertThat(loading.uiState).isEqualTo(HomeMedicineUiState.Loading)
-
             val state = awaitItem()
             assertThat(state.uiState).isEqualTo(HomeMedicineUiState.Error.Empty())
         }
