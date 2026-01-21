@@ -5,7 +5,7 @@ on:
 
 jobs:
   buildAndTests:
-    name: Build & Tests
+    name: Build & Unit Tests
     runs-on: ubuntu-latest
 
     steps:
