@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
@@ -45,11 +46,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.MedicineSort
 import com.openclassrooms.rebonnte.navigation.EmbeddedSearchBar
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.EventsEffect
 import com.openclassrooms.rebonnte.ui.common.components.ConfirmDeleteDialog
 import com.openclassrooms.rebonnte.ui.common.components.MedicineItem
+import com.openclassrooms.rebonnte.ui.common.components.MedicineSortMenu
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
@@ -89,6 +92,7 @@ fun DetailAisleScreen(
         onExitSelectionMode = { viewModel.exitSelectionMode() },
         onDeleteSelected = { viewModel.deleteSelectedMedicines() },
         onSearchClick = { viewModel.activateSearch() },
+        onSortClick = { sort -> viewModel.onSortSelected(sort) },
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onSearchClose = { viewModel.deactivateSearch() }
     )
@@ -107,12 +111,14 @@ fun AisleDetailContent(
     onExitSelectionMode: () -> Unit,
     onDeleteSelected: () -> Unit,
     onSearchClick: () -> Unit,
+    onSortClick: (MedicineSort) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchClose: () -> Unit,
 ) {
 
     val refreshState = rememberPullToRefreshState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -161,6 +167,17 @@ fun AisleDetailContent(
                             IconButton(onClick = onSearchClick) {
                                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.contentDescription_button_search_medicines))
                             }
+                            IconButton(onClick = { sortMenuExpanded = true }) {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.Sort,
+                                    contentDescription = stringResource(R.string.contentDescription_button_sort_medicines)
+                                )
+                            }
+                            MedicineSortMenu(
+                                expanded = sortMenuExpanded,
+                                onDismiss = { sortMenuExpanded = false },
+                                onSortSelected = { sort -> onSortClick(sort) }
+                            )
                             if (state.selection.isSelectionMode) {
                                 IconButton(
                                     onClick = {
@@ -287,7 +304,8 @@ fun AisleDetailScreenPreview() {
             onExitSelectionMode = {},
             onDeleteSelected = {},
             onSearchQueryChange = {},
-            onSearchClose = {}
+            onSearchClose = {},
+            onSortClick = {}
         )
     }
 }

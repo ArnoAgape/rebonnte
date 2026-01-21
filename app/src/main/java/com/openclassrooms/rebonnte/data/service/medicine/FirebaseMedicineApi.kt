@@ -23,9 +23,6 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
         sort: MedicineSort,
         searchQuery: String
     ): Flow<List<Medicine>> {
-
-        Log.e("REPO_CALL", "sort=$sort query=$searchQuery")
-
         val q = searchQuery.trim().lowercase()
 
         val baseQuery = if (q.isBlank()) {
@@ -86,8 +83,13 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
             .map { Medicine.fromDto(it.first()) }
     }
 
-    override fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>> {
+    override fun getMedicinesByAisle(
+        sort: MedicineSort,
+        aisleId: String,
+        searchQuery: String
+    ): Flow<List<Medicine>> {
         val q = searchQuery.trim().lowercase()
+
         val query = if (q.isBlank()) {
             medicinesCollection
                 .whereEqualTo("aisleId", aisleId)
@@ -102,8 +104,8 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
 
         return query
             .dataObjects<MedicineDto>()
-            .map { list ->
-                list.map { Medicine.fromDto(it) }
+            .map { dto ->
+                sort.sort(dto.map { Medicine.fromDto(it) })
             }
     }
 

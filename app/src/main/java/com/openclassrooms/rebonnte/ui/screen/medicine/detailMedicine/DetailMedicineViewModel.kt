@@ -10,7 +10,6 @@ import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +36,7 @@ class DetailMedicineViewModel @Inject constructor(
 
     private val _isRefreshing = MutableStateFlow(false)
 
-    private val medicineStateFlow: Flow<DetailMedicineUiState> =
+    private val medicineStateFlow: StateFlow<DetailMedicineUiState> =
         medicineRepository.getMedicineById(medicineId)
             .map { medicine ->
                 if (medicine != null) {
@@ -54,8 +53,13 @@ class DetailMedicineViewModel @Inject constructor(
                     )
                 )
             }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                DetailMedicineUiState.Loading
+            )
 
-    private val historyStateFlow: Flow<DetailHistoryUiState> =
+    private val historyStateFlow: StateFlow<DetailHistoryUiState> =
         historyRepository.observeHistory(medicineId)
             .map { history ->
                 if (history.isNotEmpty()) {
@@ -72,6 +76,11 @@ class DetailMedicineViewModel @Inject constructor(
                     )
                 )
             }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                DetailHistoryUiState.Loading
+            )
 
     val screenState: StateFlow<MedicineDetailScreenState> =
         combine(

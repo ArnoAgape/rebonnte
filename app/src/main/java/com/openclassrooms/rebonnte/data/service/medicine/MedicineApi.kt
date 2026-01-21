@@ -22,7 +22,7 @@ interface MedicineApi {
     /** Observes a medicine by its ID. */
     fun getMedicineById(medicineId: String): Flow<Medicine>
 
-    fun getMedicinesByAisle(aisleId: String, searchQuery: String): Flow<List<Medicine>>
+    fun getMedicinesByAisle(sort: MedicineSort, aisleId: String, searchQuery: String): Flow<List<Medicine>>
 
     /**
      * Permanently deletes the current medicine.
