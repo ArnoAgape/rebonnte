@@ -45,7 +45,7 @@ class DetailMedicineViewModelTest {
 
     private fun createViewModel(): DetailMedicineViewModel {
         every { aisleRepo.getAisleById(any()) } returns flowOf(TestUtils.fakeAisle("123"))
-        every { medicineRepo.getMedicinesByAisle(any(), any()) } returns flowOf(emptyList())
+        every { medicineRepo.getMedicinesByAisle(any(), any(), any()) } returns flowOf(emptyList())
         every { medicineRepo.getMedicineById(any()) } returns flowOf(TestUtils.fakeMedicine("123"))
 
         return DetailMedicineViewModel(
