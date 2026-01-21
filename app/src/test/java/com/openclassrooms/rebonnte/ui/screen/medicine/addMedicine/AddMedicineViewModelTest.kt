@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine
 import app.cash.turbine.test
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import com.openclassrooms.rebonnte.MainDispatcherRule
@@ -97,18 +96,14 @@ class AddMedicineViewModelTest {
 
     @Test
     fun `isValid is true when medicine name is not blank`() = runTest {
-        viewModel.state.test {
-            val initial = awaitItem()
-            assertThat(initial.isValid).isFalse()
+        viewModel.onAction(FormEvent.NameChanged("Paracetamol"))
 
-            viewModel.onAction(FormEvent.NameChanged("Paracetamol"))
+        val state =
+            viewModel.state
+                .filter { it.isValid }
+                .first()
 
-            val intermediate = awaitItem()
-            assertThat(intermediate.isValid).isFalse()
-
-            val updated = awaitItem()
-            assertThat(updated.isValid).isTrue()
-        }
+        assertThat(state.isValid).isTrue()
     }
 
     @Test

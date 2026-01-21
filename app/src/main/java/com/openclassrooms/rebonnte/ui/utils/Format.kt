@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.utils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalQueries.localDate
 import java.util.Locale
 
 object Format {

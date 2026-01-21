@@ -143,28 +143,6 @@ object TestUtils {
     }
 
     /**
-     * Creates a fake [History] instance with predefined values.
-     *
-     * @param id Unique identifier for the history.
-     * @return A fake [History] used for testing.
-     */
-    fun fakeHistory(id: String): History {
-        return History(
-            id = id,
-            medicineName = "Paracetamol",
-            changeType = StockChangeType.ADDED,
-            quantity = 11,
-            dateTime = Instant.now(),
-            author = User(
-                id = "1",
-                displayName = "John Doe",
-                phoneNumber = "06 01 02 03 04",
-                email = "jdoe@mail.com"
-            )
-        )
-    }
-
-    /**
      * Creates a list of fake [History] instance with predefined values.
      *
      * @param id Unique identifier for the history.
