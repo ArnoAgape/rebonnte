@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte.ui.screen.profile
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.FormEvent
@@ -15,10 +16,13 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.Rule
 import org.junit.Test
 
 class ProfileViewModelTest {
 
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
     private val userRepo: UserRepository = mockk()
     private val networkUtils: NetworkUtils = mockk(relaxed = true)
     private val emailValidator: AndroidEmailValidator = mockk()
@@ -42,12 +46,10 @@ class ProfileViewModelTest {
     fun `saveUser updates profile name in state`() = runTest {
         val viewModel = createViewModel()
 
-        // attendre que l'utilisateur soit chargé
         viewModel.state
             .filter { it.user != null }
             .first()
 
-        // modifier le nom
         viewModel.onAction(FormEvent.DisplayNameChanged("New name"))
 
         viewModel.saveUser()

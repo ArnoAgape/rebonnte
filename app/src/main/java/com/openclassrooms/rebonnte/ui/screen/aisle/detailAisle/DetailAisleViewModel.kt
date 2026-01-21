@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +51,7 @@ class DetailAisleViewModel @Inject constructor(
     private val _isSearchActive = MutableStateFlow(false)
     private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
 
-    private val medicinesFlow: StateFlow<List<Medicine>> =
+    private val medicinesFlow: Flow<List<Medicine>> =
         combine(
             _searchQuery
                 .debounce(300)
@@ -66,13 +67,8 @@ class DetailAisleViewModel @Inject constructor(
                     searchQuery = query
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.Eagerly,
-                emptyList()
-            )
 
-    private val _uiState: StateFlow<DetailAisleUiState> =
+    private val _uiState: Flow<DetailAisleUiState> =
         combine(
             aisleRepository.getAisleById(aisleId),
             medicinesFlow
@@ -89,11 +85,6 @@ class DetailAisleViewModel @Inject constructor(
             .catch { e ->
                 emit(DetailAisleUiState.Error.Generic(e.message ?: "Unknown error"))
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                DetailAisleUiState.Loading
-            )
 
     val screenState: StateFlow<AisleDetailScreenState> =
         combine(

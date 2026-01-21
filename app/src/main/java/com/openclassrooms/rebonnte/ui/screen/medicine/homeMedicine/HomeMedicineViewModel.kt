@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +50,7 @@ class HomeMedicineViewModel @Inject constructor(
 
     private val _sort = MutableStateFlow(MedicineSort.NAME_ASC)
 
-    private val medicinesFlow: StateFlow<List<Medicine>> =
+    private val medicinesFlow: Flow<List<Medicine>> =
         combine(
             _searchQuery
                 .debounce(300)
@@ -64,11 +65,6 @@ class HomeMedicineViewModel @Inject constructor(
                     searchQuery = query
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.Eagerly,
-                emptyList()
-            )
 
     val isSignedIn =
         userRepository.isUserSignedIn()
@@ -78,7 +74,7 @@ class HomeMedicineViewModel @Inject constructor(
                 null
             )
 
-    private val _uiState: StateFlow<HomeMedicineUiState> =
+    private val _uiState: Flow<HomeMedicineUiState> =
         medicinesFlow
             .map { medicines ->
                 if (medicines.isEmpty())
@@ -89,12 +85,6 @@ class HomeMedicineViewModel @Inject constructor(
             .catch { e ->
                 emit(HomeMedicineUiState.Error.Generic(e.message ?: "Unknown error"))
             }
-
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                HomeMedicineUiState.Loading
-            )
 
     val screenState: StateFlow<MedicineHomeScreenState> =
         combine(

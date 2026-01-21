@@ -63,6 +63,8 @@ class DetailAisleViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.screenState.test {
+            val loading = awaitItem()
+            assertThat(loading.uiState).isEqualTo(DetailAisleUiState.Loading)
             val state = awaitItem()
             assertThat(state.uiState).isEqualTo(DetailAisleUiState.Error.Empty())
         }
@@ -85,6 +87,7 @@ class DetailAisleViewModelTest {
         )
 
         viewModel.screenState.test {
+            awaitItem()
             val state = awaitItem()
             assertThat(state.uiState).isEqualTo(DetailAisleUiState.Success(aisle, medicines))
         }
@@ -97,6 +100,8 @@ class DetailAisleViewModelTest {
         viewModel.enterSelectionMode()
 
         viewModel.screenState.test {
+            val loading = awaitItem()
+            assertThat(loading.uiState).isEqualTo(DetailAisleUiState.Loading)
             val state = awaitItem()
             assertThat(state.selection.isSelectionMode).isTrue()
         } 
@@ -125,6 +130,8 @@ class DetailAisleViewModelTest {
         viewModel.toggleSelection("1")
 
         viewModel.screenState.test {
+            val loading = awaitItem()
+            assertThat(loading.uiState).isEqualTo(DetailAisleUiState.Loading)
             val state = awaitItem()
             assertThat(state.selection.selectedIds).contains("1")
         }
@@ -170,6 +177,8 @@ class DetailAisleViewModelTest {
         viewModel.activateSearch()
 
         viewModel.screenState.test {
+            val loading = awaitItem()
+            assertThat(loading.uiState).isEqualTo(DetailAisleUiState.Loading)
             val state = awaitItem()
             assertThat(state.isSearchActive).isTrue()
         }
@@ -197,6 +206,8 @@ class DetailAisleViewModelTest {
         viewModel.updateSearchQuery("para")
 
         viewModel.screenState.test {
+            val loading = awaitItem()
+            assertThat(loading.uiState).isEqualTo(DetailAisleUiState.Loading)
             val state = awaitItem()
             assertThat(state.searchQuery).isEqualTo("para")
         }
