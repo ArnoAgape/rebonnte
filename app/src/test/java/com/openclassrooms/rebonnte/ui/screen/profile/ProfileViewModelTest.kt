@@ -4,9 +4,12 @@ import app.cash.turbine.test
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.UserRepository
+import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.utils.AndroidEmailValidator
 import io.mockk.coEvery
@@ -123,4 +126,32 @@ class ProfileViewModelTest {
             assertThat(state.isValid).isFalse()
         }
     }
+
+    @Test
+    fun `saveUser emits generic error when repository fails`() = runTest {
+        val viewModel = createViewModel()
+
+        coEvery { userRepo.updateUser(any()) } throws Exception("Boom")
+
+        viewModel.state.test {
+            viewModel.saveUser()
+
+            var state = awaitItem()
+            while (state.uiState !is ProfileUiState.Error.Generic) {
+                state = awaitItem()
+            }
+
+            assertThat(state.uiState).isInstanceOf(ProfileUiState.Error.Generic::class.java)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        viewModel.eventsFlow.test {
+            val event = awaitItem() as Event.ShowMessage
+            assertThat(event.message).isEqualTo(R.string.error_generic)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
 }
