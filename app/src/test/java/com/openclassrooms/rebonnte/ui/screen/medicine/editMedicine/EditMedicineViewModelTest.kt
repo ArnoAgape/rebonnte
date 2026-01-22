@@ -46,12 +46,16 @@ class EditMedicineViewModelTest {
         savedStateHandle = SavedStateHandle().apply {
             set("medicineId", "123")
         }
+        val aisles = listOf(TestUtils.fakeAisle(id = "123"))
+        val aisle = TestUtils.fakeAisle("123")
+        val user = TestUtils.fakeUser("1")
+        val medicine = TestUtils.fakeMedicine("1")
 
-        every { aisleRepo.getAisleById(any()) } returns flowOf(TestUtils.fakeAisle("123"))
-        every { aisleRepo.getAllAisles() } returns flowOf(TestUtils.fakeAisles("123"))
+        every { aisleRepo.getAisleById(any()) } returns flowOf(aisle)
+        every { aisleRepo.getAllAisles() } returns flowOf(aisles)
         every { medicineRepo.getMedicinesByAisle(any(), any(), any()) } returns flowOf(emptyList())
-        every { medicineRepo.getMedicineById(any()) } returns flowOf(TestUtils.fakeMedicine("123"))
-        coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
+        every { medicineRepo.getMedicineById(any()) } returns flowOf(medicine)
+        coEvery { userRepo.getCurrentUser() } returns user
         coEvery { historyRepo.addStockHistory(any(), any(), any()) } just Runs
 
 
@@ -86,6 +90,9 @@ class EditMedicineViewModelTest {
             val event = awaitItem() as Event.ShowSuccessMessage
             assertThat(event.message).isEqualTo(R.string.success_edit_medicine)
         }
+        coVerify(exactly = 1) {
+            medicineRepo.editMedicine(any())
+        }
     }
 
     @Test
@@ -102,6 +109,9 @@ class EditMedicineViewModelTest {
 
             val errorEvent = event as Event.ShowMessage
             assertThat(errorEvent.message).isEqualTo(R.string.error_invalid_form_medicine)
+        }
+        coVerify(exactly = 0) {
+            medicineRepo.editMedicine(any())
         }
     }
 

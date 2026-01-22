@@ -14,6 +14,7 @@ import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -34,9 +35,11 @@ class AddMedicineViewModelTest {
 
     @Before
     fun setup() {
+        val aisles = listOf(TestUtils.fakeAisle(id = "123"))
+        val user = TestUtils.fakeUser("1")
 
-        coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser(id = "1")
-        coEvery { aisleRepo.getAllAisles() } returns flowOf(TestUtils.fakeAisles("1"))
+        coEvery { userRepo.getCurrentUser() } returns user
+        coEvery { aisleRepo.getAllAisles() } returns flowOf(aisles)
         coEvery { medicineRepo.addMedicine(any()) } returns Result.success(Unit)
 
         viewModel = AddMedicineViewModel(
@@ -48,11 +51,9 @@ class AddMedicineViewModelTest {
 
     @Test
     fun `addMedicine emits success event`() = runTest {
-        val aisle = TestUtils.fakeAisle("1")
         coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
 
         viewModel.onAction(FormEvent.NameChanged("Paracetamol"))
-        viewModel.onAction(FormEvent.AisleSelected(aisle))
 
         viewModel.eventsFlow.test {
             viewModel.addMedicine()
@@ -62,6 +63,9 @@ class AddMedicineViewModelTest {
 
             val successEvent = event as Event.ShowSuccessMessage
             assertThat(successEvent.message).isEqualTo(R.string.success_add_medicine)
+        }
+        coVerify(exactly = 1) {
+            medicineRepo.addMedicine(any())
         }
     }
 
@@ -79,6 +83,9 @@ class AddMedicineViewModelTest {
 
             val errorEvent = event as Event.ShowMessage
             assertThat(errorEvent.message).isEqualTo(R.string.error_invalid_form_medicine)
+        }
+        coVerify(exactly = 0) {
+            medicineRepo.addMedicine(any())
         }
     }
 

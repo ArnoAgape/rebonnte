@@ -8,7 +8,6 @@ import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
 import com.openclassrooms.rebonnte.ui.utils.AndroidEmailValidator
-import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -34,7 +33,6 @@ import kotlin.text.orEmpty
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val networkUtils: NetworkUtils,
     private val emailValidator: AndroidEmailValidator
 ) : ViewModel() {
 
@@ -46,7 +44,7 @@ class ProfileViewModel @Inject constructor(
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
-    val isUserFieldsValid = _user
+    private val isUserFieldsValid = _user
         .map { currentUser ->
             val displayName = currentUser?.displayName.orEmpty()
             displayName.isNotBlank() && emailValidator.validate(currentUser?.email)
@@ -107,10 +105,7 @@ class ProfileViewModel @Inject constructor(
     fun saveUser() {
         viewModelScope.launch {
 
-            // 1. Network checking
-            networkUtils.checkNetwork(networkUtils, _events)
-
-            // 2. If user logged in checking
+            // 1. If user logged in checking
             val currentUser = _user.value
             if (currentUser == null) {
                 _uiState.value = ProfileUiState.Error.NoAccount()
@@ -121,28 +116,28 @@ class ProfileViewModel @Inject constructor(
             _uiState.value = ProfileUiState.Loading
 
             try {
-                // 3. Creation of file with user
+                // 2. Creation of file with user
                 val userToSave = _user.value?.copy(
                     displayName = currentUser.displayName,
                     email = currentUser.email
                 )
 
                 if (userToSave != null) {
-                    // 4. Updates User on Firebase
+                    // 3. Updates User on Firebase
                     userRepository.updateUser(userToSave)
 
-                    // 5. Success UI
+                    // 4. Success UI
                     _uiState.value = ProfileUiState.Success(userToSave)
                     _events.trySend(Event.ShowSuccessMessage(R.string.success_user_updated))
                 }
 
             } catch (e: IOException) {
-                // 6. Network error (impossible upload)
+                // 5. Network error (impossible upload)
                 _uiState.value = ProfileUiState.Error.Generic("Network error: ${e.message}")
                 _events.trySend(Event.ShowMessage(R.string.no_network))
 
             } catch (_: Exception) {
-                // 7. Generic error (Firebase Storage, Firestore, etc.)
+                // 6. Generic error (Firebase Storage, Firestore, etc.)
                 _uiState.value = ProfileUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
             }

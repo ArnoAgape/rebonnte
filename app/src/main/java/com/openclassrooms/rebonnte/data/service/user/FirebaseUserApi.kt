@@ -70,17 +70,16 @@ class FirebaseUserApi : UserApi {
             val profileUpdates = userProfileChangeRequest {
                 displayName = user.displayName
             }
-            currentUser.updateProfile(profileUpdates).await()
+            currentUser.updateProfile(profileUpdates)
 
             user.email?.let { email ->
                 if (email != currentUser.email) {
-                    currentUser.verifyBeforeUpdateEmail(email).await()
+                    currentUser.verifyBeforeUpdateEmail(email)
                 }
             }
 
             usersCollection.document(currentUser.uid)
                 .set(user.toDto(), SetOptions.merge())
-                .await()
 
             Result.success(Unit)
         } catch (e: Exception) {

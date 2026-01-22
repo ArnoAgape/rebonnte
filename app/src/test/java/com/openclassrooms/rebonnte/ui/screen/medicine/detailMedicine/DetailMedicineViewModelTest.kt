@@ -6,7 +6,6 @@ import app.cash.turbine.test
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isNotEmpty
 import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
@@ -18,7 +17,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -37,6 +35,8 @@ class DetailMedicineViewModelTest {
 
     @Before
     fun setup() {
+
+        every { networkUtils.isNetworkAvailable() } returns true
 
         savedStateHandle = SavedStateHandle().apply {
             set("medicineId", "123")
@@ -57,67 +57,23 @@ class DetailMedicineViewModelTest {
     }
 
     @Test
-    fun testNameMedicine() = runTest {
+    fun `medicine success contains correct data`() = runTest {
         every { historyRepo.observeHistory(any()) } returns flowOf(emptyList())
         val viewModel = createViewModel()
 
-        val successState =
-            viewModel.screenState
-                .filter { it.medicineState is DetailMedicineUiState.Success }
-                .first()
+        viewModel.screenState.test {
+            val success = awaitItem ()
 
-        val medicine =
-            (successState.medicineState as DetailMedicineUiState.Success).medicine
+            val medicine =
+                (success.medicineState as DetailMedicineUiState.Success).medicine
 
-        assertThat(medicine.name).isEqualTo("Paracetamol")
-    }
+            assertThat(medicine.name).isEqualTo("Paracetamol")
+            assertThat(medicine.stock).isEqualTo(10)
+            assertThat(medicine.aisleName).isEqualTo("Painkiller")
+            assertThat(medicine.author?.displayName).isEqualTo("John Doe")
 
-    @Test
-    fun testNameAisle() = runTest {
-        every { historyRepo.observeHistory(any()) } returns flowOf(emptyList())
-        val viewModel = createViewModel()
-
-        val successState =
-            viewModel.screenState
-                .filter { it.medicineState is DetailMedicineUiState.Success }
-                .first()
-
-        val medicine =
-            (successState.medicineState as DetailMedicineUiState.Success).medicine
-
-        assertThat(medicine.aisleName).isEqualTo("Painkiller")
-    }
-
-    @Test
-    fun testStock() = runTest {
-        every { historyRepo.observeHistory(any()) } returns flowOf(emptyList())
-        val viewModel = createViewModel()
-
-        val successState =
-            viewModel.screenState
-                .filter { it.medicineState is DetailMedicineUiState.Success }
-                .first()
-
-        val medicine =
-            (successState.medicineState as DetailMedicineUiState.Success).medicine
-
-        assertThat(medicine.stock).isEqualTo(10)
-    }
-
-    @Test
-    fun testAddMedicineWithSpecificUser() = runTest {
-        every { historyRepo.observeHistory(any()) } returns flowOf(emptyList())
-        val viewModel = createViewModel()
-
-        val successState =
-            viewModel.screenState
-                .filter { it.medicineState is DetailMedicineUiState.Success }
-                .first()
-
-        val medicine =
-            (successState.medicineState as DetailMedicineUiState.Success).medicine
-
-        assertThat(medicine.author?.displayName).isEqualTo("John Doe")
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
@@ -126,31 +82,33 @@ class DetailMedicineViewModelTest {
 
         val viewModel = createViewModel()
 
-        val state =
-            viewModel.screenState
-                .filter { it.historyState !is DetailHistoryUiState.Loading }
-                .first()
+        viewModel.screenState.test {
 
-        assertThat(state.historyState)
-            .isInstanceOf(DetailHistoryUiState.Error.Empty::class.java)
+            val emptyState = awaitItem()
+            assertThat(emptyState.historyState)
+                .isInstanceOf(DetailHistoryUiState.Error.Empty::class.java)
+
+            cancelAndIgnoreRemainingEvents()
+
+        }
     }
 
     @Test
     fun `historyState is Success when history exists`() = runTest {
-        every { historyRepo.observeHistory(any()) } returns
-                flowOf(TestUtils.fakeHistories("1"))
+        val histories = listOf(TestUtils.fakeHistory("1"))
+        every { historyRepo.observeHistory(any()) } returns flowOf(histories)
 
         val viewModel = createViewModel()
 
-        val state =
-            viewModel.screenState
-                .filter { it.historyState is DetailHistoryUiState.Success }
-                .first()
+        viewModel.screenState.test {
 
-        val history =
-            (state.historyState as DetailHistoryUiState.Success).history
+            val successState = awaitItem()
+            assertThat(successState.historyState)
+                .isInstanceOf(DetailHistoryUiState.Success::class.java)
 
-        assertThat(history).isNotEmpty()
+            cancelAndIgnoreRemainingEvents()
+
+        }
     }
 
     @Test
@@ -163,7 +121,10 @@ class DetailMedicineViewModelTest {
 
         viewModel.screenState
             .filter { it.medicineState is DetailMedicineUiState.Success }
-            .first()
+            .test {
+                awaitItem()
+                cancelAndIgnoreRemainingEvents()
+            }
 
         viewModel.eventsFlow.test {
             viewModel.deleteMedicine()
@@ -171,6 +132,8 @@ class DetailMedicineViewModelTest {
             val event = awaitItem() as Event.ShowSuccessMessage
             assertThat(event.message)
                 .isEqualTo(R.string.success_deleted_medicine)
+
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -186,6 +149,8 @@ class DetailMedicineViewModelTest {
 
             val offlineEvent = awaitItem() as Event.ShowMessage
             assertThat(offlineEvent.message).isEqualTo(R.string.no_network)
+
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }

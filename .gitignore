@@ -30,6 +30,7 @@ render.experimental.xml
 # Keystore configuration
 keystore.properties
 keystore.base64
+keystore.properties.base64
 
 # Android Profiling
 *.hprof

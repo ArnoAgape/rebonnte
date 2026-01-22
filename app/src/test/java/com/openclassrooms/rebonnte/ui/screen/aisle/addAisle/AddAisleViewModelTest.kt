@@ -11,6 +11,7 @@ import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -52,6 +53,9 @@ class AddAisleViewModelTest {
             val successEvent = event as Event.ShowSuccessMessage
             assertThat(successEvent.message).isEqualTo(R.string.success_add_aisle)
         }
+        coVerify(exactly = 1) {
+            aisleRepo.addAisle(any())
+        }
     }
 
     @Test
@@ -69,6 +73,9 @@ class AddAisleViewModelTest {
 
             val errorEvent = event as Event.ShowMessage
             assertThat(errorEvent.message).isEqualTo(R.string.error_invalid_form_aisle)
+        }
+        coVerify(exactly = 0) {
+            aisleRepo.addAisle(any())
         }
     }
 }

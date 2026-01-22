@@ -60,9 +60,9 @@ class HomeAisleViewModelTest {
 
     @Test
     fun `when aisles list is not empty uiState is Success`() = runTest {
-        val aisles = TestUtils.fakeAisles(id = "123")
+        val aisles = listOf(TestUtils.fakeAisle(id = "123"))
 
-        every { aisleRepo.getAllAisles() } returns flowOf(TestUtils.fakeAisles(id = "123"))
+        every { aisleRepo.getAllAisles() } returns flowOf(aisles)
         every { networkUtils.isNetworkAvailable() } returns true
         every { userRepo.isUserSignedIn() } returns flowOf(true)
 

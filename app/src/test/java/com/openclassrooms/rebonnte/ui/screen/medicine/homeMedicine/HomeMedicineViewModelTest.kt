@@ -71,7 +71,7 @@ class HomeMedicineViewModelTest {
 
     @Test
     fun `when medicines list is not empty uiState is Success`() = runTest {
-        val medicines = TestUtils.fakeMedicines("1")
+        val medicines = listOf(TestUtils.fakeMedicine("1"))
 
         every { medicineRepo.getAllMedicines(any(), any()) } returns flowOf(medicines)
         every { userRepo.isUserSignedIn() } returns flowOf(true)
