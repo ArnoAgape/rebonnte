@@ -38,7 +38,7 @@ class AddMedicineViewModel @Inject constructor(
         aisleRepository.getAllAisles()
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.Eagerly,
+                started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
 
@@ -54,7 +54,7 @@ class AddMedicineViewModel @Inject constructor(
         .map { it.name.isNotBlank() }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
 
@@ -75,7 +75,7 @@ class AddMedicineViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = AddScreenState()
         )
 

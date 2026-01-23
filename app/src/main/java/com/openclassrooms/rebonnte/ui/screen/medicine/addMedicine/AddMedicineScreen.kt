@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -170,7 +171,7 @@ fun AddMedicineScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddMedicineContent(
+fun AddMedicineContent(
     contentPadding: PaddingValues = PaddingValues(),
     dateTime: Instant,
     onDateTimeChange: (Instant) -> Unit,
@@ -251,7 +252,9 @@ private fun AddMedicineContent(
 
             /** ---------- SAVE BUTTON ---------- **/
             Button(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(stringResource(R.string.action_add)),
                 onClick = onSaveClicked,
                 enabled = isMedicineValid && !isLoading
             ) {
