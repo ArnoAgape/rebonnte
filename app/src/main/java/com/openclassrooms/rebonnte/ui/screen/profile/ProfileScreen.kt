@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.profile
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -60,7 +60,6 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
  * @param viewModel ViewModel providing profile data and actions.
  * @param onLoginScreen Callback invoked when redirecting to the login screen.
  */
-@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -69,6 +68,7 @@ fun ProfileScreen(
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val resources = LocalResources.current
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -76,8 +76,8 @@ fun ProfileScreen(
         when (event) {
             is Event.ShowMessage -> {
                 val result = snackbarHostState.showSnackbar(
-                    message = context.getString(event.message),
-                    actionLabel = context.getString(R.string.try_again),
+                    message = resources.getString(event.message),
+                    actionLabel = resources.getString(R.string.try_again),
                     withDismissAction = true,
                     duration = SnackbarDuration.Short
                 )
@@ -261,7 +261,6 @@ fun ProfileContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewLightDark
 @Composable
 private fun ProfileScreenPreview() {
