@@ -20,6 +20,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
+/**
+ * Clickable field used to display a selectable value with a label and icon.
+ *
+ * Commonly used for date, category, or option pickers.
+ */
 @Composable
 fun PickerField(
     modifier: Modifier = Modifier,

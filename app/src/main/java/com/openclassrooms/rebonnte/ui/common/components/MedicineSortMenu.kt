@@ -9,6 +9,9 @@ import androidx.compose.ui.res.stringResource
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.MedicineSort
 
+/**
+ * Dropdown menu allowing users to select a medicine sorting option.
+ */
 @Composable
 fun MedicineSortMenu(
     expanded: Boolean,

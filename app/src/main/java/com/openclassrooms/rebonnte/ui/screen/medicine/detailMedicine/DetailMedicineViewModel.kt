@@ -22,6 +22,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for the medicine detail screen.
+ *
+ * Handles medicine retrieval, history observation,
+ * deletion actions, and UI state management.
+ */
 @HiltViewModel
 class DetailMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

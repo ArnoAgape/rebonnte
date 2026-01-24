@@ -7,20 +7,18 @@ import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.openclassrooms.rebonnte.domain.model.User
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 /**
- * Firebase-based implementation of the [UserApi] interface.
+ * Firebase-based implementation of [UserApi].
  *
- * This class provides methods to manage authentication state and user data
- * through Firebase Authentication and Firestore. It handles sign-in state
- * observation, user document synchronization, and account deletion.
- *
- * The user profile data is stored in the `"users"` collection in Firestore,
- * with the document ID matching the Firebase Authentication user ID.
+ * Handles authentication state and user persistence using
+ * Firebase Authentication and Firestore.
  */
 class FirebaseUserApi : UserApi {
 
@@ -39,16 +37,16 @@ class FirebaseUserApi : UserApi {
     )
 
     /**
-     * Retrieves the currently authenticated [User], if any.
+     * Returns the currently authenticated user if available.
      *
-     * @return The current [User], or `null` if no user is signed in.
+     * This is a memory read and does not require a background thread.
      */
     override suspend fun getCurrentUser(): User? = auth.currentUser?.toDomain()
 
     /**
      * Observes authentication state changes in real time.
      *
-     * @return A [Flow] emitting the current [User] or `null` on sign-out.
+     * Emits the current user or null when signed out.
      */
     override fun observeCurrentUser(): Flow<User?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -59,61 +57,62 @@ class FirebaseUserApi : UserApi {
     }
 
     /**
-     * Updates the user's FirebaseAuth profile, email verification,
-     * and persists additional fields in Firestore.
+     * Updates the authenticated user's profile and persists
+     * additional fields in Firestore.
+     *
+     * Network operations are executed on an IO thread.
      */
-    override suspend fun updateUser(user: User): Result<Unit> {
-        return try {
-            val currentUser = auth.currentUser
-                ?: return Result.failure(Exception("User not signed in"))
+    override suspend fun updateUser(user: User): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val currentUser = auth.currentUser
+                    ?: return@withContext Result.failure(Exception("User not signed in"))
 
-            val profileUpdates = userProfileChangeRequest {
-                displayName = user.displayName
-            }
-            currentUser.updateProfile(profileUpdates)
-
-            user.email?.let { email ->
-                if (email != currentUser.email) {
-                    currentUser.verifyBeforeUpdateEmail(email)
+                val profileUpdates = userProfileChangeRequest {
+                    displayName = user.displayName
                 }
+                currentUser.updateProfile(profileUpdates)
+
+                user.email?.let { email ->
+                    if (email != currentUser.email) {
+                        currentUser.verifyBeforeUpdateEmail(email)
+                    }
+                }
+
+                usersCollection.document(currentUser.uid)
+                    .set(user.toDto(), SetOptions.merge())
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-
-            usersCollection.document(currentUser.uid)
-                .set(user.toDto(), SetOptions.merge())
-
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
-    }
 
     /**
-     * Ensures that the current authenticated user exists in Firestore.
-     * If the user document does not exist, it is created automatically.
+     * Ensures the authenticated user exists in Firestore.
      *
-     * @return A [Result] indicating success or failure.
+     * Creates the document if it does not already exist.
      */
-    override suspend fun ensureUserInFirestore(): Result<Unit> {
-        val firebaseUser = auth.currentUser ?: return Result.failure(Exception("User not signed in"))
-        val user = firebaseUser.toDomain()
-        return try {
-            val doc = usersCollection.document(user.id).get().await()
-            if (!doc.exists()) {
-                usersCollection.document(user.id).set(user).await()
-                Log.d("UserRepository", "Document Firestore created for ${user.email}")
-            } else {
-                Log.d("UserRepository", "Document Firestore already exists for ${user.email}")
+    override suspend fun ensureUserInFirestore(): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            val firebaseUser = auth.currentUser ?: return@withContext Result.failure(Exception("User not signed in"))
+            val user = firebaseUser.toDomain()
+            try {
+                val doc = usersCollection.document(user.id).get().await()
+                if (!doc.exists()) {
+                    usersCollection.document(user.id).set(user).await()
+                    Log.d("UserRepository", "Document Firestore created for ${user.email}")
+                } else {
+                    Log.d("UserRepository", "Document Firestore already exists for ${user.email}")
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
-    }
 
     /**
      * Signs the current user out of Firebase Authentication.
-     *
-     * @return A [Result] representing the outcome of the operation.
      */
     override fun signOut(): Result<Unit> = try {
         auth.signOut()
@@ -122,10 +121,9 @@ class FirebaseUserApi : UserApi {
         Result.failure(e)
     }
 
+
     /**
-     * Observes whether a user is currently signed in.
-     *
-     * @return A [Flow] emitting `true` if signed in, or `false` otherwise.
+     * Observes whether a user is currently authenticated.
      */
     override fun isUserSignedIn(): Flow<Boolean> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -136,16 +134,19 @@ class FirebaseUserApi : UserApi {
     }
 
     /**
-     * Deletes the currently authenticated user and their Firestore document.
+     * Deletes the authenticated user and their Firestore document.
      *
-     * @return A [Result] indicating whether the deletion was successful.
+     * Executed on an IO thread due to network operations.
      */
-    override suspend fun deleteUser(): Result<Unit> = try {
-        val currentUser = auth.currentUser ?: return Result.failure(Exception("No user signed in"))
-        usersCollection.document(currentUser.uid).delete().await()
-        currentUser.delete().await()
-        Result.success(Unit)
-    } catch (e: Exception) {
-    Result.failure(e)
-    }
+    override suspend fun deleteUser(): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val currentUser = auth.currentUser ?: return@withContext Result.failure(Exception("No user signed in"))
+                usersCollection.document(currentUser.uid).delete().await()
+                currentUser.delete().await()
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
 }

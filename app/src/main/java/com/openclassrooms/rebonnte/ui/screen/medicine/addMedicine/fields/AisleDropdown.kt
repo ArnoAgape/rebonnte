@@ -18,6 +18,12 @@ import androidx.compose.ui.res.stringResource
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 
+/**
+ * Dropdown component allowing the user to select an aisle.
+ *
+ * Displays the currently selected aisle and shows the list
+ * of available aisles in an exposed dropdown menu.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AisleDropdown(

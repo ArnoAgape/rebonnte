@@ -20,6 +20,11 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.common.SelectionState
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
+/**
+ * Displays a scrollable list of medicines with optional selection mode.
+ *
+ * Supports item selection and navigation to medicine details.
+ */
 @Composable
 fun MedicineItem(
     modifier: Modifier = Modifier,

@@ -10,6 +10,11 @@ import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Repository responsible for managing medicine-related operations.
+ * It delegates data access to the [HistoryApi] (FirebaseHistoryApi implementation),
+ * providing a clean abstraction layer for ViewModels.
+ */
 @Singleton
 class HistoryRepository @Inject constructor(
     private val historyApi: HistoryApi

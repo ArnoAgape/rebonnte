@@ -23,6 +23,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for creating a new medicine.
+ *
+ * Manages form state, validation, and user interactions
+ * related to medicine creation.
+ */
 @HiltViewModel
 class AddMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,

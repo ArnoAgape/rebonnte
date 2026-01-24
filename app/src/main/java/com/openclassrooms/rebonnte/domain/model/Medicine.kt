@@ -4,6 +4,11 @@ import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.data.dto.MedicineDto
 import java.time.Instant
 
+/**
+ * Domain model representing a medicine.
+ *
+ * Used within the application business logic and UI.
+ */
 data class Medicine(
     val id : String = "",
     val name: String = "",
@@ -16,6 +21,9 @@ data class Medicine(
     val author: User? = null,
     val histories: List<History> = emptyList()
 ) {
+    /**
+     * Converts this domain model to its Firestore DTO representation.
+     */
     fun toDto(): MedicineDto {
         return MedicineDto(
             id = id,
@@ -31,6 +39,9 @@ data class Medicine(
         )
     }
 
+    /**
+     * Converts a Firestore DTO to a domain-level [Medicine].
+     */
     companion object {
         fun fromDto(dto: MedicineDto): Medicine {
             return Medicine(

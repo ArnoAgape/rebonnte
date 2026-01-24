@@ -5,27 +5,18 @@ import com.openclassrooms.rebonnte.domain.model.Aisle
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+/**
+ * Repository responsible for managing aisle-related operations.
+ * It delegates data access to the [AisleApi] (FirebaseAisleApi implementation),
+ * providing a clean abstraction layer for ViewModels.
+ */
 class AisleRepository @Inject constructor(
     private val aisleApi: AisleApi
 ) {
 
-    /**
-     * Observes the list of all aisles ordered by ascending name.
-     */
     fun getAllAisles(searchQuery: String = ""): Flow<List<Aisle>> = aisleApi.getAisles(searchQuery)
-
-    /**
-     * Uploads a new aisle to Firebase (Storage + Firestore).
-     * @throws java.io.IOException if there is no internet connection
-     * @throws IllegalArgumentException if the file type or size is invalid
-     */
-    suspend fun addAisle(aisle: Aisle): Unit = aisleApi.addAisle(aisle)
-
+    suspend fun addAisle(aisle: Aisle) = aisleApi.addAisle(aisle)
     suspend fun deleteAisles(ids: Set<String>) = aisleApi.deleteAisles(ids)
-
-    /**
-     * Observes a single file by its unique ID.
-     */
     fun getAisleById(aisleId: String): Flow<Aisle> =
         aisleApi.getAisleById(aisleId)
 }

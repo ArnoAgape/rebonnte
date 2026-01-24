@@ -16,6 +16,12 @@ import androidx.navigation.compose.rememberNavController
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.screen.login.LoginViewModel
 
+/**
+ * Root composable hosting the main navigation structure.
+ *
+ * Displays a bottom navigation bar on top-level destinations
+ * and manages navigation state.
+ */
 @Composable
 fun MainScreen() {
 

@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.screen.medicine.addMedicine.fields
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -33,7 +33,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
 
-@SuppressLint("LocalContextGetResourceValueCall")
+/**
+ * Field used to adjust the number of medicines.
+ *
+ * Provides increment/decrement actions, direct input,
+ * and accessibility announcements.
+ */
 @Composable
 fun NumberOfMedicinesField(
     numberOfMedicines: Int,
@@ -41,6 +46,7 @@ fun NumberOfMedicinesField(
 ) {
     var isDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val resources = LocalResources.current
 
     /** ---------- SEMANTICS ---------- **/
 
@@ -51,7 +57,7 @@ fun NumberOfMedicinesField(
         if (am.isEnabled) {
             val event = android.view.accessibility.AccessibilityEvent
                 .obtain(android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
-                    text.add("$numberOfMedicines ${context.getString(R.string.medicines)}")
+                    text.add("$numberOfMedicines ${resources.getString(R.string.medicines)}")
                 }
             am.sendAccessibilityEvent(event)
         }
@@ -72,7 +78,7 @@ fun NumberOfMedicinesField(
             enabled = numberOfMedicines > 0,
             modifier = Modifier
                 .semantics {
-                    contentDescription = context.getString(R.string.contentDescription_stock_remove_medicine)
+                    contentDescription = resources.getString(R.string.contentDescription_stock_remove_medicine)
                 }        ) {
             Text("-", style = MaterialTheme.typography.headlineSmall)
         }
@@ -87,7 +93,7 @@ fun NumberOfMedicinesField(
             onClick = { onNumberOfMedicinesChange(numberOfMedicines + 1) },
             modifier = Modifier
                 .semantics {
-                    contentDescription = context.getString(R.string.contentDescription_stock_add_medicine)
+                    contentDescription = resources.getString(R.string.contentDescription_stock_add_medicine)
                 }
         ) {
             Text("+", style = MaterialTheme.typography.headlineSmall)
@@ -106,6 +112,11 @@ fun NumberOfMedicinesField(
     }
 }
 
+/**
+ * Dialog allowing numeric input for selecting a quantity.
+ *
+ * Ensures only positive integer values are accepted.
+ */
 @Composable
 fun NumberPickerDialog(
     initialValue: Int,

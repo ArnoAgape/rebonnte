@@ -5,6 +5,11 @@ import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.User
 import java.io.Serializable
 
+/**
+ * Data Transfer Object representing an aisle stored in Firestore.
+ *
+ * Used for persistence and network transport.
+ */
 data class MedicineDto(
     val id : String = "",
     val name: String = "",

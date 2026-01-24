@@ -4,6 +4,11 @@ import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.domain.model.StockChangeType
 import java.io.Serializable
 
+/**
+ * Data Transfer Object representing an aisle stored in Firestore.
+ *
+ * Used for persistence and network transport.
+ */
 data class HistoryDto(
     val id: String = "",
     val medicineName: String = "",

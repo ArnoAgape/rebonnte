@@ -3,6 +3,11 @@ package com.openclassrooms.rebonnte.domain.model
 import com.google.firebase.Timestamp
 import com.openclassrooms.rebonnte.data.dto.AisleDto
 
+/**
+ * Domain model representing an aisle.
+ *
+ * Used within the application business logic and UI.
+ */
 data class Aisle(
     val id: String = "",
     val name: String = "",
@@ -10,6 +15,9 @@ data class Aisle(
     val createdAt: Timestamp = Timestamp.now(),
     val medicines: List<Medicine> = emptyList()
 ) {
+    /**
+     * Converts this domain model to its Firestore DTO representation.
+     */
     fun toDto(): AisleDto {
         return AisleDto(
             id = id,
@@ -20,6 +28,9 @@ data class Aisle(
         )
     }
 
+    /**
+     * Converts a Firestore DTO to a domain-level [Aisle].
+     */
     companion object {
         fun fromDto(dto: AisleDto): Aisle {
             return Aisle(

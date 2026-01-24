@@ -23,6 +23,10 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+/**
+ * Clickable date field displaying a formatted date and
+ * opening a date picker dialog on interaction.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(

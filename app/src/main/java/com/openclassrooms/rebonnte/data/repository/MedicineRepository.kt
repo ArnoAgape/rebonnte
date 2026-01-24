@@ -17,33 +17,16 @@ class MedicineRepository @Inject constructor(
     private val medicineApi: MedicineApi
 ) {
 
-    /**
-     * Observes the list of all medicines ordered by ascending name.
-     */
     fun getAllMedicines(sort: MedicineSort, searchQuery: String): Flow<List<Medicine>> =
         medicineApi.getAllMedicines(
             sort = sort,
             searchQuery = searchQuery
         )
 
-    /**
-     * Uploads a new medicine to Firebase (Storage + Firestore).
-     */
     suspend fun addMedicine(medicine: Medicine) = medicineApi.addMedicine(medicine)
-
-    /**
-     * Edits an existing medicine to Firebase (Storage + Firestore).
-     */
     suspend fun editMedicine(medicine: Medicine) = medicineApi.editMedicine(medicine)
-
     suspend fun deleteMedicines(ids: Set<String>) = medicineApi.deleteMedicines(ids)
-
-    /**
-     * Observes a single medicine by its unique ID.
-     */
-    fun getMedicineById(medicineId: String): Flow<Medicine?> =
-        medicineApi.getMedicineById(medicineId)
-
+    fun getMedicineById(medicineId: String): Flow<Medicine?> = medicineApi.getMedicineById(medicineId)
     fun getMedicinesByAisle(sort: MedicineSort, aisleId: String, searchQuery: String): Flow<List<Medicine>> =
         medicineApi.getMedicinesByAisle(sort, aisleId, searchQuery)
 }

@@ -29,6 +29,12 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
+/**
+ * Embedded search bar component with query input and clear action.
+ *
+ * Used to filter lists dynamically while providing
+ * an inline back/close interaction.
+ */
 @Composable
 fun EmbeddedSearchBar(
     query: String,

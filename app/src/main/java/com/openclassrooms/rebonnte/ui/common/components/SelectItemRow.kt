@@ -15,6 +15,12 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+/**
+ * Row component supporting selection mode with optional checkbox.
+ *
+ * Executes either a selection toggle or a click action depending
+ * on the current selection state.
+ */
 @Composable
 fun SelectItemRow(
     id: String,

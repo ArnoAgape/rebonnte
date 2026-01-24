@@ -30,6 +30,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for the aisle detail screen.
+ *
+ * Handles medicine listing, search, sorting, selection mode,
+ * and user actions related to an aisle.
+ */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DetailAisleViewModel @Inject constructor(

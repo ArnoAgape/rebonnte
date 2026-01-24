@@ -30,10 +30,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel responsible for loading and refreshing the list of aisles.
+ * ViewModel responsible for the aisle home screen.
  *
- * It exposes UI state, manages refresh actions, and emits one-time
- * events such as network warnings.
+ * Handles aisle listing, search, selection mode,
+ * and user actions related to an aisle.
  */
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @HiltViewModel
@@ -162,11 +162,6 @@ class HomeAisleViewModel @Inject constructor(
     }
 
 }
-
-/**
- * Combined UI state for the home screen,
- * including loading state, refresh status, selection state and if the user is signed in.
- */
 
 data class AisleHomeScreenState(
     val uiState: HomeAisleUiState = HomeAisleUiState.Loading,

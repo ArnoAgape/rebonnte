@@ -19,6 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
 
+/**
+ * Button displaying a confirmation dialog before executing an action.
+ *
+ * Useful for destructive or critical operations.
+ */
 @Composable
 fun ConfirmDialogButton(
     buttonColor: ButtonColors,

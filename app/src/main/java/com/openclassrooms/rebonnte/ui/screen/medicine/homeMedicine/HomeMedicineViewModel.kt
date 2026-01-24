@@ -31,6 +31,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for the medicine home screen.
+ *
+ * Handles medicine listing, search, selection mode,
+ * and user actions related to a medicine.
+ */
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @HiltViewModel
 class HomeMedicineViewModel @Inject constructor(

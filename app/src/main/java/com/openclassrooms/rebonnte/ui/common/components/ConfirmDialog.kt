@@ -7,6 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.openclassrooms.rebonnte.R
 
+/**
+ * Generic confirmation dialog with a title, message,
+ * and confirm / cancel actions.
+ */
 @Composable
 fun ConfirmDialog(
     title: String,

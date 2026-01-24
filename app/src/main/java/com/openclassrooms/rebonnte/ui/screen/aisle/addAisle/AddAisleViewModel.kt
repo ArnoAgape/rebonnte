@@ -20,6 +20,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for creating a new aisle.
+ *
+ * Manages form state, validation, and user interactions
+ * related to aisle creation.
+ */
 @HiltViewModel
 class AddAisleViewModel @Inject constructor(
     private val aisleRepository: AisleRepository,
@@ -29,12 +35,7 @@ class AddAisleViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AddAisleUiState>(AddAisleUiState.Idle)
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
-
     private val _aisle = MutableStateFlow(Aisle())
-
-    /**
-     * StateFlow derived from the aisle that emits a FormError if the name is empty, null otherwise.
-     */
     private val isAisleValid: StateFlow<Boolean> =
         _aisle
             .map { it.name.isNotBlank() }

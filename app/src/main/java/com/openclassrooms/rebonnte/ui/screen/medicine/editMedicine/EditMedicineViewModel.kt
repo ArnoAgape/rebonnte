@@ -27,6 +27,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for editing a new medicine.
+ *
+ * Manages form state, validation, and user interactions
+ * related to medicine edition.
+ */
 @HiltViewModel
 class EditMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

@@ -1,5 +1,11 @@
 package com.openclassrooms.rebonnte.domain.model
 
+/**
+ * Defines available sorting strategies for medicines.
+ *
+ * Each value provides a sorting behavior based on
+ * name, stock quantity, or creation date.
+ */
 enum class MedicineSort {
     NAME_ASC,
     NAME_DESC,
@@ -8,6 +14,9 @@ enum class MedicineSort {
     DATE_NEWEST,
     DATE_OLDEST;
 
+    /**
+     * Sorts a list of medicines according to the selected strategy.
+     */
     fun sort(medicines: List<Medicine>): List<Medicine> =
         when (this) {
 
