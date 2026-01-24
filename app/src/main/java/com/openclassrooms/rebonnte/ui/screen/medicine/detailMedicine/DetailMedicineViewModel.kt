@@ -4,17 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -28,10 +32,12 @@ import javax.inject.Inject
  * Handles medicine retrieval, history observation,
  * deletion actions, and UI state management.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DetailMedicineViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val medicineRepository: MedicineRepository,
+    private val aisleRepository: AisleRepository,
     historyRepository: HistoryRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
@@ -65,6 +71,27 @@ class DetailMedicineViewModel @Inject constructor(
                 DetailMedicineUiState.Loading
             )
 
+    private val aisleStateFlow: StateFlow<Boolean> =
+        medicineRepository.getMedicineById(medicineId)
+            .map { medicine ->
+                medicine?.aisleId
+            }
+            .flatMapLatest { aisleId ->
+                if (aisleId.isNullOrBlank()) {
+                    flowOf(true)
+                } else {
+                    aisleRepository.getAisleById(aisleId)
+                        .map { false }
+                        .catch { emit(true) }
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                false
+            )
+
+
     private val historyStateFlow: StateFlow<DetailHistoryUiState> =
         historyRepository.observeHistory(medicineId)
             .map { history ->
@@ -92,12 +119,14 @@ class DetailMedicineViewModel @Inject constructor(
         combine(
             medicineStateFlow,
             historyStateFlow,
-            _isRefreshing
-        ) { medicineState, historyState, refreshing ->
+            _isRefreshing,
+            aisleStateFlow
+        ) { medicineState, historyState, refreshing, isAisleDeleted ->
             MedicineDetailScreenState(
                 medicineState = medicineState,
                 historyState = historyState,
-                isRefreshing = refreshing
+                isRefreshing = refreshing,
+                isAisleDeleted = isAisleDeleted
             )
         }.stateIn(
             viewModelScope,
@@ -137,5 +166,6 @@ class DetailMedicineViewModel @Inject constructor(
 data class MedicineDetailScreenState(
     val medicineState: DetailMedicineUiState = DetailMedicineUiState.Loading,
     val historyState: DetailHistoryUiState = DetailHistoryUiState.Loading,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val isAisleDeleted: Boolean = false
 )

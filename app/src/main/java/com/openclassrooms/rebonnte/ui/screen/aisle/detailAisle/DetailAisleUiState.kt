@@ -12,6 +12,7 @@ sealed class DetailAisleUiState {
 
     sealed class Error : DetailAisleUiState() {
         data class Empty(val message: String = "No medicines found") : Error()
+        data class AisleDeleted(val message: String = "Aisle deleted") : Error()
         data class Generic(val message: String = "Unknown error") : Error()
     }
 }

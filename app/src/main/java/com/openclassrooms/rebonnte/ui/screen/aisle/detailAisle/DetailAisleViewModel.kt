@@ -79,17 +79,29 @@ class DetailAisleViewModel @Inject constructor(
             aisleRepository.getAisleById(aisleId),
             medicinesFlow
         ) { aisle, medicines ->
-            if (medicines.isEmpty()) {
-                DetailAisleUiState.Error.Empty()
-            } else {
-                DetailAisleUiState.Success(
-                    aisle = aisle,
-                    medicines = medicines
-                )
+            when {
+                aisle == null -> {
+                    DetailAisleUiState.Error.AisleDeleted()
+                }
+
+                medicines.isEmpty() -> {
+                    DetailAisleUiState.Error.Empty()
+                }
+
+                else -> {
+                    DetailAisleUiState.Success(
+                        aisle = aisle,
+                        medicines = medicines
+                    )
+                }
             }
         }
             .catch { e ->
-                emit(DetailAisleUiState.Error.Generic(e.message ?: "Unknown error"))
+                emit(
+                    DetailAisleUiState.Error.Generic(
+                        e.message ?: "Unknown error"
+                    )
+                )
             }
 
     val screenState: StateFlow<AisleDetailScreenState> =

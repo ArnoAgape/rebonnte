@@ -22,6 +22,7 @@
 
     <string name="confirm_delete_medicine">Supprimer le médicament</string>
     <string name="confirm_delete_aisle">Supprimer l’allée</string>
+    <string name="aisle_deleted">Allée supprimée</string>
 
     <string name="confirm_delete_message_current_medicine">
         Vous êtes sur le point de supprimer ce médicament. Cette action est irréversible. Continuer ?

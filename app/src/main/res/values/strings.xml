@@ -18,6 +18,7 @@
     <string name="action_delete_account">Delete account</string>
     <string name="confirm_delete_medicine">Delete medicine</string>
     <string name="confirm_delete_aisle">Delete aisle</string>
+    <string name="aisle_deleted">Aisle deleted</string>
     <string name="confirm_delete_message_current_medicine">You are about to delete the medicine. This can\'t be undone. Continue?</string>
     <string name="confirm_delete_message_medicines">You are about to delete the selected medicine(s). This can\'t be undone. Continue?</string>
     <string name="confirm_delete_message_aisle">You are about to delete the selected aisle(s). This can\'t be undone. Continue?</string>

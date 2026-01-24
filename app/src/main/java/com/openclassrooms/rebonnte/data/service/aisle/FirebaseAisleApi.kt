@@ -72,7 +72,7 @@ class FirebaseAisleApi @Inject constructor() : AisleApi {
      *
      * Data collection and mapping are executed on an IO thread.
      */
-    override fun getAisleById(aisleId: String): Flow<Aisle> {
+    override fun getAisleById(aisleId: String): Flow<Aisle?> {
         return aislesCollection
             .whereEqualTo("id", aisleId)
             .limit(1)

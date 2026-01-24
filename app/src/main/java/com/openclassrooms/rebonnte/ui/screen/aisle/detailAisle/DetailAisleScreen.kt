@@ -255,6 +255,13 @@ fun AisleDetailContent(
                     }
                 }
 
+                is DetailAisleUiState.Error.AisleDeleted -> {
+                    Text(
+                        text = stringResource(R.string.aisle_deleted),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
                 is DetailAisleUiState.Error.Generic -> {
                     Box(
                         modifier = Modifier

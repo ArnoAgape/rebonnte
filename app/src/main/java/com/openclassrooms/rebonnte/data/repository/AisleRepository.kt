@@ -17,6 +17,5 @@ class AisleRepository @Inject constructor(
     fun getAllAisles(searchQuery: String = ""): Flow<List<Aisle>> = aisleApi.getAisles(searchQuery)
     suspend fun addAisle(aisle: Aisle) = aisleApi.addAisle(aisle)
     suspend fun deleteAisles(ids: Set<String>) = aisleApi.deleteAisles(ids)
-    fun getAisleById(aisleId: String): Flow<Aisle> =
-        aisleApi.getAisleById(aisleId)
+    fun getAisleById(aisleId: String): Flow<Aisle?> = aisleApi.getAisleById(aisleId)
 }

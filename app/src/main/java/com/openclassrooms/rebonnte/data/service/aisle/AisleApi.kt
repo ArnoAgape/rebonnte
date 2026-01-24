@@ -13,6 +13,6 @@ interface AisleApi {
 
     fun getAisles(searchQuery: String): Flow<List<Aisle>>
     suspend fun addAisle(aisle: Aisle): Result<Unit>
-    fun getAisleById(aisleId: String): Flow<Aisle>
+    fun getAisleById(aisleId: String): Flow<Aisle?>
     suspend fun deleteAisles(ids: Set<String>): Result<Unit>
 }

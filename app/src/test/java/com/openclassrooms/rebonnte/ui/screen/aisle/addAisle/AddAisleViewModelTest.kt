@@ -40,7 +40,8 @@ class AddAisleViewModelTest {
     @Test
     fun `addAisle emits success event`() = runTest {
         coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
-        coEvery { aisleRepo.addAisle(any()) } returns Unit
+        coEvery { aisleRepo.addAisle(any()) } returns Result.success(Unit)
+
 
         viewModel.onNameChanged("Paracetamol")
 
@@ -61,7 +62,7 @@ class AddAisleViewModelTest {
     @Test
     fun `addAisle emits error event when aisle name is blank`() = runTest {
         coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
-        coEvery { aisleRepo.addAisle(any()) } returns Unit
+        coEvery { aisleRepo.addAisle(any()) } returns Result.success(Unit)
 
         viewModel.onNameChanged("")
 

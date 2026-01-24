@@ -198,7 +198,10 @@ fun MedicineDetailContent(
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         // ----- MEDICINE DETAILS -----
-                        MedicineHeaderContent(medicine = ui.medicine)
+                        MedicineHeaderContent(
+                            medicine = ui.medicine,
+                            isAisleDeleted = state.isAisleDeleted
+                        )
 
                         // ----- HISTORY -----
                         HistorySection(
@@ -262,10 +265,17 @@ fun MedicineDetailContent(
 @Composable
 fun MedicineHeaderContent(
     medicine: Medicine,
+    isAisleDeleted: Boolean,
     modifier: Modifier = Modifier
 ) {
 
     val date = Format.getShortLocalizedDate(medicine.dateTime)
+    val aisleLabel =
+        if (isAisleDeleted) {
+            stringResource(R.string.aisle_deleted)
+        } else {
+            medicine.aisleName
+        }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -278,14 +288,14 @@ fun MedicineHeaderContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // 🔹 MEDICINE NAME
+            // MEDICINE NAME
             Text(
                 text = medicine.name,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // 🔹 AISLE + STOCK
+            // AISLE + STOCK
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -293,9 +303,12 @@ fun MedicineHeaderContent(
 
                 // Aisle
                 Text(
-                    text = medicine.aisleName,
+                    text = aisleLabel,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isAisleDeleted)
+                        MaterialTheme.colorScheme.error
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 // Date

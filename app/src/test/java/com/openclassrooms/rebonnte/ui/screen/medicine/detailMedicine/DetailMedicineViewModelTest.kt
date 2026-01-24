@@ -52,7 +52,8 @@ class DetailMedicineViewModelTest {
             medicineRepository = medicineRepo,
             savedStateHandle = savedStateHandle,
             networkUtils = networkUtils,
-            historyRepository = historyRepo
+            historyRepository = historyRepo,
+            aisleRepository = aisleRepo
         )
     }
 
