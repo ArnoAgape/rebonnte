@@ -155,7 +155,7 @@ class AddMedicineViewModel @Inject constructor(
             )
 
             // 6. Success UI
-            uiState.value = AddMedicineUiState.Success(medicineToSave)
+            uiState.value = AddMedicineUiState.Success(savedMedicine)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
         }
     }
