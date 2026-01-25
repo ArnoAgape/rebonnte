@@ -98,9 +98,7 @@ class DetailAisleViewModel @Inject constructor(
         }
             .catch { e ->
                 emit(
-                    DetailAisleUiState.Error.Generic(
-                        e.message ?: "Unknown error"
-                    )
+                    DetailAisleUiState.Error.Generic()
                 )
             }
 

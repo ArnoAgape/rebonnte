@@ -87,6 +87,7 @@
     <string name="error_loading">Error while loading</string>
     <string name="no_medicines_listed_in_aisle">No medicine in this aisle</string>
     <string name="no_medicines">To add a new medicine, please press the button "+"</string>
+    <string name="no_history">History not found</string>
     <string name="no_aisles">To add a new aisle, please press the button "+"</string>
     <string name="error_sign_up">Sign up canceled or failed</string>
     <string name="error_medicine_not_found">Medicine not found</string>
@@ -95,6 +96,7 @@
     <string name="error_delete_aisle">An issue occurred while deleting the aisle</string>
     <string name="error_invalid_form_aisle">The name of the aisle cannot be empty</string>
     <string name="error_invalid_form_medicine">The name of the medicine cannot be empty</string>
+    <string name="error_no_account_found">No account found</string>
     <string name="error_no_account_add_medicine">An account is mandatory in order to add a medicine</string>
     <string name="error_no_account_edit_medicine">An account is mandatory in order to edit a medicine</string>
     <string name="error_no_account_add_aisle">An account is mandatory in order to add an aisle</string>

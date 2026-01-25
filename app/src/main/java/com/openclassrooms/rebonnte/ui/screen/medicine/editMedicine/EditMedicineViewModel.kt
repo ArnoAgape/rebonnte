@@ -150,10 +150,9 @@ class EditMedicineViewModel @Inject constructor(
         viewModelScope.launch {
 
             // 1. Check user logged in
-            val currentUser = _user.value
+            val currentUser = userRepository.getCurrentUser()
             if (currentUser == null) {
-                uiState.value = EditMedicineUiState.Error.NoAccount()
-                _events.trySend(Event.ShowMessage(R.string.error_no_account_edit_medicine))
+                _events.trySend(Event.ShowMessage(R.string.error_no_account_add_medicine))
                 return@launch
             }
 
@@ -164,14 +163,14 @@ class EditMedicineViewModel @Inject constructor(
                 return@launch
             }
 
-            uiState.value = EditMedicineUiState.Loading
-
             // 3. Prepare objects
-            val medicineToSave = medicine.value.copy(author = currentUser)
+            val medicineToSave = medicine.value.copy(name = name, author = currentUser)
             val oldStock = originalStock ?: run {
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
                 return@launch
             }
+
+            uiState.value = EditMedicineUiState.Loading
 
             val newStock = medicineToSave.stock
             val delta = newStock - oldStock
@@ -180,8 +179,7 @@ class EditMedicineViewModel @Inject constructor(
             val resultMedicine = medicineRepository.editMedicine(medicineToSave)
 
             if (resultMedicine.isFailure) {
-                val exception = resultMedicine.exceptionOrNull()
-                uiState.value = EditMedicineUiState.Error.Generic("Network error: ${exception?.message}")
+                uiState.value = EditMedicineUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.error_generic))
                 return@launch
             }

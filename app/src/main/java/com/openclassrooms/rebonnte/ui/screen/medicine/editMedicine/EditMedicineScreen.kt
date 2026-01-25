@@ -150,14 +150,14 @@ fun EditMedicineScreen(
             is EditMedicineUiState.Error -> {
                 val errorState = state.uiState as EditMedicineUiState.Error
                 val message = when (errorState) {
-                    is EditMedicineUiState.Error.NoAccount -> (state.uiState as EditMedicineUiState.Error.NoAccount).message
-                    is EditMedicineUiState.Error.Generic -> (state.uiState as EditMedicineUiState.Error.Generic).message
+                    is EditMedicineUiState.Error.NoAccount -> (state.uiState as EditMedicineUiState.Error.NoAccount).messageRes
+                    is EditMedicineUiState.Error.Generic -> (state.uiState as EditMedicineUiState.Error.Generic).messageRes
                 }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = message, color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(message), color = MaterialTheme.colorScheme.error)
                 }
             }
         }

@@ -54,15 +54,13 @@ class DetailMedicineViewModel @Inject constructor(
                 if (medicine != null) {
                     DetailMedicineUiState.Success(medicine)
                 } else {
-                    DetailMedicineUiState.Error.Empty("Medicine not found")
+                    DetailMedicineUiState.Error.Empty()
                 }
             }
             .onStart { emit(DetailMedicineUiState.Loading) }
             .catch { e ->
                 emit(
-                    DetailMedicineUiState.Error.Generic(
-                        e.message ?: "Unknown error"
-                    )
+                    DetailMedicineUiState.Error.Generic()
                 )
             }
             .stateIn(
@@ -98,15 +96,13 @@ class DetailMedicineViewModel @Inject constructor(
                 if (history.isNotEmpty()) {
                     DetailHistoryUiState.Success(history)
                 } else {
-                    DetailHistoryUiState.Error.Empty("No history found")
+                    DetailHistoryUiState.Error.Empty()
                 }
             }
             .onStart { emit(DetailHistoryUiState.Loading) }
-            .catch { e ->
+            .catch { _ ->
                 emit(
-                    DetailHistoryUiState.Error.Generic(
-                        e.message ?: "Unknown error"
-                    )
+                    DetailHistoryUiState.Error.Generic()
                 )
             }
             .stateIn(

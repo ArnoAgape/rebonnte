@@ -155,14 +155,14 @@ fun AddMedicineScreen(
             is AddMedicineUiState.Error -> {
                 val errorState = state.uiState as AddMedicineUiState.Error
                 val message = when (errorState) {
-                    is AddMedicineUiState.Error.NoAccount -> (state.uiState as AddMedicineUiState.Error.NoAccount).message
-                    is AddMedicineUiState.Error.Generic -> (state.uiState as AddMedicineUiState.Error.Generic).message
+                    is AddMedicineUiState.Error.NoAccount -> (state.uiState as AddMedicineUiState.Error.NoAccount).messageRes
+                    is AddMedicineUiState.Error.Generic -> (state.uiState as AddMedicineUiState.Error.Generic).messageRes
                 }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = message, color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(message), color = MaterialTheme.colorScheme.error)
                 }
             }
         }

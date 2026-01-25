@@ -131,9 +131,9 @@ class ProfileViewModel @Inject constructor(
                     _events.trySend(Event.ShowSuccessMessage(R.string.success_user_updated))
                 }
 
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 // 5. Network error (impossible upload)
-                _uiState.value = ProfileUiState.Error.Generic("Network error: ${e.message}")
+                _uiState.value = ProfileUiState.Error.Generic()
                 _events.trySend(Event.ShowMessage(R.string.no_network))
 
             } catch (_: Exception) {

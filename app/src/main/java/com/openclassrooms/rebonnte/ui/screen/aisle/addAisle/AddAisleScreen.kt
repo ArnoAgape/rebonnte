@@ -138,14 +138,14 @@ fun AddAisleScreen(
             is AddAisleUiState.Error -> {
                 val errorState = state.uiState as AddAisleUiState.Error
                 val message = when (errorState) {
-                    is AddAisleUiState.Error.NoAccount -> (state.uiState as AddAisleUiState.Error.NoAccount).message
-                    is AddAisleUiState.Error.Generic -> (state.uiState as AddAisleUiState.Error.Generic).message
+                    is AddAisleUiState.Error.NoAccount -> (state.uiState as AddAisleUiState.Error.NoAccount).messageRes
+                    is AddAisleUiState.Error.Generic -> (state.uiState as AddAisleUiState.Error.Generic).messageRes
                 }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = message, color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(message), color = MaterialTheme.colorScheme.error)
                 }
             }
         }

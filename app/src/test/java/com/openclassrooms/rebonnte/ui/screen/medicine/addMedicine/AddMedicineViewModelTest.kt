@@ -9,6 +9,7 @@ import com.openclassrooms.rebonnte.MainDispatcherRule
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
+import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
@@ -31,6 +32,7 @@ class AddMedicineViewModelTest {
     private val aisleRepo: AisleRepository = mockk()
     private val userRepo: UserRepository = mockk()
     private val medicineRepo: MedicineRepository = mockk()
+    private val historyRepo: HistoryRepository = mockk()
     private lateinit var viewModel: AddMedicineViewModel
 
     @Before
@@ -45,7 +47,8 @@ class AddMedicineViewModelTest {
         viewModel = AddMedicineViewModel(
             medicineRepository = medicineRepo,
             aisleRepository = aisleRepo,
-            userRepository = userRepo
+            userRepository = userRepo,
+            historyRepository = historyRepo
         )
     }
 

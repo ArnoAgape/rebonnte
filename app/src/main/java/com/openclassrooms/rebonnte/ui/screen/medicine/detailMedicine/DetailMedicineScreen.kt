@@ -389,10 +389,10 @@ fun HistorySection(
                     CircularProgressIndicator()
 
                 is DetailHistoryUiState.Error.Empty ->
-                    Text(historyState.message)
+                    Text(text = stringResource(historyState.messageRes))
 
                 is DetailHistoryUiState.Error.Generic ->
-                    Text(historyState.message)
+                    Text(text = stringResource(historyState.messageRes))
             }
         }
     }

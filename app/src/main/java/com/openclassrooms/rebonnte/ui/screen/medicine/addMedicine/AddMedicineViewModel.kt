@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
+import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.domain.model.Aisle
@@ -32,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddMedicineViewModel @Inject constructor(
     private val medicineRepository: MedicineRepository,
+    private val historyRepository: HistoryRepository,
     aisleRepository: AisleRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
@@ -116,26 +118,40 @@ class AddMedicineViewModel @Inject constructor(
     fun addMedicine() {
         viewModelScope.launch {
 
-            val user = userRepository.getCurrentUser()
-            if (user == null) {
+            // 1. Check user logged in
+            val currentUser = userRepository.getCurrentUser()
+            if (currentUser == null) {
                 _events.trySend(Event.ShowMessage(R.string.error_no_account_add_medicine))
                 return@launch
             }
 
+            // 2. Validate form
             val name = _medicine.value.name.trim()
             if (name.isBlank()) {
                 _events.trySend(Event.ShowMessage(R.string.error_invalid_form_medicine))
                 return@launch
             }
 
-            val medicineToSave = _medicine.value.copy(name = name)
+            // 3. Prepare objects
+            val medicineToSave = _medicine.value.copy(name = name, author = currentUser)
 
             uiState.value = AddMedicineUiState.Loading
+
+            // 4. Saving medicine
             medicineRepository.addMedicine(medicineToSave)
 
+            // 5. History generated
+            if (medicineToSave.stock != 0) {
+                historyRepository.addStockHistory(
+                    medicine = medicineToSave,
+                    delta = medicineToSave.stock,
+                    author = currentUser
+                )
+            }
+
+            // 6. Success UI
             uiState.value = AddMedicineUiState.Success(medicineToSave)
             _events.trySend(Event.ShowSuccessMessage(R.string.success_add_medicine))
-
         }
     }
 }

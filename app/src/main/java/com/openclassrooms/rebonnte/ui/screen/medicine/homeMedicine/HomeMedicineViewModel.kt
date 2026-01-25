@@ -88,8 +88,8 @@ class HomeMedicineViewModel @Inject constructor(
                 else
                     HomeMedicineUiState.Success(medicines)
             }
-            .catch { e ->
-                emit(HomeMedicineUiState.Error.Generic(e.message ?: "Unknown error"))
+            .catch { _ ->
+                emit(HomeMedicineUiState.Error.Generic())
             }
 
     val screenState: StateFlow<MedicineHomeScreenState> =

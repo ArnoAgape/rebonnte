@@ -70,8 +70,8 @@ class HomeAisleViewModel @Inject constructor(
                     HomeAisleUiState.Success(aisles)
                 }
             }
-            .catch { e ->
-                emit(HomeAisleUiState.Error.Generic(e.message ?: "Unknown error"))
+            .catch { _ ->
+                emit(HomeAisleUiState.Error.Generic())
             }
 
     private val _isSignedIn =
