@@ -7,10 +7,7 @@ import com.openclassrooms.rebonnte.domain.model.Medicine
 
 sealed class DetailAisleUiState {
     object Loading : DetailAisleUiState()
-    data class Success(
-        val aisle: Aisle,
-        val medicines: List<Medicine>
-    ) : DetailAisleUiState()
+    data class Success(val aisle: Aisle, val medicines: List<Medicine>) : DetailAisleUiState()
 
     sealed class Error : DetailAisleUiState() {
         data class Empty(@param:StringRes val messageRes: Int = R.string.error_aisle_not_found) : Error()

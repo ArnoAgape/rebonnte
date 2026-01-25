@@ -37,10 +37,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
-
-    /** Backing state for the current user profile. */
     private val _user = MutableStateFlow<User?>(null)
-
     private val _events = Channel<Event>(Channel.BUFFERED)
     val eventsFlow = _events.receiveAsFlow()
 
@@ -68,17 +65,8 @@ class ProfileViewModel @Inject constructor(
             initialValue = ProfileScreenState()
         )
 
-    /**
-     * Observes the current user from [UserRepository] and updates the [_user] state.
-     * Called automatically when the ViewModel is initialized.
-     */
     init {
-        viewModelScope.launch {
-            userRepository.observeCurrentUser()
-                .collect { user ->
-                    _user.value = user
-                }
-        }
+        observeCurrentUser()
     }
 
     /**
@@ -98,10 +86,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Attempts to save the user profile to Firebase.
-     * Validates network state, handles errors, and emits UI events.
-     */
     fun saveUser() {
         viewModelScope.launch {
 
@@ -144,9 +128,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Signs out the current user and clears local state.
-     */
     fun signOut() {
         viewModelScope.launch {
             val result = userRepository.signOut()
@@ -157,9 +138,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Deletes the current user's account and associated Firestore data.
-     */
     fun deleteAccount() {
         viewModelScope.launch {
             val result = userRepository.deleteUser()
@@ -167,6 +145,15 @@ class ProfileViewModel @Inject constructor(
                 _user.value = null
                 _events.trySend(Event.ShowSuccessMessage(R.string.success_deleted_account))
             }
+        }
+    }
+
+    fun observeCurrentUser() {
+        viewModelScope.launch {
+            userRepository.observeCurrentUser()
+                .collect { user ->
+                    _user.value = user
+                }
         }
     }
 }
