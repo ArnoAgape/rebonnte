@@ -59,12 +59,12 @@ class AddMedicineViewModel @Inject constructor(
      */
     private val isMedicineValid: StateFlow<Boolean> =
         _medicine
-        .map { it.name.isNotBlank() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+            .map { it.name.isNotBlank() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false
+            )
 
     val state: StateFlow<AddScreenState> =
         combine(
@@ -138,16 +138,21 @@ class AddMedicineViewModel @Inject constructor(
             uiState.value = AddMedicineUiState.Loading
 
             // 4. Saving medicine
-            medicineRepository.addMedicine(medicineToSave)
+            val result = medicineRepository.addMedicine(medicineToSave)
+
+            if (result.isFailure) {
+                uiState.value = AddMedicineUiState.Error.Generic()
+                _events.trySend(Event.ShowMessage(R.string.error_generic))
+                return@launch
+            }
+            val savedMedicine = result.getOrThrow()
 
             // 5. History generated
-            if (medicineToSave.stock != 0) {
-                historyRepository.addStockHistory(
-                    medicine = medicineToSave,
-                    delta = medicineToSave.stock,
-                    author = currentUser
-                )
-            }
+            historyRepository.addStockHistory(
+                medicine = savedMedicine,
+                delta = savedMedicine.stock,
+                author = currentUser
+            )
 
             // 6. Success UI
             uiState.value = AddMedicineUiState.Success(medicineToSave)

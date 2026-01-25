@@ -28,7 +28,7 @@ class HistoryRepository @Inject constructor(
             author = author,
             dateTime = Instant.now(),
             quantity = kotlin.math.abs(delta),
-            changeType = if (delta > 0)
+            changeType = if (delta >= 0)
                 StockChangeType.ADDED
             else
                 StockChangeType.REMOVED

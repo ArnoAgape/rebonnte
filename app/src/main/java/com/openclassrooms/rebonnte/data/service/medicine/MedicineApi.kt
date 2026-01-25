@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicineApi {
 
     fun getAllMedicines(sort: MedicineSort, searchQuery: String): Flow<List<Medicine>>
-    suspend fun addMedicine(medicine: Medicine): Result<Unit>
+    suspend fun addMedicine(medicine: Medicine): Result<Medicine>
     suspend fun editMedicine(medicine: Medicine): Result<Unit>
     fun getMedicineById(medicineId: String): Flow<Medicine>
     fun getMedicinesByAisle(sort: MedicineSort, aisleId: String, searchQuery: String): Flow<List<Medicine>>

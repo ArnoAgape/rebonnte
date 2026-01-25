@@ -56,16 +56,16 @@ class FirebaseMedicineApi @Inject constructor() : MedicineApi {
      *
      * This operation performs a network write and is executed on an IO thread.
      */
-    override suspend fun addMedicine(medicine: Medicine): Result<Unit> =
+    override suspend fun addMedicine(medicine: Medicine): Result<Medicine> =
         withContext(Dispatchers.IO) {
             try {
                 val docRef = medicinesCollection.document()
-                val dto = medicine.copy(
+                val savedMedicine = medicine.copy(
                     id = docRef.id,
                     nameLowercase = medicine.name.lowercase()
-                ).toDto()
-                docRef.set(dto)
-                Result.success(Unit)
+                )
+                docRef.set(savedMedicine.toDto())
+                Result.success(savedMedicine)
 
             } catch (e: Exception) {
                 Log.e("FirebaseMedicineApi", "Error while adding medicine", e)

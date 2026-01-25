@@ -14,8 +14,10 @@ import com.openclassrooms.rebonnte.data.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepository
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.common.FormEvent
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -39,10 +41,12 @@ class AddMedicineViewModelTest {
     fun setup() {
         val aisles = listOf(TestUtils.fakeAisle(id = "123"))
         val user = TestUtils.fakeUser("1")
+        val medicine = TestUtils.fakeMedicine("1")
 
         coEvery { userRepo.getCurrentUser() } returns user
         coEvery { aisleRepo.getAllAisles() } returns flowOf(aisles)
-        coEvery { medicineRepo.addMedicine(any()) } returns Result.success(Unit)
+        coEvery { medicineRepo.addMedicine(any()) } returns Result.success(medicine)
+        coEvery { historyRepo.addStockHistory(any(), any(), any()) } just Runs
 
         viewModel = AddMedicineViewModel(
             medicineRepository = medicineRepo,
@@ -53,10 +57,17 @@ class AddMedicineViewModelTest {
     }
 
     @Test
-    fun `addMedicine emits success event`() = runTest {
-        coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
+    fun `addMedicine emits success event and calls repository with medicine`() = runTest {
+        val medicine = TestUtils.fakeMedicine("1")
+        val aisle = TestUtils.fakeAisle("1")
+        val user = TestUtils.fakeUser("1")
 
-        viewModel.onAction(FormEvent.NameChanged("Paracetamol"))
+        coEvery { userRepo.getCurrentUser() } returns user
+        coEvery { medicineRepo.addMedicine(any()) } returns Result.success(medicine)
+
+        viewModel.onAction(FormEvent.NameChanged(medicine.name))
+        viewModel.onAction(FormEvent.AisleSelected(aisle))
+        viewModel.onAction(FormEvent.StockSet(medicine.stock))
 
         viewModel.eventsFlow.test {
             viewModel.addMedicine()
@@ -68,7 +79,13 @@ class AddMedicineViewModelTest {
             assertThat(successEvent.message).isEqualTo(R.string.success_add_medicine)
         }
         coVerify(exactly = 1) {
-            medicineRepo.addMedicine(any())
+            medicineRepo.addMedicine(
+                match {
+                    it.name == medicine.name &&
+                            it.stock == medicine.stock &&
+                            it.aisleId == aisle.id
+                }
+            )
         }
     }
 

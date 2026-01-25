@@ -69,16 +69,17 @@ class EditMedicineViewModelTest {
     }
 
     @Test
-    fun `editMedicine emits success event`() = runTest {
+    fun `editMedicine emits success event and calls repository with updated medicine`() = runTest {
         val aisle = TestUtils.fakeAisle("1")
         val medicine = TestUtils.fakeMedicine("1")
+        val user = TestUtils.fakeUser("1")
 
-        coEvery { userRepo.getCurrentUser() } returns TestUtils.fakeUser("1")
+        coEvery { userRepo.getCurrentUser() } returns user
         coEvery { medicineRepo.editMedicine(any()) } returns Result.success(Unit)
 
-        viewModel.state
-            .filter { it.medicine.id.isNotBlank() }
-            .first()
+        viewModel.state.test {
+            awaitItem()
+        }
 
         viewModel.onAction(FormEvent.NameChanged(medicine.name))
         viewModel.onAction(FormEvent.AisleSelected(aisle))
@@ -89,9 +90,17 @@ class EditMedicineViewModelTest {
 
             val event = awaitItem() as Event.ShowSuccessMessage
             assertThat(event.message).isEqualTo(R.string.success_edit_medicine)
+            cancelAndIgnoreRemainingEvents()
         }
+
         coVerify(exactly = 1) {
-            medicineRepo.editMedicine(any())
+            medicineRepo.editMedicine(
+                match {
+                    it.name == medicine.name &&
+                            it.stock == medicine.stock &&
+                            it.aisleId == aisle.id
+                }
+            )
         }
     }
 
@@ -123,12 +132,11 @@ class EditMedicineViewModelTest {
         coEvery { medicineRepo.editMedicine(any()) } returns Result.success(Unit)
         coEvery { historyRepo.addStockHistory(any(), any(), any()) } just Runs
 
-        viewModel.state
-            .filter { it.medicine.id.isNotBlank() }
-            .first()
+        viewModel.state.test {
+            awaitItem()
+        }
 
         viewModel.onAction(FormEvent.StockSet(medicine.stock + 1))
-
         viewModel.editMedicine()
 
         coVerify {
@@ -148,12 +156,11 @@ class EditMedicineViewModelTest {
         coEvery { medicineRepo.editMedicine(any()) } returns Result.success(Unit)
         coEvery { historyRepo.addStockHistory(any(), any(), any()) } just Runs
 
-        viewModel.state
-            .filter { it.medicine.id.isNotBlank() }
-            .first()
+        viewModel.state.test {
+            awaitItem()
+        }
 
         viewModel.onAction(FormEvent.StockSet(medicine.stock - 1))
-
         viewModel.editMedicine()
 
         coVerify {
