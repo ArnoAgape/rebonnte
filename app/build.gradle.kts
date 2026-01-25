@@ -86,21 +86,35 @@ android {
 // Test reports with JaCoCo
 val androidExtension = extensions.getByType<BaseExtension>()
 val jacocoExcludes = listOf(
+    // Android generated
     "**/R.class",
     "**/R$*.class",
     "**/BuildConfig.*",
     "**/Manifest*.*",
-    "**/ui/common",
-    "**/ui/theme",
+
+    // UI (Compose)
+    "**/ui/screen/**/**Screen*.*",
+    "**/ui/screen/**/**/**Screen*.*",
+    "**/ui/screen/medicine/addMedicine/fields/**",
+    "**/ui/common/**",
+    "**/ui/theme/**",
+
+    // Navigation / DI
     "**/navigation/**",
     "**/theme/**",
     "**/di/**",
+
+    // Data layer (optional, already tested elsewhere)
     "**/data/dto/**",
     "**/data/service/**",
+
+    // Hilt
     "**/*_Factory.*",
     "**/*_MembersInjector.*",
     "**/*_Hilt*.*",
     "**/hilt_aggregated_deps/**",
+
+    // Tests
     "**/*Test*.*"
 )
 val jacocoTestReport by tasks.registering(JacocoReport::class) {
