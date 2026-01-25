@@ -56,15 +56,12 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 /**
  * Displays the user profile screen with editable account information.
- *
  * @param viewModel ViewModel providing profile data and actions.
- * @param onLoginScreen Callback invoked when redirecting to the login screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel,
-    onLoginScreen: () -> Unit
+    viewModel: ProfileViewModel
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -88,10 +85,6 @@ fun ProfileScreen(
 
             is Event.ShowSuccessMessage -> {
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-
-                if (event.message == R.string.success_deleted_account) {
-                    onLoginScreen()
-                }
             }
         }
     }
@@ -132,13 +125,10 @@ fun ProfileScreen(
                     emailAddress = state.user?.email ?: "",
                     onEmailChanged = { viewModel.onAction(FormEvent.EmailChanged(it)) },
                     onSaveClick = { viewModel.saveUser() },
-                    onSignOutClick = {
-                        viewModel.signOut()
-                        onLoginScreen()
-                    },
+                    onSignOutClick = { viewModel.signOut() },
                     onDeleteAccountClick = { viewModel.deleteAccount() },
                     isUserFieldsValid = state.isValid,
-                    isLoading = false
+                    isLoading = state.uiState is ProfileUiState.Loading
                 )
             }
         }

@@ -14,7 +14,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class MedicineRepository @Inject constructor(
-    private val medicineApi: MedicineApi
+    private val medicineApi: MedicineApi,
+    private val historyRepository: HistoryRepository
 ) {
 
     fun getAllMedicines(sort: MedicineSort, searchQuery: String): Flow<List<Medicine>> =
@@ -25,7 +26,21 @@ class MedicineRepository @Inject constructor(
 
     suspend fun addMedicine(medicine: Medicine) = medicineApi.addMedicine(medicine)
     suspend fun editMedicine(medicine: Medicine) = medicineApi.editMedicine(medicine)
-    suspend fun deleteMedicines(ids: Set<String>) = medicineApi.deleteMedicines(ids)
+    suspend fun deleteMedicines(ids: Set<String>): Result<Unit> =
+        try {
+            ids.forEach { medicineId ->
+                historyRepository
+                    .deleteHistory(medicineId)
+                    .getOrThrow()
+
+                medicineApi
+                    .deleteMedicines(setOf(medicineId))
+                    .getOrThrow()
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     fun getMedicineById(medicineId: String): Flow<Medicine?> = medicineApi.getMedicineById(medicineId)
     fun getMedicinesByAisle(sort: MedicineSort, aisleId: String, searchQuery: String): Flow<List<Medicine>> =
         medicineApi.getMedicinesByAisle(sort, aisleId, searchQuery)

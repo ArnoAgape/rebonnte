@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,15 +23,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun LoginScreen(
     onLaunchAuth: () -> Unit,
-    isSignedIn: Boolean?,
     onLoginSuccess: () -> Unit
 ) {
+    val viewModel: LoginViewModel = hiltViewModel()
+    val isSignedIn by viewModel.isSignedIn.collectAsStateWithLifecycle()
+
     // Navigation after login success
     LaunchedEffect(isSignedIn) {
         if (isSignedIn == true) {
@@ -104,7 +109,6 @@ private fun LoginScreenPreview() {
     RebonnteTheme {
         LoginScreen(
             onLaunchAuth = {},
-            isSignedIn = false,
             onLoginSuccess = {}
         )
     }

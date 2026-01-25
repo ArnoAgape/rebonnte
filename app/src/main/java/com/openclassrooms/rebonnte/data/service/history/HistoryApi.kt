@@ -13,4 +13,5 @@ interface HistoryApi {
 
     fun observeHistory(medicineId: String): Flow<List<History>>
     suspend fun addHistory(medicineId: String, history: History): Result<Unit>
+    suspend fun deleteAllHistoryForMedicine(medicineId: String): Result<Unit>
 }

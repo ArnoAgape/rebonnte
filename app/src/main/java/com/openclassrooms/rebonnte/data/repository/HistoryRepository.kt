@@ -36,4 +36,5 @@ class HistoryRepository @Inject constructor(
 
         historyApi.addHistory(medicine.id, history)
     }
+    suspend fun deleteHistory(medicineId: String) = historyApi.deleteAllHistoryForMedicine(medicineId)
 }

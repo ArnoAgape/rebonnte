@@ -11,9 +11,11 @@ import com.openclassrooms.rebonnte.TestUtils
 import com.openclassrooms.rebonnte.data.repository.AisleRepository
 import com.openclassrooms.rebonnte.data.repository.HistoryRepository
 import com.openclassrooms.rebonnte.data.repository.MedicineRepository
+import com.openclassrooms.rebonnte.data.service.medicine.MedicineApi
 import com.openclassrooms.rebonnte.ui.common.Event
 import com.openclassrooms.rebonnte.ui.utils.NetworkUtils
 import io.mockk.coEvery
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.filter
@@ -30,6 +32,7 @@ class DetailMedicineViewModelTest {
     private val aisleRepo: AisleRepository = mockk()
     private val medicineRepo: MedicineRepository = mockk()
     private val historyRepo: HistoryRepository = mockk()
+    private val medicineApi: MedicineApi = mockk()
     private lateinit var savedStateHandle: SavedStateHandle
     private val networkUtils: NetworkUtils = mockk()
 
@@ -135,6 +138,27 @@ class DetailMedicineViewModelTest {
                 .isEqualTo(R.string.success_deleted_medicine)
 
             cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `deleteMedicine deletes history before deleting medicine`() = runTest {
+        val medicineId = TestUtils.fakeMedicine("123").id
+
+        coEvery { historyRepo.deleteHistory(medicineId) } returns Result.success(Unit)
+        coEvery { medicineRepo.deleteMedicines(any()) } returns Result.success(Unit)
+        every { historyRepo.observeHistory(any()) } returns flowOf(emptyList())
+
+        val repository = MedicineRepository(
+            medicineApi = medicineApi,
+            historyRepository = historyRepo
+        )
+
+        repository.deleteMedicines(setOf(medicineId))
+
+        coVerifyOrder {
+            historyRepo.deleteHistory(medicineId)
+            medicineApi.deleteMedicines(setOf(medicineId))
         }
     }
 

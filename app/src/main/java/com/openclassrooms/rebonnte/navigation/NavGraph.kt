@@ -1,9 +1,7 @@
 package com.openclassrooms.rebonnte.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,12 +33,7 @@ import com.openclassrooms.rebonnte.ui.screen.profile.ProfileViewModel
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    val loginViewModel: LoginViewModel = hiltViewModel()
-
-    // Sign-in launchers
-    val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
-
-    val emailSignUpLauncher = authSignInLauncher(loginViewModel)
+    val emailSignUpLauncher = authSignInLauncher(hiltViewModel<LoginViewModel>())
 
     NavHost(
         navController = navController,
@@ -50,7 +43,6 @@ fun AppNavGraph(
         composable<Login> {
             LoginScreen(
                 onLaunchAuth = emailSignUpLauncher,
-                isSignedIn = isSignedIn,
                 onLoginSuccess = {
                     navController.navigate(HomeAisle) {
                         popUpTo(Login) { inclusive = true }
@@ -123,8 +115,7 @@ fun AppNavGraph(
 
         composable<Profile> {
             ProfileScreen(
-                viewModel = hiltViewModel<ProfileViewModel>(),
-                onLoginScreen = { navController.navigate(Login) }
+                viewModel = hiltViewModel<ProfileViewModel>()
             )
         }
     }

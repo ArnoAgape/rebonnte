@@ -1,6 +1,6 @@
 package com.openclassrooms.rebonnte.data.service.history
 
-import android.util.Log
+import android.util.Log.e
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /**
@@ -61,7 +62,29 @@ class FirebaseHistoryApi @Inject constructor() : HistoryApi {
                 Result.success(Unit)
 
             } catch (e: Exception) {
-                Log.e("FirebaseHistoryApi", "Error while adding history", e)
+                e("FirebaseHistoryApi", "Error while adding history", e)
+                Result.failure(e)
+            }
+        }
+
+    /**
+     * Deletes the history of a medicine from Firestore.
+     *
+     * Each deletion is a network operation executed on an IO thread.
+     */
+    override suspend fun deleteAllHistoryForMedicine(medicineId: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val historiesRef = firestore
+                    .collection("medicines")
+                    .document(medicineId)
+                    .collection("histories")
+
+                val snapshot = historiesRef.get().await()
+                snapshot.documents.forEach { it.reference.delete().await() }
+
+                Result.success(Unit)
+            } catch (e: Exception) {
                 Result.failure(e)
             }
         }

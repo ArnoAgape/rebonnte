@@ -8,9 +8,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.openclassrooms.rebonnte.R
@@ -31,6 +34,16 @@ fun MainScreen() {
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     val loginViewModel: LoginViewModel = hiltViewModel()
+    val isSignedIn by loginViewModel.isSignedIn.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isSignedIn) {
+        if (isSignedIn == false) {
+            navController.navigate(Login) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     // BottomBar screens
     val isBottomBarDestination =
@@ -50,18 +63,13 @@ fun MainScreen() {
                         selected = currentRoute == destination.routeName,
                         onClick = {
                             if (currentRoute == destination.routeName) return@item
-                            if (destination == AppDestinations.PROFILE) {
-                                if (loginViewModel.isSignedIn.value == true) {
-                                    navController.navigate(Profile)
-                                } else {
-                                    navController.navigate(Login)
+
+                            navController.navigate(destination.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
                                 }
-                            } else {
-                                navController.navigate(destination.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
                         }
                     )
