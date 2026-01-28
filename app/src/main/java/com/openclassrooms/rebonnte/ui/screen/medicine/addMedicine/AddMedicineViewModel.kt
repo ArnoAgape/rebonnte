@@ -114,7 +114,7 @@ class AddMedicineViewModel @Inject constructor(
             else -> {}
         }
     }
-
+// test
     fun addMedicine() {
         viewModelScope.launch {
 
