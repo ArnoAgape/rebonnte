@@ -58,10 +58,7 @@ class DetailMedicineViewModel @Inject constructor(
                 }
             }
             .onStart { emit(DetailMedicineUiState.Loading) }
-            .catch { e ->
-                emit(
-                    DetailMedicineUiState.Error.Generic()
-                )
+            .catch { emit(DetailMedicineUiState.Error.Generic())
             }
             .stateIn(
                 viewModelScope,
